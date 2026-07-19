@@ -78,6 +78,8 @@
         .reader-header .close-reader:hover { color: #f87171; background: rgba(55,65,81,0.8); }
         .reader-body { flex: 1; overflow-y: auto; padding: 24px; background: #ffffff; color: #1f2937; line-height: 1.8; }
         .reader-body p { margin-bottom: 1rem; }
+        .animate-spin-slow { animation: spinSlow 6s linear infinite; }
+        @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="cyber-bg text-gray-100 min-h-screen antialiased">
@@ -90,10 +92,6 @@
                     <i class="fa-solid fa-leaf text-xl animate-pulse"></i>
                 </div>
                 <span class="text-xl font-bold tracking-wide bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent hidden sm:inline">زهرة Zohra</span>
-            </div>
-            <div class="relative w-full md:w-64 lg:w-80 order-3 md:order-none mt-1 md:mt-0">
-                <input type="text" id="searchInput" placeholder="ابحث عن كتاب، مؤلف، موضوع..." class="search-input w-full text-white pl-9 pr-3 py-1.5 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 border border-gray-600">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <button id="localModeBtn" class="px-3 py-1 rounded-lg text-xs font-semibold mode-btn-active transition">📁 محلي</button>
@@ -109,7 +107,13 @@
                 </div>
             </div>
         </div>
+
+        <!-- ===== شريط البحث الداخلي (محلي/إنترنت) ===== -->
         <div class="max-w-6xl mx-auto px-4 pb-2 flex flex-wrap items-center gap-2 text-xs">
+            <div class="flex-1 min-w-[200px] relative">
+                <input type="text" id="searchInput" placeholder="ابحث في مكتبتك الشخصية..." class="search-input w-full text-white pl-9 pr-3 py-1.5 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 border border-gray-600">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
+            </div>
             <div class="flex flex-wrap items-center gap-1.5">
                 <span class="filter-chip active" data-filter="all">📚 الكل <span class="count" id="filterAll">0</span></span>
                 <span class="filter-chip" data-filter="recent">🕒 حديثة <span class="count" id="filterRecent">0</span></span>
@@ -126,14 +130,38 @@
         </div>
     </header>
 
-    <!-- ===== القسم الترحيبي ===== -->
+    <!-- ===== القسم الترحيبي (مع شريط البحث العالمي) ===== -->
     <section class="max-w-4xl mx-auto text-center px-4 pt-8 pb-4 hero-section">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-4 animate-bounce">
             <i class="fa-solid fa-sparkles"></i> القارئ الذكي والمكتبة المتكاملة في مكان واحد
         </div>
-        <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-3 hero-title">
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6 hero-title">
             مرحباً بك في <span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-sky-400 bg-clip-text text-transparent">زهرة Zohra</span>
         </h1>
+
+        <!-- ===== شريط البحث العالمي ===== -->
+        <div class="w-full max-w-2xl mx-auto px-4 py-4 bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700/60 shadow-lg mb-6">
+            <div class="relative w-full">
+                <input type="text" id="globalSearchInput" placeholder="اكتب اسم الكتاب أو المجلة للبحث عالمياً..." class="w-full bg-gray-900/90 text-white pl-12 pr-4 py-3.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-gray-700 text-sm font-semibold placeholder-gray-500">
+                <i class="fa-solid fa-earth-americas absolute left-4 top-4 text-emerald-400 text-base animate-spin-slow"></i>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-2 mt-3 pt-2 border-t border-gray-700/40 text-xs">
+                <span class="text-gray-400 font-bold ml-1">ابحث عبر:</span>
+                <button onclick="triggerGlobalSearch('google')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-emerald-500 hover:text-gray-950 text-gray-300 font-bold border border-gray-700 transition active:scale-95">
+                    <i class="fa-brands fa-google text-red-400"></i> Google PDF
+                </button>
+                <button onclick="triggerGlobalSearch('archive')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-emerald-500 hover:text-gray-950 text-gray-300 font-bold border border-gray-700 transition active:scale-95">
+                    <i class="fa-solid fa-landmark text-amber-400"></i> Internet Archive
+                </button>
+                <button onclick="triggerGlobalSearch('scholar')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-emerald-500 hover:text-gray-950 text-gray-300 font-bold border border-gray-700 transition active:scale-95">
+                    <i class="fa-solid fa-graduation-cap text-blue-400"></i> Google Scholar
+                </button>
+                <button onclick="triggerGlobalSearch('ddg')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-900 hover:bg-emerald-500 hover:text-gray-950 text-gray-300 font-bold border border-gray-700 transition active:scale-95">
+                    <i class="fa-solid fa-duck text-orange-400"></i> DuckDuckGo
+                </button>
+            </div>
+        </div>
+
         <p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed hero-sub">
             مكتبتك الرقمية الذكية وقارئ الـ PDF الأسرع. تصفح كتبنا ومجلاتنا الحصرية للتحميل الفوري أو ارفع ملفاتك الخاصة الآن!
         </p>
@@ -255,6 +283,52 @@
         (function() {
             'use strict';
 
+            // ============================================================
+            // دوال البحث العالمي
+            // ============================================================
+            function triggerGlobalSearch(engine) {
+                const query = document.getElementById('globalSearchInput').value.trim();
+                if (!query) {
+                    alert('من فضلك اكتب اسم الكتاب أو الكلمة المفتاحية أولاً للبحث!');
+                    return;
+                }
+                let searchUrl = '';
+                switch (engine) {
+                    case 'google':
+                        searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}+filetype:pdf`;
+                        break;
+                    case 'archive':
+                        searchUrl =
+                            `https://archive.org/search.php?query=${encodeURIComponent(query)}&and[]=mediatype%3A%22texts%22`;
+                        break;
+                    case 'scholar':
+                        searchUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`;
+                        break;
+                    case 'ddg':
+                        searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+                        break;
+                    default:
+                        return;
+                }
+                window.open(searchUrl, '_blank');
+            }
+
+            // ربط Enter بالبحث العالمي
+            document.addEventListener('DOMContentLoaded', function() {
+                const globalInput = document.getElementById('globalSearchInput');
+                if (globalInput) {
+                    globalInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') triggerGlobalSearch('google');
+                    });
+                }
+            });
+
+            window.triggerGlobalSearch = triggerGlobalSearch;
+
+            // ============================================================
+            // بقية دوال التطبيق
+            // ============================================================
+
             // ---- بيانات المتجر ----
             const storeBooks = [{
                 id: 1,
@@ -262,49 +336,49 @@
                 author: "د. أحمد خالد",
                 cover: "https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://gumroad.com/l/ai-2026",
-                sampleContent: "مرحباً بك في الفصل التجريبي الأول من كتاب الذكاء الاصطناعي! تهدف هذه العينة المجانية لتعريفك بأساسيات تعلم الآلة المتقدم..."
+                sampleContent: "مرحباً بك في الفصل التجريبي الأول من كتاب الذكاء الاصطناعي..."
             }, {
                 id: 2,
                 title: "دليل حماية وأمن المعلومات السيبرانية",
                 author: "م. سارة الجابري",
                 cover: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://payhip.com/b/cyber2026",
-                sampleContent: "تستعرض هذه العينة المجانية أهم الخطوات الأمنية لحماية وتأمين الخوادم والملفات الستاتيكية..."
+                sampleContent: "تستعرض هذه العينة المجانية أهم الخطوات الأمنية..."
             }, {
                 id: 3,
                 title: "مجلة التقنية والبرمجة الرقمية - العدد 12",
                 author: "مؤسسة زهرة للنشر",
                 cover: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://etsy.com/listing/tech-mag-12",
-                sampleContent: "محتويات العدد 12 من المجلة: مقالات برمجية حصرية للمبتدئين، نصائح ممتازة لدخول سوق العمل الحر..."
+                sampleContent: "محتويات العدد 12 من المجلة: مقالات برمجية حصرية..."
             }, {
                 id: 4,
                 title: "تطوير تطبيقات الهواتف الذكية",
                 author: "أ. خالد العتيبي",
                 cover: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://gumroad.com/l/mobile-dev",
-                sampleContent: "يقدم هذا الكتاب دليلاً شاملاً لتطوير تطبيقات الهواتف الذكية باستخدام تقنيات حديثة..."
+                sampleContent: "يقدم هذا الكتاب دليلاً شاملاً لتطوير تطبيقات الهواتف الذكية..."
             }, {
                 id: 5,
                 title: "تحليل البيانات الضخمة باستخدام بايثون",
                 author: "د. هناء الشمري",
                 cover: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://payhip.com/b/bigdata-py",
-                sampleContent: "يتناول هذا الكتاب تحليل البيانات الضخمة باستخدام مكتبات بايثون مثل Pandas و NumPy..."
+                sampleContent: "يتناول هذا الكتاب تحليل البيانات الضخمة باستخدام مكتبات بايثون..."
             }, {
                 id: 6,
                 title: "تصميم تجربة المستخدم (UX) للمبتدئين",
                 author: "أ. نورة العتيبي",
                 cover: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://etsy.com/listing/ux-design",
-                sampleContent: "يشرح هذا الكتاب أساسيات تصميم تجربة المستخدم بطريقة مبسطة، مع التركيز على مبادئ التصميم..."
+                sampleContent: "يشرح هذا الكتاب أساسيات تصميم تجربة المستخدم..."
             }];
 
             // ---- المتغيرات العامة ----
             let books = [];
             let searchIndex = {};
             let currentFilter = 'all';
-            let searchMode = 'local';
+            let searchMode = 'local'; // 'local' or 'internet'
             let currentSelectedLetter = 'الكل';
             let currentLang = 'ar';
             let internetResults = [];
@@ -317,7 +391,6 @@
 
             // ---- DOM REFS ----
             const $ = (s) => document.querySelector(s);
-            const $$ = (s) => document.querySelectorAll(s);
             const searchInput = $('#searchInput');
             const booksGrid = $('#booksGrid');
             const emptyState = $('#emptyState');
@@ -360,26 +433,18 @@
                     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             }
 
-            // ---- الترجمات ----
+            // ---- الترجمات المختصرة ----
             const translations = {
                 ar: {
-                    readySearch: "🔍 جاهز للبحث",
                     searchLocalPrompt: "🔍 اكتب كلمة للبحث في مكتبتك",
                     searchInternetPrompt: "🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)",
                     searchLocalResult: (c) => `🔍 تم العثور على ${c} نتيجة في مكتبتك`,
                     searchInternetResult: (c, t) => `🌐 تم العثور على ${c} نتيجة (إجمالي ~${t})`,
-                    noInternetResults: "لا توجد نتائج متاحة بهذا البحث",
+                    noInternetResults: "🌐 لا توجد نتائج متاحة لهذا البحث، حاول بكلمات أخرى.",
                     noBooks: "لا توجد كتب لعرضها",
-                    storeNoResults: "لا توجد كتب مطابقة للبحث",
-                    toastAdded: (n) => `✅ تمت إضافة "${n}"`,
-                    toastDeleted: (n) => `🗑️ تم حذف "${n}"`,
-                    toastLibraryCleared: "🧹 تم مسح المكتبة بالكامل",
                     toastNoPDF: "⚠️ يرجى اختيار ملفات PDF فقط",
                     toastBookNotFound: "⚠️ الكتاب غير موجود في المكتبة",
-                    toastNoLink: "⚠️ لا يوجد رابط متاح",
                     toastNoMoreResults: "⚠️ لا توجد نتائج إضافية",
-                    toastErrorPage: "❌ خطأ في عرض الصفحة",
-                    toastLoadError: "⚠️ حدث خطأ",
                     toastDownloadFailed: (t) => `تعذر تحميل "${t}"، سيتم فتح الرابط.`,
                     toastFileEmpty: (t) => `⚠️ الملف "${t}" فارغ أو غير صالح.`,
                     toastAddedSuccess: (c) => `🎉 تمت إضافة ${c} كتاب بنجاح`,
@@ -389,29 +454,21 @@
                     buyNow: "شراء وتحميل",
                     sampleTitle: "معاينة عينة مجانية",
                     buyNowTooltip: "شراء الكتاب بـ 1 يورو فقط",
-                    allLabel: "الكل",
                     clickToSearch: "اكتب كلمة للبحث على الإنترنت",
-                    loadingInternet: "جاري البحث على الإنترنت (جميع اللغات والأنواع)...",
+                    loadingInternet: "جاري البحث على الإنترنت...",
                     unknown: "غير معروف",
+                    noResultsFound: "لا توجد نتائج",
                 },
                 en: {
-                    readySearch: "🔍 Ready to search",
                     searchLocalPrompt: "🔍 Type a word to search in your library",
                     searchInternetPrompt: "🌐 Type a word to search online (books, eBooks, magazines)",
                     searchLocalResult: (c) => `🔍 Found ${c} results in your library`,
                     searchInternetResult: (c, t) => `🌐 Found ${c} results (total ~${t})`,
-                    noInternetResults: "No results available for this search",
+                    noInternetResults: "🌐 No results available for this search, try other keywords.",
                     noBooks: "No books to display",
-                    storeNoResults: "No matching books found",
-                    toastAdded: (n) => `✅ Added "${n}"`,
-                    toastDeleted: (n) => `🗑️ Deleted "${n}"`,
-                    toastLibraryCleared: "🧹 Library cleared",
                     toastNoPDF: "⚠️ Please select PDF files only",
                     toastBookNotFound: "⚠️ Book not found in library",
-                    toastNoLink: "⚠️ No link available",
                     toastNoMoreResults: "⚠️ No more results",
-                    toastErrorPage: "❌ Error displaying page",
-                    toastLoadError: "⚠️ An error occurred",
                     toastDownloadFailed: (t) => `Failed to download "${t}", will open link.`,
                     toastFileEmpty: (t) => `⚠️ File "${t}" is empty or invalid.`,
                     toastAddedSuccess: (c) => `🎉 Successfully added ${c} books`,
@@ -421,29 +478,21 @@
                     buyNow: "Buy & Download",
                     sampleTitle: "Free Sample Preview",
                     buyNowTooltip: "Buy the book for only 1 €",
-                    allLabel: "All",
                     clickToSearch: "Type a word to search online",
-                    loadingInternet: "Searching online (all languages and types)...",
+                    loadingInternet: "Searching online...",
                     unknown: "Unknown",
+                    noResultsFound: "No results found",
                 },
                 fr: {
-                    readySearch: "🔍 Prêt à chercher",
                     searchLocalPrompt: "🔍 Tapez un mot pour chercher dans votre bibliothèque",
                     searchInternetPrompt: "🌐 Tapez un mot pour chercher en ligne (livres, eBooks, magazines)",
                     searchLocalResult: (c) => `🔍 ${c} résultats trouvés dans votre bibliothèque`,
                     searchInternetResult: (c, t) => `🌐 ${c} résultats trouvés (total ~${t})`,
-                    noInternetResults: "Aucun résultat disponible pour cette recherche",
+                    noInternetResults: "🌐 Aucun résultat disponible pour cette recherche, essayez d'autres mots.",
                     noBooks: "Aucun livre à afficher",
-                    storeNoResults: "Aucun livre correspondant trouvé",
-                    toastAdded: (n) => `✅ Ajouté "${n}"`,
-                    toastDeleted: (n) => `🗑️ Supprimé "${n}"`,
-                    toastLibraryCleared: "🧹 Bibliothèque vidée",
                     toastNoPDF: "⚠️ Veuillez sélectionner uniquement des fichiers PDF",
                     toastBookNotFound: "⚠️ Livre introuvable dans la bibliothèque",
-                    toastNoLink: "⚠️ Aucun lien disponible",
                     toastNoMoreResults: "⚠️ Pas plus de résultats",
-                    toastErrorPage: "❌ Erreur d'affichage de la page",
-                    toastLoadError: "⚠️ Une erreur est survenue",
                     toastDownloadFailed: (t) => `Échec du téléchargement de "${t}", ouverture du lien.`,
                     toastFileEmpty: (t) => `⚠️ Le fichier "${t}" est vide ou invalide.`,
                     toastAddedSuccess: (c) => `🎉 ${c} livres ajoutés avec succès`,
@@ -453,29 +502,21 @@
                     buyNow: "Acheter et télécharger",
                     sampleTitle: "Aperçu gratuit de l'échantillon",
                     buyNowTooltip: "Achetez le livre pour seulement 1 €",
-                    allLabel: "Tous",
                     clickToSearch: "Tapez un mot pour chercher en ligne",
-                    loadingInternet: "Recherche en ligne (toutes langues et types)...",
+                    loadingInternet: "Recherche en ligne...",
                     unknown: "Inconnu",
+                    noResultsFound: "Aucun résultat trouvé",
                 },
                 es: {
-                    readySearch: "🔍 Listo para buscar",
                     searchLocalPrompt: "🔍 Escribe una palabra para buscar en tu biblioteca",
                     searchInternetPrompt: "🌐 Escribe una palabra para buscar en línea (libros, eBooks, revistas)",
                     searchLocalResult: (c) => `🔍 Se encontraron ${c} resultados en tu biblioteca`,
                     searchInternetResult: (c, t) => `🌐 Se encontraron ${c} resultados (total ~${t})`,
-                    noInternetResults: "No hay resultados disponibles para esta búsqueda",
+                    noInternetResults: "🌐 No hay resultados disponibles para esta búsqueda, prueba con otras palabras.",
                     noBooks: "No hay libros para mostrar",
-                    storeNoResults: "No se encontraron libros coincidentes",
-                    toastAdded: (n) => `✅ Agregado "${n}"`,
-                    toastDeleted: (n) => `🗑️ Eliminado "${n}"`,
-                    toastLibraryCleared: "🧹 Biblioteca vaciada",
                     toastNoPDF: "⚠️ Selecciona solo archivos PDF",
                     toastBookNotFound: "⚠️ Libro no encontrado en la biblioteca",
-                    toastNoLink: "⚠️ No hay enlace disponible",
                     toastNoMoreResults: "⚠️ No hay más resultados",
-                    toastErrorPage: "❌ Error al mostrar la página",
-                    toastLoadError: "⚠️ Ocurrió un error",
                     toastDownloadFailed: (t) => `Fallo al descargar "${t}", se abrirá el enlace.`,
                     toastFileEmpty: (t) => `⚠️ El archivo "${t}" está vacío o es inválido.`,
                     toastAddedSuccess: (c) => `🎉 Se agregaron ${c} libros correctamente`,
@@ -485,29 +526,21 @@
                     buyNow: "Comprar y descargar",
                     sampleTitle: "Vista previa de muestra gratuita",
                     buyNowTooltip: "Compre el libro por solo 1 €",
-                    allLabel: "Todos",
                     clickToSearch: "Escribe una palabra para buscar en línea",
-                    loadingInternet: "Buscando en línea (todos los idiomas y tipos)...",
+                    loadingInternet: "Buscando en línea...",
                     unknown: "Desconocido",
+                    noResultsFound: "No se encontraron resultados",
                 },
                 de: {
-                    readySearch: "🔍 Bereit zur Suche",
                     searchLocalPrompt: "🔍 Geben Sie ein Wort ein, um in Ihrer Bibliothek zu suchen",
                     searchInternetPrompt: "🌐 Geben Sie ein Wort ein, um online zu suchen (Bücher, eBooks, Zeitschriften)",
                     searchLocalResult: (c) => `🔍 ${c} Ergebnisse in Ihrer Bibliothek gefunden`,
                     searchInternetResult: (c, t) => `🌐 ${c} Ergebnisse gefunden (gesamt ~${t})`,
-                    noInternetResults: "Keine Ergebnisse für diese Suche verfügbar",
+                    noInternetResults: "🌐 Keine Ergebnisse für diese Suche verfügbar, versuchen Sie andere Wörter.",
                     noBooks: "Keine Bücher zum Anzeigen",
-                    storeNoResults: "Keine passenden Bücher gefunden",
-                    toastAdded: (n) => `✅ "${n}" hinzugefügt`,
-                    toastDeleted: (n) => `🗑️ "${n}" gelöscht`,
-                    toastLibraryCleared: "🧹 Bibliothek geleert",
                     toastNoPDF: "⚠️ Bitte wählen Sie nur PDF-Dateien aus",
                     toastBookNotFound: "⚠️ Buch nicht in der Bibliothek gefunden",
-                    toastNoLink: "⚠️ Kein Link verfügbar",
                     toastNoMoreResults: "⚠️ Keine weiteren Ergebnisse",
-                    toastErrorPage: "❌ Fehler beim Anzeigen der Seite",
-                    toastLoadError: "⚠️ Ein Fehler ist aufgetreten",
                     toastDownloadFailed: (t) => `Fehler beim Herunterladen von "${t}", Link wird geöffnet.`,
                     toastFileEmpty: (t) => `⚠️ Die Datei "${t}" ist leer oder ungültig.`,
                     toastAddedSuccess: (c) => `🎉 ${c} Bücher erfolgreich hinzugefügt`,
@@ -517,21 +550,20 @@
                     buyNow: "Kaufen und herunterladen",
                     sampleTitle: "Kostenlose Muster-Vorschau",
                     buyNowTooltip: "Kaufen Sie das Buch für nur 1 €",
-                    allLabel: "Alle",
                     clickToSearch: "Geben Sie ein Wort ein, um online zu suchen",
-                    loadingInternet: "Suche online (alle Sprachen und Typen)...",
+                    loadingInternet: "Suche online...",
                     unknown: "Unbekannt",
+                    noResultsFound: "Keine Ergebnisse gefunden",
                 }
             };
 
-            // ---- دوال الترجمة ----
             function t(key, ...args) {
                 let text = translations[currentLang]?.[key] || translations['ar'][key] || key;
                 if (typeof text === 'function') return text(...args);
                 return text;
             }
 
-            // ---- تحديد اللغة ----
+            // ---- اللغة ----
             const supportedLangs = ['ar', 'en', 'fr', 'es', 'de'];
 
             function getPreferredLanguage() {
@@ -557,7 +589,6 @@
                 generateAlphabetButtons();
                 const allLabel = (lang === 'ar') ? 'الكل' : 'ALL';
                 filterByLetter(allLabel);
-                // تحديث النصوص الديناميكية
                 updateUIStrings();
                 if (searchMode === 'local') {
                     if (searchInput.value.trim()) searchLocal(searchInput.value);
@@ -579,8 +610,7 @@
             }
 
             function updateUIStrings() {
-                // تحديث النصوص الثابتة
-                searchStat.textContent = t('readySearch');
+                searchStat.textContent = t('readySearch') || '🔍 جاهز للبحث';
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.dataset.i18n;
                     if (translations[currentLang] && translations[currentLang][key] !== undefined) {
@@ -589,7 +619,7 @@
                 });
             }
 
-            // ---- دوال العدادات ----
+            // ---- العدادات ----
             function incrementVisits() {
                 let count = parseInt(localStorage.getItem('zohra_visits') || '0', 10);
                 count += 1;
@@ -719,6 +749,7 @@
             }
 
             function searchLocal(query) {
+                booksGrid.innerHTML = '';
                 if (!query.trim()) {
                     renderLocalBooks();
                     searchStat.textContent = t('searchLocalPrompt');
@@ -767,13 +798,20 @@
                 }
                 results.sort((a, b) => b.score - a.score);
                 const matchedBooks = results.map(r => r.book);
-                renderBooksGrid(matchedBooks);
-                searchStat.textContent = t('searchLocalResult', results.length);
+                if (matchedBooks.length === 0) {
+                    booksGrid.innerHTML =
+                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-face-frown text-4xl block mb-2"></i> ${t('noResultsFound')}</div>`;
+                    searchStat.textContent = t('searchLocalResult', 0);
+                } else {
+                    renderBooksGrid(matchedBooks);
+                    searchStat.textContent = t('searchLocalResult', results.length);
+                }
                 paginationControls.style.display = 'none';
             }
 
-            // ---- البحث على الإنترنت ----
+            // ---- البحث على الإنترنت (المحسّن) ----
             async function searchInternet(query, page = 1) {
+                booksGrid.innerHTML = '';
                 if (!query.trim()) {
                     booksGrid.innerHTML =
                         `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-message text-4xl block mb-2"></i> ${t('clickToSearch')}</div>`;
@@ -802,6 +840,7 @@
                 let newResults = [];
                 let hasMore = false;
 
+                // 1. Open Library
                 try {
                     const olUrl =
                         `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`;
@@ -836,9 +875,14 @@
                         }
                         if (docs.length < limit) hasMore = false;
                         else hasMore = true;
+                    } else {
+                        console.warn('Open Library response not OK:', resp.status);
                     }
-                } catch (e) { console.warn('Open Library error:', e); }
+                } catch (e) {
+                    console.warn('Open Library error:', e);
+                }
 
+                // 2. Google Books
                 try {
                     const gbLimit = 40;
                     const startIndex = (page - 1) * gbLimit;
@@ -884,9 +928,14 @@
                             });
                         }
                         if (items.length < gbLimit && hasMore !== false) hasMore = false;
+                    } else {
+                        console.warn('Google Books response not OK:', resp.status);
                     }
-                } catch (e) { console.warn('Google Books error:', e); }
+                } catch (e) {
+                    console.warn('Google Books error:', e);
+                }
 
+                // إزالة التكرارات
                 const existingTitles = new Set(internetResults.map(r => r.title.toLowerCase().trim()));
                 for (let r of newResults) {
                     const key = r.title.toLowerCase().trim();
@@ -993,7 +1042,7 @@
             async function downloadFromUrl(url, title) {
                 incrementDownloads();
                 loadingIndicator.style.display = 'flex';
-                loadingText.textContent = `⏬ ${t('loadingBook') || 'جاري التحميل'} "${title}"...`;
+                loadingText.textContent = `⏬ جاري تحميل "${title}"...`;
                 try {
                     const resp = await fetch(url, { mode: 'cors', credentials: 'omit', headers: { 'Accept': 'application/pdf' } });
                     if (!resp.ok) {
@@ -1039,11 +1088,6 @@
                     showToast('toastDownloadFailed', 'ℹ️', title);
                     window.open(url, '_blank');
                 }
-            }
-
-            async function downloadAndAddBook(iaId, title) {
-                const pdfUrl = `https://archive.org/download/${iaId}/${iaId}.pdf`;
-                await downloadFromUrl(pdfUrl, title);
             }
 
             window.downloadBookLink = function(url, title) {
@@ -1103,7 +1147,7 @@
                     books = data;
                     buildIndex();
                     renderLocalBooks();
-                    showToast('toastAdded', '📚', books.length + ' كتاب');
+                    if (books.length > 0) showToast('toastAdded', '📚', books.length + ' كتاب');
                 } catch (e) { console.warn('Load error:', e); }
             }
 
@@ -1440,7 +1484,7 @@
                     '.pdf'));
                 if (pdfFiles.length === 0) { showToast('toastNoPDF', '⚠️'); return; }
                 loadingIndicator.style.display = 'flex';
-                loadingText.textContent = t('processingFiles') || 'جاري معالجة الملفات...';
+                loadingText.textContent = 'جاري معالجة الملفات...';
                 let success = 0;
                 for (let file of pdfFiles) {
                     const name = file.name.replace(/\.pdf$/i, '') || file.name;
@@ -1595,7 +1639,7 @@
                 }
             }
 
-            // ---- دالة عرض المتجر (بأزرار كبيرة وجذابة) ----
+            // ---- دالة عرض المتجر ----
             function renderStore(booksList) {
                 storeGrid.innerHTML = '';
                 if (booksList.length === 0) {
@@ -1654,6 +1698,7 @@
                 if (searchMode === 'local') {
                     searchLocal(q);
                 } else {
+                    // وضع الإنترنت: إعادة تعيين النتائج والبحث
                     internetResults = [];
                     currentPage = 1;
                     totalResults = 0;
@@ -1694,12 +1739,15 @@
                     searchStat.textContent = t('searchLocalPrompt');
                 });
 
+                // ===== إصلاح زر الإنترنت =====
                 internetModeBtn.addEventListener('click', function() {
                     searchMode = 'internet';
                     this.className = 'px-3 py-1 rounded-lg text-xs font-semibold mode-btn-active transition';
                     localModeBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold mode-btn-inactive transition';
-                    if (searchInput.value.trim()) doSearch();
-                    else {
+                    // تنفيذ البحث فوراً إذا كان هناك نص في خانة البحث
+                    if (searchInput.value.trim()) {
+                        doSearch();
+                    } else {
                         booksGrid.innerHTML =
                             `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-globe text-4xl block mb-2"></i> ${t('clickToSearch')}</div>`;
                         searchStat.textContent = t('searchInternetPrompt');
@@ -1707,8 +1755,14 @@
                     }
                 });
 
+                // ربط البحث الداخلي
                 searchInput.addEventListener('input', debounce(doSearch, 400));
-                searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        doSearch();
+                    }
+                });
 
                 // رفع الملفات
                 fileInput.addEventListener('change', function() {
@@ -1771,7 +1825,7 @@
                     setTimeout(doSearch, 500);
                 }
 
-                console.log('🌺 زهرة Zohra جاهزة! (جميع الوظائف تعمل)');
+                console.log('🌺 زهرة Zohra جاهزة! (تم إصلاح زر الإنترنت)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -1785,6 +1839,7 @@
             window.downloadBookLink = downloadBookLink;
             window.filterByLetter = filterByLetter;
             window.executeCombinedFilter = executeCombinedFilter;
+            window.triggerGlobalSearch = triggerGlobalSearch;
 
         })();
     </script>
