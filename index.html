@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
     <meta name="theme-color" content="#0d1b2a" />
     <meta name="description" content="زهرة - منصة بحث ذكية عن الكتب الرقمية بصيغة PDF" />
-    <!-- Added per request -->
     <meta name="mobile-web-app-capable" content="yes" />
-    <!-- iOS-specific (still useful) -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>زهرة Zohra - البحث الذكي عن الكتب</title>
 
-    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
     </script>
 
     <style>
-        /* ===== RESET & BASE ===== */
         *,
         *::before,
         *::after {
@@ -67,7 +63,6 @@
             border-radius: 8px;
         }
 
-        /* ===== APP SHELL ===== */
         #app {
             display: flex;
             flex-direction: column;
@@ -78,7 +73,6 @@
             position: relative;
         }
 
-        /* ===== HEADER ===== */
         .header {
             display: flex;
             align-items: center;
@@ -155,7 +149,6 @@
             }
         }
 
-        /* ===== MAIN SEARCH ===== */
         .search-section {
             margin: 28px 0 20px;
         }
@@ -219,7 +212,6 @@
             height: 20px;
         }
 
-        /* ===== FILTERS BAR ===== */
         .filters-bar {
             display: flex;
             align-items: center;
@@ -262,7 +254,33 @@
             color: var(--text-muted);
         }
 
-        /* ===== UPLOAD AREA ===== */
+        /* Toggle switch for search mode */
+        .mode-toggle {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            background: transparent;
+            border: none;
+            padding: 6px 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-arabic);
+        }
+        .mode-toggle button.active {
+            background: var(--primary);
+            color: #0d1b2a;
+            font-weight: 600;
+        }
+        .mode-toggle button:not(.active):hover {
+            color: var(--text-gold);
+        }
+
         .upload-area {
             background: var(--bg-card);
             border: 2px dashed rgba(201, 168, 76, 0.2);
@@ -299,7 +317,6 @@
             cursor: pointer;
         }
 
-        /* ===== LIBRARY GRID ===== */
         .library-header {
             display: flex;
             justify-content: space-between;
@@ -403,7 +420,6 @@
             color: #ff6b6b;
         }
 
-        /* ===== RESULTS / SNIPPETS ===== */
         .results-container {
             margin-top: 8px;
         }
@@ -442,6 +458,7 @@
             margin-top: 8px;
             font-size: 0.7rem;
             color: var(--text-muted);
+            flex-wrap: wrap;
         }
         .result-item .result-meta .score {
             color: var(--primary);
@@ -450,6 +467,40 @@
             color: var(--text-gold);
             cursor: pointer;
             text-decoration: underline dotted;
+        }
+        .result-item .result-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .result-item .result-actions button {
+            background: rgba(201, 168, 76, 0.15);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--text-gold);
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-arabic);
+        }
+        .result-item .result-actions button:hover {
+            background: var(--primary);
+            color: #0d1b2a;
+        }
+        .result-item .result-actions button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .result-item .result-cover {
+            float: left;
+            width: 50px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 12px;
+            background: var(--bg-input);
         }
         @keyframes fadeSlide {
             from {
@@ -462,7 +513,6 @@
             }
         }
 
-        /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             padding: 50px 20px;
@@ -484,7 +534,6 @@
             font-size: 0.9rem;
         }
 
-        /* ===== PDF VIEWER MODAL ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -570,7 +619,56 @@
             }
         }
 
-        /* ===== RESPONSIVE ===== */
+        .loading-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(201, 168, 76, 0.15);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid rgba(201, 168, 76, 0.2);
+            border-radius: var(--radius-sm);
+            padding: 14px 28px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            box-shadow: var(--shadow);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.4s ease;
+            pointer-events: none;
+            max-width: 90%;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        .toast .toast-icon {
+            margin-left: 10px;
+        }
+
         @media (max-width: 700px) {
             .brand h1 {
                 font-size: 1.4rem;
@@ -607,6 +705,14 @@
             .modal-body {
                 padding: 12px;
             }
+            .mode-toggle button {
+                padding: 4px 10px;
+                font-size: 0.65rem;
+            }
+            .result-item .result-cover {
+                width: 40px;
+                height: 56px;
+            }
         }
         @media (max-width: 480px) {
             .header {
@@ -638,66 +744,11 @@
                 grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             }
         }
-
-        /* ===== LOADING SPINNER ===== */
-        .spinner {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(201, 168, 76, 0.15);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        .loading-bar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        /* ===== TOAST ===== */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--bg-card);
-            border: 1px solid rgba(201, 168, 76, 0.2);
-            border-radius: var(--radius-sm);
-            padding: 14px 28px;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            box-shadow: var(--shadow);
-            z-index: 2000;
-            opacity: 0;
-            transition: all 0.4s ease;
-            pointer-events: none;
-            max-width: 90%;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            pointer-events: auto;
-        }
-        .toast .toast-icon {
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
 
-    <!-- ===== APP ===== -->
     <div id="app">
-
-        <!-- HEADER -->
         <header class="header">
             <div class="brand">
                 <span class="brand-icon">📖</span>
@@ -715,10 +766,9 @@
             </div>
         </header>
 
-        <!-- SEARCH -->
         <section class="search-section">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="ابحث عن أي موضوع في كتبك..." autocomplete="off" />
+                <input type="text" id="searchInput" placeholder="ابحث عن أي موضوع في كتبك أو على الإنترنت..." autocomplete="off" />
                 <button class="btn-search" id="searchBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8" />
@@ -729,16 +779,18 @@
             </div>
         </section>
 
-        <!-- FILTERS -->
         <div class="filters-bar">
             <span class="chip active" data-filter="all">📚 الكل <span class="count" id="filterAll">0</span></span>
             <span class="chip" data-filter="recent">🕒 حديثة <span class="count" id="filterRecent">0</span></span>
             <span class="chip" data-filter="large">📄 كبيرة <span class="count" id="filterLarge">0</span></span>
             <span class="spacer"></span>
+            <div class="mode-toggle" id="modeToggle">
+                <button class="active" data-mode="local">📁 محلي</button>
+                <button data-mode="internet">🌐 إنترنت</button>
+            </div>
             <span class="stat" id="searchStat">🔍 جاهز للبحث</span>
         </div>
 
-        <!-- UPLOAD -->
         <div class="upload-area" id="uploadArea">
             <div class="icon">📤</div>
             <p>اسحب ملف PDF هنا أو <span class="highlight">انقر للاختيار</span></p>
@@ -746,31 +798,26 @@
             <input type="file" id="fileInput" accept=".pdf" multiple />
         </div>
 
-        <!-- LIBRARY -->
         <div class="library-header">
             <h2>📚 مكتبتي</h2>
             <button class="clear-btn" id="clearLibrary">🗑️ مسح الكل</button>
         </div>
         <div id="bookGrid" class="book-grid"></div>
 
-        <!-- RESULTS -->
         <div id="resultsContainer" class="results-container"></div>
 
-        <!-- EMPTY STATE (shown when no books) -->
         <div id="emptyState" class="empty-state">
             <div class="big-icon">📕</div>
             <h3>لم تُضف أي كتب بعد</h3>
-            <p>قم برفع ملفات PDF لتتمكن من البحث فيها باستخدام الذكاء الاصطناعي</p>
+            <p>قم برفع ملفات PDF لتتمكن من البحث فيها، أو استخدم "بحث إنترنت" للعثور على كتب جديدة.</p>
         </div>
 
-        <!-- LOADING INDICATOR -->
         <div id="loadingIndicator" style="display:none;" class="loading-bar">
             <span class="spinner"></span>
-            <span>جاري معالجة الملفات...</span>
+            <span id="loadingText">جاري معالجة الملفات...</span>
         </div>
     </div>
 
-    <!-- ===== PDF MODAL ===== -->
     <div class="modal-overlay" id="pdfModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -790,25 +837,22 @@
         </div>
     </div>
 
-    <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
-    <!-- ============================================================ -->
-    <!-- ===== JAVASCRIPT ===== -->
     <script>
         (function() {
             'use strict';
 
             // ---- CONFIG ----
             const STORAGE_KEY = 'zohra_books';
-            const MAX_PREVIEW_PAGES = 3;
             const SNIPPET_WORDS = 28;
 
             // ---- STATE ----
-            let books = []; // { id, name, size, pages, text, uploaded, data? }
-            let searchIndex = {}; // term -> Set of book ids
+            let books = [];
+            let searchIndex = {};
             let currentFilter = 'all';
             let currentResults = [];
+            let searchMode = 'local'; // 'local' or 'internet'
 
             // ---- DOM REFS ----
             const $ = (s) => document.querySelector(s);
@@ -822,6 +866,7 @@
             const resultsContainer = $('#resultsContainer');
             const emptyState = $('#emptyState');
             const loadingIndicator = $('#loadingIndicator');
+            const loadingText = $('#loadingText');
             const clearLibraryBtn = $('#clearLibrary');
             const bookCount = $('#bookCount');
             const searchStat = $('#searchStat');
@@ -829,6 +874,7 @@
             const filterRecent = $('#filterRecent');
             const filterLarge = $('#filterLarge');
             const toast = $('#toast');
+            const modeToggle = $('#modeToggle');
 
             const modalOverlay = $('#pdfModal');
             const modalClose = $('#modalClose');
@@ -859,7 +905,7 @@
                 toast.innerHTML = `<span class="toast-icon">${icon}</span> ${msg}`;
                 toast.classList.add('show');
                 clearTimeout(toast._timer);
-                toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+                toast._timer = setTimeout(() => toast.classList.remove('show'), 4000);
             }
 
             function debounce(fn, ms = 400) {
@@ -870,35 +916,38 @@
                 };
             }
 
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            }
+
+            function escapeRegex(str) {
+                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+
             // ---- ARABIC TEXT PROCESSING ----
-            // Simple Arabic tokenizer + stemmer (light)
             function tokenizeArabic(text) {
                 if (!text) return [];
-                // Normalize
                 let t = text
-                    .replace(/[\u0622\u0623\u0625]/g, '\u0627') // normalize alef
-                    .replace(/\u0640/g, '') // remove tatweel
+                    .replace(/[\u0622\u0623\u0625]/g, '\u0627')
+                    .replace(/\u0640/g, '')
                     .replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, ' ')
                     .replace(/\s+/g, ' ')
                     .trim();
                 let words = t.split(/\s+/);
-                // Remove common stop words
                 const stops = new Set([
-                    'من', 'الى', 'إلى', 'عن', 'على', 'في', 'من', 'مع', 'بين', 'عند',
+                    'من', 'الى', 'إلى', 'عن', 'على', 'في', 'مع', 'بين', 'عند',
                     'أن', 'إن', 'أنه', 'إنه', 'كما', 'لقد', 'قد', 'لا', 'ما', 'ذا',
-                    'ذلك', 'هذا', 'هذه', 'ذلك', 'تلك', 'كل', 'بعض', 'اي', 'أي',
+                    'ذلك', 'هذا', 'هذه', 'تلك', 'كل', 'بعض', 'اي', 'أي',
                     'و', 'ف', 'ثم', 'حتى', 'أو', 'بل', 'لكن', 'لأن', 'لان',
                     'هو', 'هي', 'هم', 'هن', 'نحن', 'انتم', 'انا', 'أنت',
                     'كان', 'كانت', 'يكون', 'تصبح', 'أصبح', 'صار',
                     'the', 'and', 'for', 'with', 'from', 'that', 'this',
                 ]);
-                return words
-                    .filter(w => w.length > 1)
-                    .filter(w => !stops.has(w.toLowerCase()))
-                    .map(w => w.toLowerCase());
+                return words.filter(w => w.length > 1).filter(w => !stops.has(w.toLowerCase())).map(w => w.toLowerCase());
             }
 
-            // Light stemming: remove common suffixes
             function stemArabic(word) {
                 let w = word;
                 const suffixes = ['ية', 'ات', 'ون', 'ين', 'ان', 'وا', 'ي', 'ة', 'اً', 'ًا', 'ٍ', 'ٌ', 'ِ', 'َ'];
@@ -908,7 +957,6 @@
                         break;
                     }
                 }
-                // Remove common prefixes
                 const prefixes = ['ال', 'لل', 'بال', 'كال', 'فال', 'وال'];
                 for (let p of prefixes) {
                     if (w.startsWith(p) && w.length > p.length + 1) {
@@ -922,7 +970,6 @@
             function processText(text) {
                 const tokens = tokenizeArabic(text);
                 const stems = tokens.map(w => stemArabic(w));
-                // Return unique terms with original and stem
                 const set = new Set();
                 const result = [];
                 for (let i = 0; i < tokens.length; i++) {
@@ -935,7 +982,7 @@
                 return result;
             }
 
-            // ---- SEARCH ENGINE ----
+            // ---- SEARCH ENGINE (LOCAL) ----
             function buildIndex() {
                 searchIndex = {};
                 for (let book of books) {
@@ -946,7 +993,6 @@
                         if (!searchIndex[key]) searchIndex[key] = new Set();
                         searchIndex[key].add(book.id);
                     }
-                    // Also index the book name
                     const nameTerms = processText(book.name);
                     for (let t of nameTerms) {
                         const key = t.key;
@@ -957,17 +1003,16 @@
                 updateStats();
             }
 
-            function search(query) {
+            function searchLocal(query) {
                 if (!query.trim()) {
                     currentResults = [];
                     renderResults([]);
-                    searchStat.textContent = '🔍 اكتب كلمة للبحث';
+                    searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
                     return;
                 }
 
                 const qTerms = processText(query);
                 const qKeys = qTerms.map(t => t.key);
-
                 if (qKeys.length === 0) {
                     currentResults = [];
                     renderResults([]);
@@ -975,8 +1020,7 @@
                     return;
                 }
 
-                // Find books that match any term
-                const matched = new Map(); // bookId -> { book, score, matches:[] }
+                const matched = new Map();
                 for (let key of qKeys) {
                     const bookIds = searchIndex[key] || new Set();
                     for (let id of bookIds) {
@@ -991,49 +1035,191 @@
                     }
                 }
 
-                // Boost score for exact phrase matches
                 const phrase = query.trim().toLowerCase();
                 let results = [];
                 for (let [id, entry] of matched) {
                     let score = entry.score;
                     const text = (entry.book.text || '').toLowerCase();
                     const name = entry.book.name.toLowerCase();
-                    // Boost if phrase appears in text (increased from +5 to +8)
                     if (text.includes(phrase)) score += 8;
-                    // Boost if phrase appears in name (increased from +3 to +5)
                     if (name.includes(phrase)) score += 5;
-                    // Boost for individual term matches (unchanged)
                     const words = phrase.split(/\s+/);
                     for (let w of words) {
                         if (w.length < 2) continue;
                         if (text.includes(w)) score += 1;
                         if (name.includes(w)) score += 1;
                     }
-                    // Proximity boost: if multiple terms appear close (increased from +3 to +5)
                     if (qKeys.length > 1) {
                         let found = 0;
                         for (let k of qKeys) {
                             if (text.includes(k)) found++;
                         }
                         if (found >= qKeys.length * 0.6) score += 5;
-                        // Additional boost if ALL terms are found
                         if (found === qKeys.length) score += 4;
                     }
                     entry.score = score;
                     results.push(entry);
                 }
 
-                // Sort by score desc
                 results.sort((a, b) => b.score - a.score);
-
-                currentResults = results.map(r => ({
-                    book: r.book,
-                    score: r.score,
-                    matches: r.matches,
-                }));
-
+                currentResults = results.map(r => ({ book: r.book, score: r.score, matches: r.matches }));
                 renderResults(currentResults);
-                searchStat.textContent = `🔍 تم العثور على ${currentResults.length} نتيجة`;
+                searchStat.textContent = `🔍 تم العثور على ${currentResults.length} نتيجة في مكتبتك`;
+            }
+
+            // ---- SEARCH ON INTERNET (Open Library) ----
+            async function searchInternet(query) {
+                if (!query.trim()) {
+                    resultsContainer.innerHTML = '';
+                    searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت';
+                    return;
+                }
+
+                // Show loading
+                resultsContainer.innerHTML =
+                    `<div class="loading-bar"><span class="spinner"></span><span>جاري البحث على الإنترنت...</span></div>`;
+                searchStat.textContent = '🌐 جاري البحث...';
+
+                try {
+                    const url =
+                    `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=24`;
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error('فشل الاتصال بمكتبة Open Library');
+                    const data = await resp.json();
+
+                    // Filter only books with Internet Archive ID (have PDF)
+                    const docs = data.docs || [];
+                    const withIa = docs.filter(d => d.ia && d.ia.length > 0);
+
+                    if (withIa.length === 0) {
+                        resultsContainer.innerHTML = `
+                                <div class="empty-state" style="padding:20px;">
+                                    <div class="big-icon">🔍</div>
+                                    <h3>لا توجد كتب بصيغة PDF متاحة</h3>
+                                    <p>حاول استخدام كلمات بحث أخرى.</p>
+                                </div>
+                            `;
+                        searchStat.textContent = '🌐 لم يتم العثور على كتب';
+                        return;
+                    }
+
+                    renderInternetResults(withIa);
+                    searchStat.textContent = `🌐 تم العثور على ${withIa.length} كتاب على الإنترنت`;
+
+                } catch (err) {
+                    console.error(err);
+                    resultsContainer.innerHTML = `
+                            <div class="empty-state" style="padding:20px;">
+                                <div class="big-icon">⚠️</div>
+                                <h3>حدث خطأ في البحث</h3>
+                                <p>${escapeHtml(err.message || 'يرجى التحقق من الاتصال بالإنترنت')}</p>
+                            </div>
+                        `;
+                    searchStat.textContent = '🌐 خطأ في البحث';
+                }
+            }
+
+            function renderInternetResults(docs) {
+                resultsContainer.innerHTML = docs.map(doc => {
+                    const iaId = doc.ia[0];
+                    const coverId = doc.cover_i || doc.cover_edition_key;
+                    const coverUrl = coverId ?
+                        `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` :
+                        'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E';
+
+                    const title = doc.title || 'بدون عنوان';
+                    const author = doc.author_name ? doc.author_name.join('، ') : 'مؤلف غير معروف';
+                    const year = doc.first_publish_year || doc.publish_year?.[0] || '';
+
+                    return `
+                            <div class="result-item" data-ia="${iaId}">
+                                <img class="result-cover" src="${coverUrl}" alt="غلاف" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'" />
+                                <div class="result-title">📚 ${escapeHtml(title)}</div>
+                                <div style="font-size:0.85rem;color:var(--text-muted);">✍️ ${escapeHtml(author)}</div>
+                                ${year ? `<div style="font-size:0.75rem;color:var(--text-muted);">📅 ${year}</div>` : ''}
+                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">📦 معرف: ${iaId}</div>
+                                <div class="result-actions">
+                                    <button class="btn-add-internet" data-ia="${iaId}" data-title="${escapeHtml(title)}">⬇️ تحميل + إضافة إلى المكتبة</button>
+                                    <button class="btn-preview-internet" data-ia="${iaId}" data-title="${escapeHtml(title)}">👁️ معاينة</button>
+                                </div>
+                            </div>
+                        `;
+                }).join('');
+
+                // Attach events
+                resultsContainer.querySelectorAll('.btn-add-internet').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const iaId = this.dataset.ia;
+                        const title = this.dataset.title;
+                        this.disabled = true;
+                        this.textContent = '⏳ جاري التحميل...';
+                        await downloadAndAddBook(iaId, title);
+                        this.textContent = '✅ تمت الإضافة';
+                        setTimeout(() => {
+                            this.textContent = '⬇️ تحميل + إضافة';
+                            this.disabled = false;
+                        }, 2000);
+                    });
+                });
+
+                resultsContainer.querySelectorAll('.btn-preview-internet').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const iaId = this.dataset.ia;
+                        const title = this.dataset.title;
+                        // Open in new tab using Internet Archive viewer
+                        window.open(`https://archive.org/details/${iaId}`, '_blank');
+                    });
+                });
+            }
+
+            // ---- DOWNLOAD & ADD FROM INTERNET ----
+            async function downloadAndAddBook(iaId, title) {
+                const pdfUrl = `https://archive.org/download/${iaId}/${iaId}.pdf`;
+                loadingIndicator.style.display = 'flex';
+                loadingText.textContent = `⏬ جاري تحميل "${title}" من الإنترنت...`;
+
+                try {
+                    const resp = await fetch(pdfUrl);
+                    if (!resp.ok) throw new Error('تعذر تحميل ملف PDF');
+                    const blob = await resp.blob();
+                    const size = blob.size;
+                    if (size < 1000) throw new Error('الملف فارغ أو غير صالح');
+
+                    loadingText.textContent = `📄 جاري فهرسة "${title}"...`;
+
+                    // Convert blob to arrayBuffer
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    const pages = pdf.numPages;
+                    const maxPages = Math.min(pages, 80);
+                    let fullText = '';
+                    for (let i = 1; i <= maxPages; i++) {
+                        try {
+                            const page = await pdf.getPage(i);
+                            const content = await page.getTextContent();
+                            const strings = content.items.map(item => item.str);
+                            fullText += strings.join(' ') + ' ';
+                        } catch (e) { /* skip */ }
+                        if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
+                    }
+
+                    // Convert blob to data URL for viewer
+                    const reader = new FileReader();
+                    const dataUrl = await new Promise((resolve) => {
+                        reader.onload = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+
+                    // Add to library
+                    addBook(title, size, fullText, pages, dataUrl);
+                    loadingIndicator.style.display = 'none';
+                    showToast(`✅ تمت إضافة "${title}" إلى المكتبة`, '📚');
+
+                } catch (err) {
+                    console.error(err);
+                    loadingIndicator.style.display = 'none';
+                    showToast(`❌ فشل تحميل "${title}": ${err.message || 'خطأ غير معروف'}`, '⚠️');
+                }
             }
 
             // ---- RENDER ----
@@ -1071,7 +1257,6 @@
                         </div>
                     `).join('');
 
-                // Attach click events for viewing
                 document.querySelectorAll('.book-card').forEach(el => {
                     el.addEventListener('click', function(e) {
                         if (e.target.closest('.remove-btn')) return;
@@ -1081,7 +1266,6 @@
                     });
                 });
 
-                // Remove buttons
                 document.querySelectorAll('.book-card .remove-btn').forEach(btn => {
                     btn.addEventListener('click', function(e) {
                         e.stopPropagation();
@@ -1114,7 +1298,6 @@
                         `;
                 }).join('');
 
-                // Click to view
                 document.querySelectorAll('.result-item .book-ref').forEach(el => {
                     el.addEventListener('click', function() {
                         const id = this.dataset.id;
@@ -1139,10 +1322,8 @@
 
                 const q = query.trim().toLowerCase();
                 const qWords = q.split(/\s+/).filter(w => w.length > 1);
-
-                // Find best position
-                let bestIdx = 0;
-                let bestScore = 0;
+                let bestIdx = 0,
+                    bestScore = 0;
                 for (let i = 0; i < words.length - 5; i++) {
                     let score = 0;
                     const chunk = words.slice(i, i + 10).join(' ').toLowerCase();
@@ -1165,24 +1346,12 @@
                 if (start > 0) snippet = '... ' + snippet;
                 if (end < words.length) snippet = snippet + ' ...';
 
-                // Highlight query terms
                 for (let qw of qWords) {
                     if (qw.length < 2) continue;
                     const regex = new RegExp('(' + escapeRegex(qw) + ')', 'gi');
                     snippet = snippet.replace(regex, '<mark>$1</mark>');
                 }
-
                 return snippet;
-            }
-
-            function escapeRegex(str) {
-                return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            }
-
-            function escapeHtml(str) {
-                if (!str) return '';
-                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
             }
 
             function updateStats() {
@@ -1209,11 +1378,10 @@
                 saveBooks();
                 buildIndex();
                 renderBooks();
-                // If there's a search query, re-run it
-                if (searchInput.value.trim()) {
-                    search(searchInput.value);
+                // If local mode and query exists, re-run
+                if (searchMode === 'local' && searchInput.value.trim()) {
+                    searchLocal(searchInput.value);
                 }
-                showToast(`تمت إضافة "${book.name}" بنجاح`, '📚');
             }
 
             function removeBook(id) {
@@ -1223,8 +1391,10 @@
                 saveBooks();
                 buildIndex();
                 renderBooks();
-                if (searchInput.value.trim()) {
-                    search(searchInput.value);
+                if (searchMode === 'local' && searchInput.value.trim()) {
+                    searchLocal(searchInput.value);
+                } else if (searchMode === 'internet') {
+                    // keep internet results
                 } else {
                     resultsContainer.innerHTML = '';
                     searchStat.textContent = '🔍 جاهز للبحث';
@@ -1247,7 +1417,6 @@
             // ---- SAVE / LOAD ----
             function saveBooks() {
                 try {
-                    // Store only serializable data; strip data URLs for storage (they can be large)
                     const toStore = books.map(b => ({
                         id: b.id,
                         name: b.name,
@@ -1255,12 +1424,9 @@
                         pages: b.pages,
                         text: b.text,
                         uploaded: b.uploaded,
-                        // data is stored separately in a Map or not at all to avoid quota issues
                     }));
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
-                } catch (e) {
-                    console.warn('Save error:', e);
-                }
+                } catch (e) { console.warn('Save error:', e); }
             }
 
             function loadBooks() {
@@ -1270,63 +1436,10 @@
                     const data = JSON.parse(raw);
                     if (!Array.isArray(data)) return;
                     books = data;
-                    // Rebuild index
                     buildIndex();
                     renderBooks();
                     showToast(`تم تحميل ${books.length} كتاب من المكتبة`, '📚');
-                } catch (e) {
-                    console.warn('Load error:', e);
-                }
-            }
-
-            // ---- PDF PROCESSING ----
-            async function processPdfFile(file) {
-                const name = file.name.replace(/\.pdf$/i, '') || file.name;
-                const size = file.size;
-
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    const pages = pdf.numPages;
-
-                    // Extract text from all pages (with limit for performance)
-                    const maxPages = Math.min(pages, 80);
-                    let fullText = '';
-                    for (let i = 1; i <= maxPages; i++) {
-                        try {
-                            const page = await pdf.getPage(i);
-                            const content = await page.getTextContent();
-                            const strings = content.items.map(item => item.str);
-                            fullText += strings.join(' ') + ' ';
-                        } catch (e) {
-                            // skip page
-                        }
-                        // Update progress if needed
-                        if (i % 10 === 0) {
-                            // yield to UI
-                            await new Promise(r => setTimeout(r, 0));
-                        }
-                    }
-
-                    // Store the data URL for viewing (only if file is not too large)
-                    let dataUrl = null;
-                    if (size < 10 * 1024 * 1024) {
-                        try {
-                            const reader = new FileReader();
-                            dataUrl = await new Promise((resolve) => {
-                                reader.onload = () => resolve(reader.result);
-                                reader.readAsDataURL(file);
-                            });
-                        } catch (e) { /* ignore */ }
-                    }
-
-                    addBook(name, size, fullText, pages, dataUrl);
-                    return true;
-                } catch (err) {
-                    console.error('PDF processing error:', err);
-                    showToast(`خطأ في معالجة "${name}": ${err.message || 'غير معروف'}`, '❌');
-                    return false;
-                }
+                } catch (e) { console.warn('Load error:', e); }
             }
 
             // ---- PDF VIEWER ----
@@ -1340,10 +1453,8 @@
                 modalPageInfo.textContent = `الصفحة 0 / ${book.pages || '?'}`;
 
                 try {
-                    // If we have a data URL, use it
                     let dataToUse = book.data;
                     if (!dataToUse) {
-                        // Try to reconstruct from storage? For now, we'll show a message
                         modalBody.innerHTML = `
                             <div style="text-align:center;padding:40px 0;color:var(--text-muted);">
                                 <div style="font-size:3rem;margin-bottom:16px;">📄</div>
@@ -1355,12 +1466,10 @@
                         return;
                     }
 
-                    // Load PDF from data URL
                     const pdf = await pdfjsLib.getDocument({ data: dataToUse }).promise;
                     const totalPages = pdf.numPages;
                     modalPageInfo.textContent = `الصفحة 1 / ${totalPages}`;
 
-                    // Render first page
                     const page = await pdf.getPage(1);
                     const scale = 1.4;
                     const viewport = page.getViewport({ scale });
@@ -1373,10 +1482,8 @@
 
                     modalBody.innerHTML = '';
                     modalBody.appendChild(canvas);
-
                     await page.render({ canvasContext: context, viewport }).promise;
 
-                    // Add page navigation
                     let currentPage = 1;
                     const navDiv = document.createElement('div');
                     navDiv.style.cssText =
@@ -1410,19 +1517,13 @@
                             currentPage = num;
                             pageInfo.textContent = `الصفحة ${num} / ${totalPages}`;
                             modalPageInfo.textContent = `الصفحة ${num} / ${totalPages}`;
-                        } catch (e) {
-                            showToast('خطأ في عرض الصفحة', '❌');
-                        }
+                        } catch (e) { showToast('خطأ في عرض الصفحة', '❌'); }
                     };
 
-                    prevBtn.addEventListener('click', () => {
-                        if (currentPage > 1) renderPage(currentPage - 1);
-                    });
-                    nextBtn.addEventListener('click', () => {
-                        if (currentPage < totalPages) renderPage(currentPage + 1);
-                    });
+                    prevBtn.addEventListener('click', () => { if (currentPage > 1) renderPage(currentPage - 1); });
+                    nextBtn.addEventListener('click', () => { if (currentPage < totalPages) renderPage(currentPage +
+                            1); });
 
-                    // Keyboard navigation
                     const keyHandler = (e) => {
                         if (!modalOverlay.classList.contains('active')) return;
                         if (e.key === 'ArrowRight' && currentPage < totalPages) renderPage(currentPage + 1);
@@ -1438,7 +1539,7 @@
                             <div style="text-align:center;padding:40px 0;color:var(--text-muted);">
                                 <div style="font-size:3rem;margin-bottom:16px;">⚠️</div>
                                 <p>تعذر عرض هذا الكتاب.</p>
-                                <p style="font-size:0.8rem;margin-top:8px;">${err.message || 'خطأ غير معروف'}</p>
+                                <p style="font-size:0.8rem;margin-top:8px;">${escapeHtml(err.message || 'خطأ غير معروف')}</p>
                             </div>
                         `;
                 }
@@ -1455,20 +1556,50 @@
             // ---- FILE HANDLING ----
             async function handleFiles(files) {
                 const pdfFiles = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith(
-                '.pdf'));
+                    '.pdf'));
                 if (pdfFiles.length === 0) {
                     showToast('يرجى اختيار ملفات PDF فقط', '⚠️');
                     return;
                 }
 
                 loadingIndicator.style.display = 'flex';
+                loadingText.textContent = '⏳ جاري معالجة الملفات...';
                 let success = 0;
                 for (let file of pdfFiles) {
-                    const ok = await processPdfFile(file);
-                    if (ok) success++;
+                    const name = file.name.replace(/\.pdf$/i, '') || file.name;
+                    const size = file.size;
+                    try {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                        const pages = pdf.numPages;
+                        const maxPages = Math.min(pages, 80);
+                        let fullText = '';
+                        for (let i = 1; i <= maxPages; i++) {
+                            try {
+                                const page = await pdf.getPage(i);
+                                const content = await page.getTextContent();
+                                const strings = content.items.map(item => item.str);
+                                fullText += strings.join(' ') + ' ';
+                            } catch (e) { /* skip */ }
+                            if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
+                        }
+                        let dataUrl = null;
+                        if (size < 10 * 1024 * 1024) {
+                            try {
+                                const reader = new FileReader();
+                                dataUrl = await new Promise((resolve) => {
+                                    reader.onload = () => resolve(reader.result);
+                                    reader.readAsDataURL(file);
+                                });
+                            } catch (e) { /* ignore */ }
+                        }
+                        addBook(name, size, fullText, pages, dataUrl);
+                        success++;
+                    } catch (err) {
+                        showToast(`خطأ في "${name}": ${err.message || 'غير معروف'}`, '❌');
+                    }
                 }
                 loadingIndicator.style.display = 'none';
-
                 if (success > 0) {
                     showToast(`تمت إضافة ${success} كتاب بنجاح`, '🎉');
                 } else {
@@ -1476,23 +1607,43 @@
                 }
             }
 
-            // ---- EVENT BINDING ----
-            // Search
+            // ---- DO SEARCH (dispatcher) ----
             function doSearch() {
                 const q = searchInput.value.trim();
                 if (!q) {
                     resultsContainer.innerHTML = '';
-                    searchStat.textContent = '🔍 جاهز للبحث';
+                    if (searchMode === 'local') searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
+                    else searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت';
                     currentResults = [];
                     return;
                 }
-                search(q);
+                if (searchMode === 'local') {
+                    searchLocal(q);
+                } else {
+                    searchInternet(q);
+                }
             }
 
+            // ---- EVENT BINDING ----
             searchBtn.addEventListener('click', doSearch);
-            searchInput.addEventListener('input', debounce(doSearch, 350));
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') doSearch();
+            searchInput.addEventListener('input', debounce(doSearch, 400));
+            searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+
+            // Mode toggle
+            modeToggle.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    modeToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    searchMode = this.dataset.mode;
+                    // Clear results and re-run search if there's a query
+                    if (searchInput.value.trim()) {
+                        doSearch();
+                    } else {
+                        resultsContainer.innerHTML = '';
+                        if (searchMode === 'local') searchStat.textContent = '🔍 جاهز للبحث في مكتبتك';
+                        else searchStat.textContent = '🌐 جاهز للبحث على الإنترنت';
+                    }
+                });
             });
 
             // File input
@@ -1503,20 +1654,13 @@
                 }
             });
 
-            // Drag and drop
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('dragover');
-            });
+            uploadArea.addEventListener('dragover', (e) => { e.preventDefault();
+                uploadArea.classList.add('dragover'); });
+            uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('dragover'); });
             uploadArea.addEventListener('drop', (e) => {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
-                if (e.dataTransfer.files.length > 0) {
-                    handleFiles(e.dataTransfer.files);
-                }
+                if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
             });
 
             // Filters
@@ -1526,52 +1670,32 @@
                     this.classList.add('active');
                     currentFilter = this.dataset.filter;
                     renderBooks();
-                    // Re-run search if any
-                    if (searchInput.value.trim()) {
-                        doSearch();
-                    }
+                    if (searchMode === 'local' && searchInput.value.trim()) doSearch();
                 });
             });
 
-            // Clear library
             clearLibraryBtn.addEventListener('click', clearLibrary);
-
-            // Modal close
             modalClose.addEventListener('click', closeModal);
-            modalOverlay.addEventListener('click', function(e) {
-                if (e.target === this) closeModal();
-            });
+            modalOverlay.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-            // ---- PWA: Service Worker & Manifest ----
+            // ---- PWA ----
             function registerPWA() {
-                // Service Worker via blob
                 try {
                     const swCode = `
-                            self.addEventListener('install', e => {
-                                e.waitUntil(self.skipWaiting());
-                            });
-                            self.addEventListener('activate', e => {
-                                e.waitUntil(self.clients.claim());
-                            });
+                            self.addEventListener('install', e => { e.waitUntil(self.skipWaiting()); });
+                            self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
                             self.addEventListener('fetch', e => {
-                                e.respondWith(
-                                    fetch(e.request).catch(() => {
-                                        return new Response('Offline', { status: 503 });
-                                    })
-                                );
+                                e.respondWith(fetch(e.request).catch(() => new Response('Offline', { status: 503 })));
                             });
                         `;
                     const blob = new Blob([swCode], { type: 'application/javascript' });
                     const swUrl = URL.createObjectURL(blob);
-
                     if ('serviceWorker' in navigator) {
                         navigator.serviceWorker.register(swUrl, { scope: '/' })
                             .then(() => console.log('Zohra: Service Worker registered'))
-                            .catch(() => console.log('Zohra: SW registration skipped (same-origin?)'));
+                            .catch(() => console.log('Zohra: SW registration skipped'));
                     }
                 } catch (e) { /* ignore */ }
-
-                // Manifest via blob
                 try {
                     const manifest = {
                         name: 'زهرة Zohra',
@@ -1583,11 +1707,8 @@
                         theme_color: '#0d1b2a',
                         dir: 'rtl',
                         lang: 'ar',
-                        icons: [{
-                            src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" fill="%230d1b2a"/%3E%3Ctext x="256" y="340" text-anchor="middle" font-size="280" fill="%23c9a84c" font-family="serif"%3E📖%3C/text%3E%3C/svg%3E',
-                            sizes: '512x512',
-                            type: 'image/svg+xml',
-                        }],
+                        icons: [{ src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" fill="%230d1b2a"/%3E%3Ctext x="256" y="340" text-anchor="middle" font-size="280" fill="%23c9a84c" font-family="serif"%3E📖%3C/text%3E%3C/svg%3E',
+                            sizes: '512x512', type: 'image/svg+xml' }],
                     };
                     const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
                     const manifestUrl = URL.createObjectURL(manifestBlob);
@@ -1602,37 +1723,30 @@
             function init() {
                 loadBooks();
                 registerPWA();
-                // Clear any stale results
-                if (books.length === 0) {
-                    emptyState.style.display = 'block';
-                }
+                if (books.length === 0) emptyState.style.display = 'block';
 
-                // Check if URL has search param
                 const params = new URLSearchParams(location.search);
                 const q = params.get('q');
                 if (q) {
                     searchInput.value = q;
-                    setTimeout(doSearch, 400);
+                    // Default to internet search if query looks like a title
+                    if (q.length > 2) {
+                        modeToggle.querySelector('[data-mode="internet"]').click();
+                    }
+                    setTimeout(doSearch, 500);
                 }
-
-                console.log('🌺 زهرة Zohra جاهزة!');
+                console.log('🌺 زهرة Zohra جاهزة! (مع بحث الإنترنت)');
                 console.log(`📚 ${books.length} كتاب في المكتبة`);
             }
 
-            // Polyfill for older browsers
-            if (!window.Promise) {
-                window.Promise = function() {};
-            }
-
-            // Start
+            if (!window.Promise) window.Promise = function() {};
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
                 init();
             }
 
-            // Expose for debugging
-            window.__ZOHRA = { books, search, addBook, removeBook, clearLibrary };
+            window.__ZOHRA = { books, searchLocal, searchInternet, addBook, removeBook, clearLibrary };
 
         })();
     </script>
