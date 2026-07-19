@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>زهرة Zohra - البحث الذكي عن الكتب</title>
+    <title>زهرة Zohra</title>
 
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,232 +20,48 @@
     </script>
 
     <style>
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: #111827;
-        }
-        /* تنسيقات العارض */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(6px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal-content {
-            background: #1f2937;
-            border-radius: 18px;
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #374151;
-            overflow: hidden;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 24px;
-            border-bottom: 1px solid #374151;
-            flex-shrink: 0;
-        }
-        .modal-header h3 {
-            font-weight: 400;
-            color: #34d399;
-            font-size: 1.1rem;
-        }
-        .modal-header .close-modal {
-            background: none;
-            border: none;
-            color: #9ca3af;
-            font-size: 1.6rem;
-            cursor: pointer;
-            padding: 0 8px;
-            transition: 0.2s;
-        }
-        .modal-header .close-modal:hover {
-            color: #f87171;
-            transform: rotate(90deg);
-        }
-        .modal-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px 24px;
-            background: #111827;
-        }
-        .modal-body canvas {
-            width: 100% !important;
-            height: auto !important;
-            border-radius: 4px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
-        }
-        .modal-footer {
-            padding: 12px 24px;
-            border-top: 1px solid #374151;
-            display: flex;
-            justify-content: space-between;
-            color: #9ca3af;
-            font-size: 0.8rem;
-            flex-shrink: 0;
-        }
-        .search-input {
-            background: #1f2937;
-            color: #f3f4f6;
-            border: 1px solid #4b5563;
-        }
-        .search-input:focus {
-            outline: none;
-            ring: 2px solid #34d399;
-            border-color: #34d399;
-        }
-        .book-card {
-            transition: all 0.3s ease;
-            border: 1px solid #374151;
-        }
-        .book-card:hover {
-            border-color: #34d399;
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        .upload-area {
-            border: 2px dashed #4b5563;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .upload-area:hover {
-            border-color: #34d399;
-            background: rgba(52, 211, 153, 0.05);
-        }
-        .upload-area.dragover {
-            border-color: #34d399;
-            background: rgba(52, 211, 153, 0.1);
-        }
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #1f2937;
-            border: 1px solid #374151;
-            border-radius: 12px;
-            padding: 14px 28px;
-            color: #f3f4f6;
-            font-size: 0.9rem;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-            z-index: 2000;
-            opacity: 0;
-            transition: all 0.4s ease;
-            pointer-events: none;
-            max-width: 90%;
-        }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-            pointer-events: auto;
-        }
-        .toast .toast-icon {
-            margin-left: 10px;
-        }
-        .btn-action {
-            transition: 0.2s;
-        }
-        .btn-action:hover {
-            transform: scale(1.02);
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1f2937;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #34d399;
-            border-radius: 8px;
-        }
-        .filter-chip {
-            background: #1f2937;
-            border: 1px solid #374151;
-            color: #9ca3af;
-            padding: 4px 16px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .filter-chip:hover,
-        .filter-chip.active {
-            background: rgba(52, 211, 153, 0.15);
-            border-color: #34d399;
-            color: #34d399;
-        }
-        .filter-chip .count {
-            background: rgba(52, 211, 153, 0.2);
-            border-radius: 20px;
-            padding: 0 8px;
-            font-size: 0.7rem;
-            color: #34d399;
-        }
-        .loading-spinner {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(52, 211, 153, 0.15);
-            border-top-color: #34d399;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        .pagination button {
-            transition: 0.2s;
-        }
-        .pagination button:hover:not(:disabled) {
-            background: #34d399;
-            color: #111827;
-        }
-        .pagination button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        /* تنسيق الإحصائيات */
-        .stats-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-        .stats-bar .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: #1f2937;
-            padding: 0.2rem 0.8rem;
-            border-radius: 30px;
-            border: 1px solid #374151;
-        }
-        .stats-bar .stat-item i {
-            color: #34d399;
-        }
-        .stats-bar .flag-img {
-            width: 20px;
-            height: 15px;
-            border-radius: 2px;
-            border: 1px solid #4b5563;
-        }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #111827; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #1f2937; border-radius: 18px; max-width: 900px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; border: 1px solid #374151; overflow: hidden; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #374151; flex-shrink: 0; }
+        .modal-header h3 { font-weight: 400; color: #34d399; font-size: 1.1rem; }
+        .modal-header .close-modal { background: none; border: none; color: #9ca3af; font-size: 1.6rem; cursor: pointer; padding: 0 8px; transition: 0.2s; }
+        .modal-header .close-modal:hover { color: #f87171; transform: rotate(90deg); }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px 24px; background: #111827; }
+        .modal-body canvas { width: 100% !important; height: auto !important; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+        .modal-footer { padding: 12px 24px; border-top: 1px solid #374151; display: flex; justify-content: space-between; color: #9ca3af; font-size: 0.8rem; flex-shrink: 0; }
+        .search-input { background: #1f2937; color: #f3f4f6; border: 1px solid #4b5563; }
+        .search-input:focus { outline: none; ring: 2px solid #34d399; border-color: #34d399; }
+        .book-card { transition: all 0.3s ease; border: 1px solid #374151; }
+        .book-card:hover { border-color: #34d399; transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .upload-area { border: 2px dashed #4b5563; transition: 0.3s; cursor: pointer; }
+        .upload-area:hover { border-color: #34d399; background: rgba(52,211,153,0.05); }
+        .upload-area.dragover { border-color: #34d399; background: rgba(52,211,153,0.1); }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; border: 1px solid #374151; border-radius: 12px; padding: 14px 28px; color: #f3f4f6; font-size: 0.9rem; box-shadow: 0 8px 30px rgba(0,0,0,0.6); z-index: 2000; opacity: 0; transition: all 0.4s ease; pointer-events: none; max-width: 90%; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        .toast .toast-icon { margin-left: 10px; }
+        .btn-action { transition: 0.2s; }
+        .btn-action:hover { transform: scale(1.02); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #34d399; border-radius: 8px; }
+        .filter-chip { background: #1f2937; border: 1px solid #374151; color: #9ca3af; padding: 4px 16px; border-radius: 30px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .filter-chip:hover, .filter-chip.active { background: rgba(52,211,153,0.15); border-color: #34d399; color: #34d399; }
+        .filter-chip .count { background: rgba(52,211,153,0.2); border-radius: 20px; padding: 0 8px; font-size: 0.7rem; color: #34d399; }
+        .loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(52,211,153,0.15); border-top-color: #34d399; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .pagination button { transition: 0.2s; }
+        .pagination button:hover:not(:disabled) { background: #34d399; color: #111827; }
+        .pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .stats-bar { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; font-size: 0.9rem; }
+        .stats-bar .stat-item { display: flex; align-items: center; gap: 0.4rem; background: #1f2937; padding: 0.2rem 0.8rem; border-radius: 30px; border: 1px solid #374151; }
+        .stats-bar .stat-item i { color: #34d399; }
+        .stats-bar .flag-img { width: 20px; height: 15px; border-radius: 2px; border: 1px solid #4b5563; }
+        .lang-selector { position: relative; display: inline-block; }
+        .lang-selector select { background: #1f2937; color: #f3f4f6; border: 1px solid #4b5563; border-radius: 30px; padding: 0.2rem 0.8rem; font-size: 0.8rem; cursor: pointer; outline: none; }
+        .lang-selector select:hover { border-color: #34d399; }
+        .lang-selector select option { background: #1f2937; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen">
@@ -255,46 +71,46 @@
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <span class="text-3xl text-emerald-400"><i class="fa-solid fa-book-open"></i></span>
-                <h1 class="text-2xl font-bold text-emerald-400">زهرة <span class="text-sm font-normal text-gray-400">Zohra</span></h1>
+                <h1 class="text-2xl font-bold text-emerald-400"><span data-i18n="appTitle">زهرة Zohra</span></h1>
             </div>
             <!-- شريط البحث -->
             <div class="relative w-full md:w-96">
-                <input type="text" id="searchInput" placeholder="ابحث عن كتاب، مؤلف، موضوع..." class="w-full bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-gray-600">
+                <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="ابحث عن كتاب، مؤلف، موضوع..." class="w-full bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-gray-600">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
             </div>
-            <!-- أزرار وضع البحث -->
-            <div class="flex gap-2">
-                <button id="localModeBtn" class="px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition">📁 محلي</button>
-                <button id="internetModeBtn" class="px-4 py-1 rounded-full text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 transition">🌐 إنترنت</button>
+            <!-- أزرار وضع البحث + اختيار اللغة -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <button id="localModeBtn" class="px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition"><span data-i18n="localBtn">📁 محلي</span></button>
+                <button id="internetModeBtn" class="px-4 py-1 rounded-full text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 transition"><span data-i18n="internetBtn">🌐 إنترنت</span></button>
+                <div class="lang-selector">
+                    <select id="langSelect" class="bg-gray-700 text-white border border-gray-600 rounded-full px-3 py-1 text-sm focus:ring-2 focus:ring-emerald-500">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="es">Español</option>
+                        <option value="de">Deutsch</option>
+                    </select>
+                </div>
             </div>
         </div>
-        <!-- شريط التصفية والإحصائيات (مدمج) -->
+        <!-- شريط التصفية والإحصائيات -->
         <div class="max-w-6xl mx-auto mt-3 flex flex-wrap items-center gap-3">
             <div class="flex flex-wrap items-center gap-2">
-                <span class="filter-chip active" data-filter="all">📚 الكل <span class="count" id="filterAll">0</span></span>
-                <span class="filter-chip" data-filter="recent">🕒 حديثة <span class="count" id="filterRecent">0</span></span>
-                <span class="filter-chip" data-filter="large">📄 كبيرة <span class="count" id="filterLarge">0</span></span>
+                <span class="filter-chip active" data-filter="all"><span data-i18n="filterAll">📚 الكل</span> <span class="count" id="filterAll">0</span></span>
+                <span class="filter-chip" data-filter="recent"><span data-i18n="filterRecent">🕒 حديثة</span> <span class="count" id="filterRecent">0</span></span>
+                <span class="filter-chip" data-filter="large"><span data-i18n="filterLarge">📄 كبيرة</span> <span class="count" id="filterLarge">0</span></span>
             </div>
-            <span class="text-sm text-gray-400 mr-auto" id="searchStat">🔍 جاهز للبحث</span>
+            <span class="text-sm text-gray-400 mr-auto" id="searchStat" data-i18n="readySearch">🔍 جاهز للبحث</span>
             
-            <!-- الإحصائيات الجديدة (عدد الزوار، البلد، عدد التحميلات) -->
+            <!-- الإحصائيات -->
             <div class="stats-bar">
-                <span class="stat-item" id="visitorStat">
-                    <i class="fa-regular fa-user"></i>
-                    <span id="visitorCount">0</span>
-                </span>
-                <span class="stat-item" id="countryStat">
-                    <i class="fa-regular fa-flag"></i>
-                    <span id="countryDisplay">🌍 جاري التحميل...</span>
-                </span>
-                <span class="stat-item" id="downloadStat">
-                    <i class="fa-regular fa-download"></i>
-                    <span id="downloadCount">0</span>
-                </span>
+                <span class="stat-item"><i class="fa-regular fa-user"></i> <span id="visitorCount">0</span></span>
+                <span class="stat-item"><i class="fa-regular fa-flag"></i> <span id="countryDisplay">🌍 جاري التحميل...</span></span>
+                <span class="stat-item"><i class="fa-regular fa-download"></i> <span id="downloadCount">0</span></span>
             </div>
             
-            <button id="clearLibraryBtn" class="text-sm text-red-400 hover:text-red-300 transition"><i class="fa-regular fa-trash-can"></i> مسح المكتبة</button>
-            <span class="text-sm text-gray-400" id="bookCount">0 كتاب</span>
+            <button id="clearLibraryBtn" class="text-sm text-red-400 hover:text-red-300 transition"><i class="fa-regular fa-trash-can"></i> <span data-i18n="clearLibrary">مسح المكتبة</span></button>
+            <span class="text-sm text-gray-400" id="bookCount"><span data-i18n="booksCount">0 كتاب</span></span>
         </div>
     </header>
 
@@ -302,34 +118,29 @@
     <div class="max-w-6xl mx-auto px-4 mt-4">
         <div id="uploadArea" class="upload-area rounded-xl p-6 text-center">
             <div class="text-4xl text-gray-500 mb-2"><i class="fa-regular fa-file-pdf"></i></div>
-            <p class="text-gray-400">اسحب ملف PDF هنا أو <span class="text-emerald-400 font-semibold">انقر للاختيار</span></p>
-            <p class="text-xs text-gray-500 mt-1">يدعم ملفات PDF · سيتم فهرستها للبحث الذكي</p>
+            <p class="text-gray-400"><span data-i18n="uploadDrag">اسحب ملف PDF هنا أو</span> <span class="text-emerald-400 font-semibold" data-i18n="uploadClick">انقر للاختيار</span></p>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="uploadHint">يدعم ملفات PDF · سيتم فهرستها للبحث الذكي</p>
             <input type="file" id="fileInput" accept=".pdf" multiple class="hidden" />
         </div>
     </div>
 
     <!-- شبكة عرض الكتب -->
     <main class="max-w-6xl mx-auto p-4 mt-4">
-        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- سيتم توليد البطاقات بواسطة JavaScript -->
-        </div>
-        <!-- عنصر التحميل عند جلب المزيد من الإنترنت -->
+        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
         <div id="paginationControls" class="flex justify-center items-center gap-4 mt-6 hidden">
-            <button id="prevPageBtn" class="px-4 py-2 bg-gray-700 rounded-lg text-gray-300 hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed">◀ السابق</button>
-            <span class="text-gray-400" id="pageInfo">الصفحة 1</span>
-            <button id="nextPageBtn" class="px-4 py-2 bg-gray-700 rounded-lg text-gray-300 hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed">التالي ▶</button>
-            <span id="loadingMore" class="text-emerald-400 text-sm hidden"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</span>
+            <button id="prevPageBtn" class="px-4 py-2 bg-gray-700 rounded-lg text-gray-300 hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed" data-i18n="prevPage">◀ السابق</button>
+            <span class="text-gray-400" id="pageInfo" data-i18n="pageInfo">الصفحة 1</span>
+            <button id="nextPageBtn" class="px-4 py-2 bg-gray-700 rounded-lg text-gray-300 hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed" data-i18n="nextPage">التالي ▶</button>
+            <span id="loadingMore" class="text-emerald-400 text-sm hidden"><i class="fa-solid fa-spinner fa-spin"></i> <span data-i18n="loadingMore">جاري التحميل...</span></span>
         </div>
-        <!-- رسالة عدم وجود نتائج -->
         <div id="emptyState" class="text-center py-12 hidden">
             <div class="text-6xl text-gray-600 mb-4"><i class="fa-regular fa-folder-open"></i></div>
-            <h3 class="text-xl text-gray-300">لم تُضف أي كتب بعد</h3>
-            <p class="text-gray-500 mt-2">قم برفع ملفات PDF أو استخدم "بحث إنترنت" للعثور على كتب ومجلات جديدة.</p>
+            <h3 class="text-xl text-gray-300" data-i18n="emptyTitle">لم تُضف أي كتب بعد</h3>
+            <p class="text-gray-500 mt-2" data-i18n="emptyDesc">قم برفع ملفات PDF أو استخدم "بحث إنترنت" للعثور على كتب ومجلات جديدة.</p>
         </div>
-        <!-- مؤشر التحميل -->
         <div id="loadingIndicator" class="flex items-center gap-3 text-gray-400 mt-4 hidden">
             <span class="loading-spinner"></span>
-            <span id="loadingText">جاري معالجة الملفات...</span>
+            <span id="loadingText" data-i18n="processingFiles">جاري معالجة الملفات...</span>
         </div>
     </main>
 
@@ -337,18 +148,18 @@
     <div class="modal-overlay" id="pdfModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle">📄 عرض الكتاب</h3>
+                <h3 id="modalTitle"><span data-i18n="viewerTitle">📄 عرض الكتاب</span></h3>
                 <button class="close-modal" id="modalClose">✕</button>
             </div>
             <div class="modal-body" id="modalBody">
                 <div class="text-center py-10 text-gray-400">
                     <span class="loading-spinner"></span>
-                    <p class="mt-3">جاري تحميل الكتاب...</p>
+                    <p class="mt-3" data-i18n="loadingBook">جاري تحميل الكتاب...</p>
                 </div>
             </div>
             <div class="modal-footer">
-                <span id="modalPageInfo">الصفحة 0 / 0</span>
-                <span>📖 زهرة</span>
+                <span id="modalPageInfo" data-i18n="pageInfoModal">الصفحة 0 / 0</span>
+                <span>📖 Zohra</span>
             </div>
         </div>
     </div>
@@ -357,23 +168,387 @@
     <div class="toast" id="toast"></div>
 
     <!-- ============================================================ -->
-    <!-- كود JavaScript الكامل -->
     <script>
         (function() {
             'use strict';
 
-            // ---- CONFIG ----
+            // ---- ترجمات النصوص ----
+            const translations = {
+                ar: {
+                    appTitle: "زهرة Zohra",
+                    searchPlaceholder: "ابحث عن كتاب، مؤلف، موضوع...",
+                    localBtn: "📁 محلي",
+                    internetBtn: "🌐 إنترنت",
+                    filterAll: "📚 الكل",
+                    filterRecent: "🕒 حديثة",
+                    filterLarge: "📄 كبيرة",
+                    readySearch: "🔍 جاهز للبحث",
+                    clearLibrary: "🗑️ مسح المكتبة",
+                    booksCount: "0 كتاب",
+                    uploadDrag: "اسحب ملف PDF هنا أو",
+                    uploadClick: "انقر للاختيار",
+                    uploadHint: "يدعم ملفات PDF · سيتم فهرستها للبحث الذكي",
+                    prevPage: "◀ السابق",
+                    nextPage: "التالي ▶",
+                    pageInfo: "الصفحة 1",
+                    loadingMore: "جاري التحميل...",
+                    emptyTitle: "لم تُضف أي كتب بعد",
+                    emptyDesc: "قم برفع ملفات PDF أو استخدم 'بحث إنترنت' للعثور على كتب ومجلات جديدة.",
+                    processingFiles: "جاري معالجة الملفات...",
+                    viewerTitle: "📄 عرض الكتاب",
+                    loadingBook: "جاري تحميل الكتاب...",
+                    pageInfoModal: "الصفحة 0 / 0",
+                    // رسائل الحالة الديناميكية
+                    searchLocalPrompt: "🔍 اكتب كلمة للبحث في مكتبتك",
+                    searchInternetPrompt: "🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)",
+                    searchLocalResult: (count) => `🔍 تم العثور على ${count} نتيجة في مكتبتك`,
+                    searchInternetResult: (count, total) => `🌐 تم العثور على ${count} نتيجة (إجمالي ~${total})`,
+                    noInternetResults: "لا توجد نتائج متاحة بهذا البحث",
+                    noBooks: "لا توجد كتب لعرضها",
+                    // رسائل التنبيه
+                    toastAdded: (name) => `✅ تمت إضافة "${name}"`,
+                    toastDeleted: (name) => `🗑️ تم حذف "${name}"`,
+                    toastLibraryCleared: "🧹 تم مسح المكتبة بالكامل",
+                    toastNoPDF: "⚠️ يرجى اختيار ملفات PDF فقط",
+                    toastDownloadFailed: (title) => `تعذر تحميل "${title}"، سيتم فتح الرابط.`,
+                    toastFileEmpty: (title) => `⚠️ الملف "${title}" فارغ أو غير صالح.`,
+                    toastAddedSuccess: (count) => `🎉 تمت إضافة ${count} كتاب بنجاح`,
+                    toastNoBooksAdded: "⚠️ لم تتم إضافة أي كتاب، تأكد من صحة الملفات",
+                    toastBookNotFound: "⚠️ الكتاب غير موجود في المكتبة",
+                    toastNoLink: "⚠️ لا يوجد رابط متاح",
+                    toastNoMoreResults: "⚠️ لا توجد نتائج إضافية",
+                    toastErrorPage: "❌ خطأ في عرض الصفحة",
+                    toastLoadError: "⚠️ حدث خطأ",
+                    toastAddError: (name) => `❌ خطأ في "${name}": غير معروف`,
+                    // أزرار البطاقات
+                    readBtn: "قراءة",
+                    downloadBtn: "تحميل",
+                    openBtn: "فتح",
+                    // عارض PDF
+                    prevPageBtn: "◀ السابق",
+                    nextPageBtn: "التالي ▶",
+                    pageLabel: "الصفحة",
+                    // رسائل أخرى
+                    loadingInternet: "جاري البحث على الإنترنت (جميع اللغات والأنواع)...",
+                    clickToSearch: "اكتب كلمة للبحث على الإنترنت",
+                    noResultsFound: "لا توجد نتائج",
+                },
+                en: {
+                    appTitle: "Zohra",
+                    searchPlaceholder: "Search for a book, author, topic...",
+                    localBtn: "📁 Local",
+                    internetBtn: "🌐 Internet",
+                    filterAll: "📚 All",
+                    filterRecent: "🕒 Recent",
+                    filterLarge: "📄 Large",
+                    readySearch: "🔍 Ready to search",
+                    clearLibrary: "🗑️ Clear Library",
+                    booksCount: "0 books",
+                    uploadDrag: "Drag a PDF file here or",
+                    uploadClick: "click to choose",
+                    uploadHint: "Supports PDF files · will be indexed for smart search",
+                    prevPage: "◀ Previous",
+                    nextPage: "Next ▶",
+                    pageInfo: "Page 1",
+                    loadingMore: "Loading more...",
+                    emptyTitle: "No books added yet",
+                    emptyDesc: "Upload PDF files or use 'Internet Search' to find new books and magazines.",
+                    processingFiles: "Processing files...",
+                    viewerTitle: "📄 View Book",
+                    loadingBook: "Loading book...",
+                    pageInfoModal: "Page 0 / 0",
+                    searchLocalPrompt: "🔍 Type a word to search in your library",
+                    searchInternetPrompt: "🌐 Type a word to search online (books, eBooks, magazines)",
+                    searchLocalResult: (count) => `🔍 Found ${count} results in your library`,
+                    searchInternetResult: (count, total) => `🌐 Found ${count} results (total ~${total})`,
+                    noInternetResults: "No results available for this search",
+                    noBooks: "No books to display",
+                    toastAdded: (name) => `✅ Added "${name}"`,
+                    toastDeleted: (name) => `🗑️ Deleted "${name}"`,
+                    toastLibraryCleared: "🧹 Library cleared",
+                    toastNoPDF: "⚠️ Please select PDF files only",
+                    toastDownloadFailed: (title) => `Failed to download "${title}", will open link.`,
+                    toastFileEmpty: (title) => `⚠️ File "${title}" is empty or invalid.`,
+                    toastAddedSuccess: (count) => `🎉 Successfully added ${count} books`,
+                    toastNoBooksAdded: "⚠️ No books added, check file validity",
+                    toastBookNotFound: "⚠️ Book not found in library",
+                    toastNoLink: "⚠️ No link available",
+                    toastNoMoreResults: "⚠️ No more results",
+                    toastErrorPage: "❌ Error displaying page",
+                    toastLoadError: "⚠️ An error occurred",
+                    toastAddError: (name) => `❌ Error in "${name}": unknown`,
+                    readBtn: "Read",
+                    downloadBtn: "Download",
+                    openBtn: "Open",
+                    prevPageBtn: "◀ Previous",
+                    nextPageBtn: "Next ▶",
+                    pageLabel: "Page",
+                    loadingInternet: "Searching online (all languages and types)...",
+                    clickToSearch: "Type a word to search online",
+                    noResultsFound: "No results found",
+                },
+                fr: {
+                    appTitle: "Zohra",
+                    searchPlaceholder: "Rechercher un livre, auteur, sujet...",
+                    localBtn: "📁 Local",
+                    internetBtn: "🌐 Internet",
+                    filterAll: "📚 Tous",
+                    filterRecent: "🕒 Récents",
+                    filterLarge: "📄 Grands",
+                    readySearch: "🔍 Prêt à chercher",
+                    clearLibrary: "🗑️ Vider la bibliothèque",
+                    booksCount: "0 livres",
+                    uploadDrag: "Glissez un fichier PDF ici ou",
+                    uploadClick: "cliquez pour choisir",
+                    uploadHint: "Prend en charge les PDF · sera indexé pour la recherche intelligente",
+                    prevPage: "◀ Précédent",
+                    nextPage: "Suivant ▶",
+                    pageInfo: "Page 1",
+                    loadingMore: "Chargement...",
+                    emptyTitle: "Aucun livre ajouté",
+                    emptyDesc: "Téléchargez des PDF ou utilisez 'Recherche Internet' pour trouver de nouveaux livres et magazines.",
+                    processingFiles: "Traitement des fichiers...",
+                    viewerTitle: "📄 Voir le livre",
+                    loadingBook: "Chargement du livre...",
+                    pageInfoModal: "Page 0 / 0",
+                    searchLocalPrompt: "🔍 Tapez un mot pour chercher dans votre bibliothèque",
+                    searchInternetPrompt: "🌐 Tapez un mot pour chercher en ligne (livres, eBooks, magazines)",
+                    searchLocalResult: (count) => `🔍 ${count} résultats trouvés dans votre bibliothèque`,
+                    searchInternetResult: (count, total) => `🌐 ${count} résultats trouvés (total ~${total})`,
+                    noInternetResults: "Aucun résultat disponible pour cette recherche",
+                    noBooks: "Aucun livre à afficher",
+                    toastAdded: (name) => `✅ Ajouté "${name}"`,
+                    toastDeleted: (name) => `🗑️ Supprimé "${name}"`,
+                    toastLibraryCleared: "🧹 Bibliothèque vidée",
+                    toastNoPDF: "⚠️ Veuillez sélectionner uniquement des fichiers PDF",
+                    toastDownloadFailed: (title) => `Échec du téléchargement de "${title}", ouverture du lien.`,
+                    toastFileEmpty: (title) => `⚠️ Le fichier "${title}" est vide ou invalide.`,
+                    toastAddedSuccess: (count) => `🎉 ${count} livres ajoutés avec succès`,
+                    toastNoBooksAdded: "⚠️ Aucun livre ajouté, vérifiez la validité des fichiers",
+                    toastBookNotFound: "⚠️ Livre introuvable dans la bibliothèque",
+                    toastNoLink: "⚠️ Aucun lien disponible",
+                    toastNoMoreResults: "⚠️ Pas plus de résultats",
+                    toastErrorPage: "❌ Erreur d'affichage de la page",
+                    toastLoadError: "⚠️ Une erreur est survenue",
+                    toastAddError: (name) => `❌ Erreur dans "${name}": inconnu`,
+                    readBtn: "Lire",
+                    downloadBtn: "Télécharger",
+                    openBtn: "Ouvrir",
+                    prevPageBtn: "◀ Précédent",
+                    nextPageBtn: "Suivant ▶",
+                    pageLabel: "Page",
+                    loadingInternet: "Recherche en ligne (toutes langues et types)...",
+                    clickToSearch: "Tapez un mot pour chercher en ligne",
+                    noResultsFound: "Aucun résultat trouvé",
+                },
+                es: {
+                    appTitle: "Zohra",
+                    searchPlaceholder: "Buscar libro, autor, tema...",
+                    localBtn: "📁 Local",
+                    internetBtn: "🌐 Internet",
+                    filterAll: "📚 Todos",
+                    filterRecent: "🕒 Recientes",
+                    filterLarge: "📄 Grandes",
+                    readySearch: "🔍 Listo para buscar",
+                    clearLibrary: "🗑️ Vaciar biblioteca",
+                    booksCount: "0 libros",
+                    uploadDrag: "Arrastre un PDF aquí o",
+                    uploadClick: "haga clic para elegir",
+                    uploadHint: "Admite PDF · se indexará para búsqueda inteligente",
+                    prevPage: "◀ Anterior",
+                    nextPage: "Siguiente ▶",
+                    pageInfo: "Página 1",
+                    loadingMore: "Cargando más...",
+                    emptyTitle: "No se han agregado libros",
+                    emptyDesc: "Sube archivos PDF o usa 'Búsqueda en Internet' para encontrar nuevos libros y revistas.",
+                    processingFiles: "Procesando archivos...",
+                    viewerTitle: "📄 Ver libro",
+                    loadingBook: "Cargando libro...",
+                    pageInfoModal: "Página 0 / 0",
+                    searchLocalPrompt: "🔍 Escribe una palabra para buscar en tu biblioteca",
+                    searchInternetPrompt: "🌐 Escribe una palabra para buscar en línea (libros, eBooks, revistas)",
+                    searchLocalResult: (count) => `🔍 Se encontraron ${count} resultados en tu biblioteca`,
+                    searchInternetResult: (count, total) => `🌐 Se encontraron ${count} resultados (total ~${total})`,
+                    noInternetResults: "No hay resultados disponibles para esta búsqueda",
+                    noBooks: "No hay libros para mostrar",
+                    toastAdded: (name) => `✅ Agregado "${name}"`,
+                    toastDeleted: (name) => `🗑️ Eliminado "${name}"`,
+                    toastLibraryCleared: "🧹 Biblioteca vaciada",
+                    toastNoPDF: "⚠️ Selecciona solo archivos PDF",
+                    toastDownloadFailed: (title) => `Fallo al descargar "${title}", se abrirá el enlace.`,
+                    toastFileEmpty: (title) => `⚠️ El archivo "${title}" está vacío o es inválido.`,
+                    toastAddedSuccess: (count) => `🎉 Se agregaron ${count} libros correctamente`,
+                    toastNoBooksAdded: "⚠️ No se agregaron libros, verifica la validez de los archivos",
+                    toastBookNotFound: "⚠️ Libro no encontrado en la biblioteca",
+                    toastNoLink: "⚠️ No hay enlace disponible",
+                    toastNoMoreResults: "⚠️ No hay más resultados",
+                    toastErrorPage: "❌ Error al mostrar la página",
+                    toastLoadError: "⚠️ Ocurrió un error",
+                    toastAddError: (name) => `❌ Error en "${name}": desconocido`,
+                    readBtn: "Leer",
+                    downloadBtn: "Descargar",
+                    openBtn: "Abrir",
+                    prevPageBtn: "◀ Anterior",
+                    nextPageBtn: "Siguiente ▶",
+                    pageLabel: "Página",
+                    loadingInternet: "Buscando en línea (todos los idiomas y tipos)...",
+                    clickToSearch: "Escribe una palabra para buscar en línea",
+                    noResultsFound: "No se encontraron resultados",
+                },
+                de: {
+                    appTitle: "Zohra",
+                    searchPlaceholder: "Suche nach Buch, Autor, Thema...",
+                    localBtn: "📁 Lokal",
+                    internetBtn: "🌐 Internet",
+                    filterAll: "📚 Alle",
+                    filterRecent: "🕒 Aktuell",
+                    filterLarge: "📄 Groß",
+                    readySearch: "🔍 Bereit zur Suche",
+                    clearLibrary: "🗑️ Bibliothek leeren",
+                    booksCount: "0 Bücher",
+                    uploadDrag: "Ziehen Sie eine PDF-Datei hierher oder",
+                    uploadClick: "klicken Sie zum Auswählen",
+                    uploadHint: "Unterstützt PDF · wird für die intelligente Suche indiziert",
+                    prevPage: "◀ Zurück",
+                    nextPage: "Weiter ▶",
+                    pageInfo: "Seite 1",
+                    loadingMore: "Lade mehr...",
+                    emptyTitle: "Keine Bücher hinzugefügt",
+                    emptyDesc: "Laden Sie PDF-Dateien hoch oder verwenden Sie 'Internet-Suche', um neue Bücher und Zeitschriften zu finden.",
+                    processingFiles: "Verarbeite Dateien...",
+                    viewerTitle: "📄 Buch anzeigen",
+                    loadingBook: "Lade Buch...",
+                    pageInfoModal: "Seite 0 / 0",
+                    searchLocalPrompt: "🔍 Geben Sie ein Wort ein, um in Ihrer Bibliothek zu suchen",
+                    searchInternetPrompt: "🌐 Geben Sie ein Wort ein, um online zu suchen (Bücher, eBooks, Zeitschriften)",
+                    searchLocalResult: (count) => `🔍 ${count} Ergebnisse in Ihrer Bibliothek gefunden`,
+                    searchInternetResult: (count, total) => `🌐 ${count} Ergebnisse gefunden (gesamt ~${total})`,
+                    noInternetResults: "Keine Ergebnisse für diese Suche verfügbar",
+                    noBooks: "Keine Bücher zum Anzeigen",
+                    toastAdded: (name) => `✅ "${name}" hinzugefügt`,
+                    toastDeleted: (name) => `🗑️ "${name}" gelöscht`,
+                    toastLibraryCleared: "🧹 Bibliothek geleert",
+                    toastNoPDF: "⚠️ Bitte wählen Sie nur PDF-Dateien aus",
+                    toastDownloadFailed: (title) => `Fehler beim Herunterladen von "${title}", Link wird geöffnet.`,
+                    toastFileEmpty: (title) => `⚠️ Die Datei "${title}" ist leer oder ungültig.`,
+                    toastAddedSuccess: (count) => `🎉 ${count} Bücher erfolgreich hinzugefügt`,
+                    toastNoBooksAdded: "⚠️ Keine Bücher hinzugefügt, überprüfen Sie die Gültigkeit der Dateien",
+                    toastBookNotFound: "⚠️ Buch nicht in der Bibliothek gefunden",
+                    toastNoLink: "⚠️ Kein Link verfügbar",
+                    toastNoMoreResults: "⚠️ Keine weiteren Ergebnisse",
+                    toastErrorPage: "❌ Fehler beim Anzeigen der Seite",
+                    toastLoadError: "⚠️ Ein Fehler ist aufgetreten",
+                    toastAddError: (name) => `❌ Fehler in "${name}": unbekannt`,
+                    readBtn: "Lesen",
+                    downloadBtn: "Herunterladen",
+                    openBtn: "Öffnen",
+                    prevPageBtn: "◀ Zurück",
+                    nextPageBtn: "Weiter ▶",
+                    pageLabel: "Seite",
+                    loadingInternet: "Suche online (alle Sprachen und Typen)...",
+                    clickToSearch: "Geben Sie ein Wort ein, um online zu suchen",
+                    noResultsFound: "Keine Ergebnisse gefunden",
+                }
+            };
+
+            // ---- تحديد اللغة المفضلة ----
+            const supportedLangs = ['ar', 'en', 'fr', 'es', 'de'];
+            let currentLang = 'ar';
+
+            function getPreferredLanguage() {
+                // 1. من localStorage
+                const stored = localStorage.getItem('zohra_lang');
+                if (stored && supportedLangs.includes(stored)) return stored;
+                // 2. من المتصفح
+                const browserLangs = navigator.languages || [navigator.language];
+                for (let lang of browserLangs) {
+                    const base = lang.split('-')[0];
+                    if (supportedLangs.includes(base)) return base;
+                }
+                return 'ar'; // افتراضي
+            }
+
+            // ---- تطبيق اللغة ----
+            function applyLanguage(lang) {
+                currentLang = lang;
+                localStorage.setItem('zohra_lang', lang);
+                // تحديث اتجاه الصفحة
+                document.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+                document.documentElement.lang = lang;
+                // تحديث العناصر ذات data-i18n
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    if (translations[lang] && translations[lang][key] !== undefined) {
+                        if (el.tagName === 'INPUT' && el.dataset.i18nPlaceholder !== undefined) {
+                            el.placeholder = translations[lang][key];
+                        } else {
+                            el.textContent = translations[lang][key];
+                        }
+                    }
+                });
+                // تحديث العناصر ذات data-i18n-placeholder
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.dataset.i18nPlaceholder;
+                    if (translations[lang] && translations[lang][key] !== undefined) {
+                        el.placeholder = translations[lang][key];
+                    }
+                });
+                // تحديث select
+                document.getElementById('langSelect').value = lang;
+                // تحديث النصوص الديناميكية (stat, book count, etc.)
+                updateDynamicTexts();
+                // تحديث الرسائل المخزنة مؤقتاً (toast) - سيتم تحديثها عند الاستدعاء
+                // إعادة عرض الكتب لتحديث الأزرار
+                if (searchMode === 'local') {
+                    if (searchInput.value.trim()) searchLocal(searchInput.value);
+                    else renderLocalBooks();
+                } else {
+                    if (searchInput.value.trim()) doSearch();
+                    else {
+                        booksGrid.innerHTML = `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-message text-4xl block mb-2"></i> ${t('clickToSearch')}</div>`;
+                        searchStat.textContent = t('searchInternetPrompt');
+                        paginationControls.style.display = 'none';
+                    }
+                }
+                // تحديث الإحصائيات
+                updateStats();
+                // تحديث الأزرار (لأنها تحتوي على نصوص مترجمة)
+                updateButtonsText();
+            }
+
+            // دالة مساعدة للترجمة
+            function t(key, ...args) {
+                let text = translations[currentLang]?.[key] || translations['ar'][key] || key;
+                if (typeof text === 'function') {
+                    return text(...args);
+                }
+                return text;
+            }
+
+            // تحديث النصوص الديناميكية
+            function updateDynamicTexts() {
+                // searchStat يتم تحديثه في دوال البحث
+                // bookCount يتم تحديثه في renderLocalBooks
+                // filter chips تم تحديثها عبر data-i18n
+                // أزرار التحميل والقراءة سيتم تحديثها عند إعادة رسم البطاقات
+            }
+
+            // تحديث نصوص الأزرار الثابتة (مثل clearLibrary, mode buttons) - تم عبر data-i18n
+            function updateButtonsText() {
+                // لا حاجة، data-i18n يعتني بها
+            }
+
+            // ---- إعدادات التطبيق الأساسية ----
             const STORAGE_KEY = 'zohra_books';
             const VISITS_KEY = 'zohra_visits';
             const DOWNLOADS_KEY = 'zohra_downloads';
             const SNIPPET_WORDS = 28;
 
-            // ---- STATE ----
             let books = [];
             let searchIndex = {};
             let currentFilter = 'all';
             let currentResults = [];
-            let searchMode = 'local'; // 'local' or 'internet'
+            let searchMode = 'local';
 
             // ---- DOM REFS ----
             const $ = (s) => document.querySelector(s);
@@ -395,20 +570,14 @@
             const clearLibraryBtn = $('#clearLibraryBtn');
             const fileInput = $('#fileInput');
             const uploadArea = $('#uploadArea');
-
-            // إحصائيات جديدة
             const visitorCountSpan = $('#visitorCount');
             const countryDisplaySpan = $('#countryDisplay');
             const downloadCountSpan = $('#downloadCount');
-
-            // Modal PDF
             const modalOverlay = $('#pdfModal');
             const modalClose = $('#modalClose');
             const modalTitle = $('#modalTitle');
             const modalBody = $('#modalBody');
             const modalPageInfo = $('#modalPageInfo');
-
-            // Pagination
             const paginationControls = $('#paginationControls');
             const prevPageBtn = $('#prevPageBtn');
             const nextPageBtn = $('#nextPageBtn');
@@ -457,23 +626,20 @@
             // ---- COUNTRY DETECTION ----
             async function fetchUserCountry() {
                 try {
-                    const resp = await fetch('https://ip-api.com/json/', {
-                        mode: 'cors'
-                    });
-                    if (!resp.ok) throw new Error('فشل جلب البلد');
+                    const resp = await fetch('https://ip-api.com/json/', { mode: 'cors' });
+                    if (!resp.ok) throw new Error('Failed to fetch country');
                     const data = await resp.json();
                     if (data && data.country) {
                         const country = data.country;
                         const code = data.countryCode.toLowerCase();
-                        // عرض العلم واسم البلد
                         countryDisplaySpan.innerHTML =
                             `<img class="flag-img inline-block mx-1" src="https://flagcdn.com/16x12/${code}.png" alt="${country}" /> ${country}`;
                     } else {
-                        countryDisplaySpan.textContent = '🌍 غير معروف';
+                        countryDisplaySpan.textContent = '🌍 ' + (t('unknown') || 'Unknown');
                     }
                 } catch (e) {
                     console.warn('Country fetch error:', e);
-                    countryDisplaySpan.textContent = '🌍 غير معروف';
+                    countryDisplaySpan.textContent = '🌍 ' + (t('unknown') || 'Unknown');
                 }
             }
 
@@ -487,10 +653,20 @@
             }
 
             function formatDate(ts) {
-                return new Date(ts).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+                return new Date(ts).toLocaleDateString(
+                    currentLang === 'ar' ? 'ar-EG' :
+                    currentLang === 'fr' ? 'fr-FR' :
+                    currentLang === 'es' ? 'es-ES' :
+                    currentLang === 'de' ? 'de-DE' : 'en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    }
+                );
             }
 
-            function showToast(msg, icon = '✅') {
+            function showToast(msgKey, icon = '✅', ...args) {
+                let msg = t(msgKey, ...args);
                 toast.innerHTML = `<span class="toast-icon">${icon}</span> ${msg}`;
                 toast.classList.add('show');
                 clearTimeout(toast._timer);
@@ -580,7 +756,7 @@
                 if (!query.trim()) {
                     currentResults = [];
                     renderBooksGrid(books);
-                    searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
+                    searchStat.textContent = t('searchLocalPrompt');
                     paginationControls.style.display = 'none';
                     return;
                 }
@@ -589,7 +765,7 @@
                 if (qKeys.length === 0) {
                     currentResults = [];
                     renderBooksGrid(books);
-                    searchStat.textContent = '🔍 لا توجد كلمات صالحة للبحث';
+                    searchStat.textContent = t('searchLocalPrompt');
                     paginationControls.style.display = 'none';
                     return;
                 }
@@ -629,7 +805,7 @@
                 currentResults = results.map(r => ({ book: r.book, score: r.score, matches: r.matches }));
                 const matchedBooks = currentResults.map(r => r.book);
                 renderBooksGrid(matchedBooks);
-                searchStat.textContent = `🔍 تم العثور على ${currentResults.length} نتيجة في مكتبتك`;
+                searchStat.textContent = t('searchLocalResult', currentResults.length);
                 paginationControls.style.display = 'none';
             }
 
@@ -637,8 +813,8 @@
             async function searchInternet(query, page = 1) {
                 if (!query.trim()) {
                     booksGrid.innerHTML =
-                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-message text-4xl block mb-2"></i> اكتب كلمة للبحث على الإنترنت</div>`;
-                    searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)';
+                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-message text-4xl block mb-2"></i> ${t('clickToSearch')}</div>`;
+                    searchStat.textContent = t('searchInternetPrompt');
                     paginationControls.style.display = 'none';
                     return;
                 }
@@ -650,8 +826,8 @@
                     hasMoreResults = true;
                     lastQuery = query;
                     booksGrid.innerHTML =
-                        `<div class="col-span-full flex items-center justify-center gap-3 text-gray-400 py-8"><span class="loading-spinner"></span><span>جاري البحث على الإنترنت (جميع اللغات والأنواع)...</span></div>`;
-                    searchStat.textContent = '🌐 جاري البحث...';
+                        `<div class="col-span-full flex items-center justify-center gap-3 text-gray-400 py-8"><span class="loading-spinner"></span><span>${t('loadingInternet')}</span></div>`;
+                    searchStat.textContent = '🌐 ' + t('loadingInternet');
                     paginationControls.style.display = 'none';
                 }
 
@@ -664,7 +840,6 @@
                 let newResults = [];
                 let hasMore = false;
 
-                // Open Library
                 try {
                     const olUrl =
                         `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`;
@@ -702,7 +877,6 @@
                     }
                 } catch (e) { console.warn('Open Library error:', e); }
 
-                // Google Books
                 try {
                     const gbLimit = 40;
                     const startIndex = (page - 1) * gbLimit;
@@ -751,7 +925,6 @@
                     }
                 } catch (e) { console.warn('Google Books error:', e); }
 
-                // Remove duplicates
                 const existingTitles = new Set(internetResults.map(r => r.title.toLowerCase().trim()));
                 for (let r of newResults) {
                     const key = r.title.toLowerCase().trim();
@@ -765,8 +938,8 @@
 
                 if (internetResults.length === 0) {
                     booksGrid.innerHTML =
-                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-face-frown text-4xl block mb-2"></i> لا توجد نتائج متاحة بهذا البحث</div>`;
-                    searchStat.textContent = '🌐 لم يتم العثور على نتائج';
+                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-face-frown text-4xl block mb-2"></i> ${t('noInternetResults')}</div>`;
+                    searchStat.textContent = '🌐 ' + t('noInternetResults');
                     paginationControls.style.display = 'none';
                     return;
                 }
@@ -778,7 +951,7 @@
                 paginationControls.style.display = 'flex';
                 updatePaginationButtons(currentPage, maxPages, hasMore);
 
-                searchStat.textContent = `🌐 تم العثور على ${internetResults.length} نتيجة (إجمالي ~${totalAvailable})`;
+                searchStat.textContent = t('searchInternetResult', internetResults.length, totalAvailable);
 
                 if (hasMore && internetResults.length < currentPage * resultsPerPage) {
                     const nextApiPage = Math.ceil(internetResults.length / 100) + 1;
@@ -819,7 +992,7 @@
             }
 
             function updatePaginationButtons(page, maxPages, hasMore) {
-                pageInfo.textContent = `الصفحة ${page} من ${maxPages}`;
+                pageInfo.textContent = `${t('pageLabel')} ${page} / ${maxPages}`;
                 prevPageBtn.disabled = page <= 1;
                 nextPageBtn.disabled = page >= maxPages && !hasMore;
             }
@@ -839,11 +1012,11 @@
                             renderInternetPage(currentPage);
                             updatePaginationButtons(currentPage, newMaxPages, hasMoreResults);
                         } else {
-                            showToast('لا توجد نتائج إضافية', '⚠️');
+                            showToast('toastNoMoreResults', '⚠️');
                         }
                         return;
                     } else {
-                        showToast('لا توجد نتائج إضافية', '⚠️');
+                        showToast('toastNoMoreResults', '⚠️');
                         return;
                     }
                 }
@@ -854,21 +1027,15 @@
                 booksGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
-            // ---- DOWNLOAD WRAPPER (with counter) ----
+            // ---- DOWNLOAD WRAPPER ----
             async function downloadFromUrl(url, title) {
-                // زيادة عداد التحميلات
                 incrementDownloads();
-
                 loadingIndicator.style.display = 'flex';
-                loadingText.textContent = `⏬ جاري تحميل "${title}"...`;
+                loadingText.textContent = `⏬ ${t('loadingBook')} "${title}"...`;
                 try {
-                    const resp = await fetch(url, {
-                        mode: 'cors',
-                        credentials: 'omit',
-                        headers: { 'Accept': 'application/pdf' }
-                    });
+                    const resp = await fetch(url, { mode: 'cors', credentials: 'omit', headers: { 'Accept': 'application/pdf' } });
                     if (!resp.ok) {
-                        showToast(`تعذر تحميل "${title}"، سيتم فتح الرابط.`, 'ℹ️');
+                        showToast('toastDownloadFailed', 'ℹ️', title);
                         window.open(url, '_blank');
                         loadingIndicator.style.display = 'none';
                         return;
@@ -876,13 +1043,13 @@
                     const blob = await resp.blob();
                     const size = blob.size;
                     if (size < 1000) {
-                        showToast(`الملف "${title}" فارغ أو غير صالح.`, '⚠️');
+                        showToast('toastFileEmpty', '⚠️', title);
                         window.open(url, '_blank');
                         loadingIndicator.style.display = 'none';
                         return;
                     }
 
-                    loadingText.textContent = `📄 جاري فهرسة "${title}"...`;
+                    loadingText.textContent = `📄 ${t('processingFiles')}`;
                     const arrayBuffer = await blob.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                     const pages = pdf.numPages;
@@ -904,10 +1071,10 @@
                     });
                     addBook(title, size, fullText, pages, dataUrl);
                     loadingIndicator.style.display = 'none';
-                    showToast(`✅ تمت إضافة "${title}" إلى المكتبة`, '📚');
+                    showToast('toastAdded', '📚', title);
                 } catch (err) {
                     loadingIndicator.style.display = 'none';
-                    showToast(`فشل تحميل "${title}"، سيتم فتح الرابط.`, 'ℹ️');
+                    showToast('toastDownloadFailed', 'ℹ️', title);
                     window.open(url, '_blank');
                 }
             }
@@ -917,10 +1084,9 @@
                 await downloadFromUrl(pdfUrl, title);
             }
 
-            // دالة مساعدة لزيادة العداد عند الضغط على زر التحميل (للروابط المباشرة)
             window.downloadBookLink = function(url, title) {
                 incrementDownloads();
-                showToast(`جاري فتح "${title}"...`, '⏳');
+                showToast('toastDownloadFailed', '⏳', title);
                 window.open(url, '_blank');
             };
 
@@ -932,7 +1098,7 @@
                     } else {
                         emptyState.classList.add('hidden');
                         booksGrid.innerHTML =
-                            `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-folder-open text-4xl block mb-2"></i> لا توجد كتب لعرضها</div>`;
+                            `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-folder-open text-4xl block mb-2"></i> ${t('noBooks')}</div>`;
                     }
                     return;
                 }
@@ -945,7 +1111,7 @@
                     const author = book.author || 'مؤلف غير معروف';
                     const year = book.year || '';
                     const size = book.size ? formatSize(book.size) : '';
-                    const pages = book.pages ? book.pages + ' صفحة' : '';
+                    const pages = book.pages ? book.pages + ' ' + (t('pageLabel') || 'صفحة') : '';
 
                     let downloadUrl = '#';
                     let canDownload = false;
@@ -973,15 +1139,15 @@
                                     </div>
                                     <div class="book-actions mt-4 pt-3 border-t border-gray-700">
                                         <button onclick="window.openPdfViewerWrapper('${book.id}')" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
-                                            <i class="fa-regular fa-eye"></i> قراءة
+                                            <i class="fa-regular fa-eye"></i> ${t('readBtn')}
                                         </button>
                                         ${canDownload ? `
                                             <button onclick="window.downloadBookLink('${downloadUrl}', '${escapeHtml(title)}')" class="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-gray-200 py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
-                                                <i class="fa-regular fa-download"></i> تحميل
+                                                <i class="fa-regular fa-download"></i> ${t('downloadBtn')}
                                             </button>
                                         ` : `
                                             <button onclick="window.openLink('${downloadUrl}')" class="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-gray-200 py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
-                                                <i class="fa-regular fa-link"></i> فتح
+                                                <i class="fa-regular fa-link"></i> ${t('openBtn')}
                                             </button>
                                         `}
                                     </div>
@@ -991,7 +1157,7 @@
                 }).join('');
             }
 
-            // ---- WRAPPER FUNCTIONS FOR ONCLICK ----
+            // ---- WRAPPER FUNCTIONS ----
             window.openPdfViewerWrapper = function(bookId) {
                 let book = books.find(b => b.id === bookId);
                 if (!book && internetResults.length > 0) {
@@ -1009,7 +1175,7 @@
                 if (book) {
                     openPdfViewer(book);
                 } else {
-                    showToast('الكتاب غير موجود في المكتبة', '⚠️');
+                    showToast('toastBookNotFound', '⚠️');
                 }
             };
 
@@ -1017,7 +1183,7 @@
                 if (url && url !== '#') {
                     window.open(url, '_blank');
                 } else {
-                    showToast('لا يوجد رابط متاح', '⚠️');
+                    showToast('toastNoLink', '⚠️');
                 }
             };
 
@@ -1025,18 +1191,18 @@
             async function openPdfViewerFromUrl(url, title) {
                 modalTitle.textContent = `📄 ${title}`;
                 modalBody.innerHTML =
-                    `<div class="text-center py-10 text-gray-400"><span class="loading-spinner"></span><p class="mt-3">جاري تحميل الكتاب...</p></div>`;
+                    `<div class="text-center py-10 text-gray-400"><span class="loading-spinner"></span><p class="mt-3">${t('loadingBook')}</p></div>`;
                 modalOverlay.classList.add('active');
-                modalPageInfo.textContent = 'جاري التحميل...';
+                modalPageInfo.textContent = t('loadingBook');
 
                 try {
                     const resp = await fetch(url, { mode: 'cors', credentials: 'omit' });
-                    if (!resp.ok) throw new Error('فشل التحميل');
+                    if (!resp.ok) throw new Error('Failed to load');
                     const blob = await resp.blob();
                     const arrayBuffer = await blob.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                     const totalPages = pdf.numPages;
-                    modalPageInfo.textContent = `الصفحة 1 / ${totalPages}`;
+                    modalPageInfo.textContent = `${t('pageLabel')} 1 / ${totalPages}`;
                     const page = await pdf.getPage(1);
                     const scale = 1.4;
                     const viewport = page.getViewport({ scale });
@@ -1054,16 +1220,16 @@
                     const navDiv = document.createElement('div');
                     navDiv.className = 'flex justify-center gap-4 mt-4 flex-wrap';
                     const prevBtn = document.createElement('button');
-                    prevBtn.textContent = '◀ السابق';
+                    prevBtn.textContent = t('prevPageBtn');
                     prevBtn.className =
                         'bg-gray-700 border border-gray-600 text-gray-300 px-4 py-1 rounded-full hover:bg-gray-600 transition';
                     const nextBtn = document.createElement('button');
-                    nextBtn.textContent = 'التالي ▶';
+                    nextBtn.textContent = t('nextPageBtn');
                     nextBtn.className =
                         'bg-gray-700 border border-gray-600 text-gray-300 px-4 py-1 rounded-full hover:bg-gray-600 transition';
                     const pageInfoSpan = document.createElement('span');
                     pageInfoSpan.className = 'text-gray-400';
-                    pageInfoSpan.textContent = `الصفحة 1 / ${totalPages}`;
+                    pageInfoSpan.textContent = `${t('pageLabel')} 1 / ${totalPages}`;
 
                     navDiv.appendChild(prevBtn);
                     navDiv.appendChild(pageInfoSpan);
@@ -1080,13 +1246,12 @@
                             canvas.style.height = 'auto';
                             await p.render({ canvasContext: context, viewport: vp }).promise;
                             currentPage = num;
-                            pageInfoSpan.textContent = `الصفحة ${num} / ${totalPages}`;
-                            modalPageInfo.textContent = `الصفحة ${num} / ${totalPages}`;
-                        } catch (e) { showToast('خطأ في عرض الصفحة', '❌'); }
+                            pageInfoSpan.textContent = `${t('pageLabel')} ${num} / ${totalPages}`;
+                            modalPageInfo.textContent = `${t('pageLabel')} ${num} / ${totalPages}`;
+                        } catch (e) { showToast('toastErrorPage', '❌'); }
                     };
                     prevBtn.addEventListener('click', () => { if (currentPage > 1) renderPage(currentPage - 1); });
-                    nextBtn.addEventListener('click', () => { if (currentPage < totalPages) renderPage(currentPage +
-                            1); });
+                    nextBtn.addEventListener('click', () => { if (currentPage < totalPages) renderPage(currentPage + 1); });
                     const keyHandler = (e) => {
                         if (!modalOverlay.classList.contains('active')) return;
                         if (e.key === 'ArrowRight' && currentPage < totalPages) renderPage(currentPage + 1);
@@ -1098,8 +1263,8 @@
                 } catch (err) {
                     console.error(err);
                     modalBody.innerHTML =
-                        `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>تعذر عرض هذا الكتاب.</p><p class="text-sm">${escapeHtml(err.message || 'خطأ غير معروف')}</p><button onclick="window.open('${url}','_blank')" class="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg">فتح الرابط</button></div>`;
-                    modalPageInfo.textContent = 'غير متاح';
+                        `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>${t('toastLoadError')}</p><p class="text-sm">${escapeHtml(err.message || '')}</p><button onclick="window.open('${url}','_blank')" class="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg">${t('openBtn')}</button></div>`;
+                    modalPageInfo.textContent = t('noBooks');
                 }
             }
 
@@ -1107,20 +1272,20 @@
             async function openPdfViewer(book) {
                 modalTitle.textContent = `📄 ${book.name}`;
                 modalBody.innerHTML =
-                    `<div class="text-center py-10 text-gray-400"><span class="loading-spinner"></span><p class="mt-3">جاري تحميل الكتاب...</p></div>`;
+                    `<div class="text-center py-10 text-gray-400"><span class="loading-spinner"></span><p class="mt-3">${t('loadingBook')}</p></div>`;
                 modalOverlay.classList.add('active');
-                modalPageInfo.textContent = `الصفحة 0 / ${book.pages || '?'}`;
+                modalPageInfo.textContent = `${t('pageLabel')} 0 / ${book.pages || '?'}`;
                 try {
                     let dataToUse = book.data;
                     if (!dataToUse) {
                         modalBody.innerHTML =
-                            `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>لم يتم حفظ محتوى هذا الكتاب للعرض المباشر.</p><p class="text-sm">يرجى إعادة رفع الملف لعرضه.</p></div>`;
-                        modalPageInfo.textContent = 'غير متاح';
+                            `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>${t('toastLoadError')}</p><p class="text-sm">${t('toastNoLink')}</p></div>`;
+                        modalPageInfo.textContent = t('noBooks');
                         return;
                     }
                     const pdf = await pdfjsLib.getDocument({ data: dataToUse }).promise;
                     const totalPages = pdf.numPages;
-                    modalPageInfo.textContent = `الصفحة 1 / ${totalPages}`;
+                    modalPageInfo.textContent = `${t('pageLabel')} 1 / ${totalPages}`;
                     const page = await pdf.getPage(1);
                     const scale = 1.4;
                     const viewport = page.getViewport({ scale });
@@ -1138,16 +1303,16 @@
                     const navDiv = document.createElement('div');
                     navDiv.className = 'flex justify-center gap-4 mt-4 flex-wrap';
                     const prevBtn = document.createElement('button');
-                    prevBtn.textContent = '◀ السابق';
+                    prevBtn.textContent = t('prevPageBtn');
                     prevBtn.className =
                         'bg-gray-700 border border-gray-600 text-gray-300 px-4 py-1 rounded-full hover:bg-gray-600 transition';
                     const nextBtn = document.createElement('button');
-                    nextBtn.textContent = 'التالي ▶';
+                    nextBtn.textContent = t('nextPageBtn');
                     nextBtn.className =
                         'bg-gray-700 border border-gray-600 text-gray-300 px-4 py-1 rounded-full hover:bg-gray-600 transition';
                     const pageInfoSpan = document.createElement('span');
                     pageInfoSpan.className = 'text-gray-400';
-                    pageInfoSpan.textContent = `الصفحة 1 / ${totalPages}`;
+                    pageInfoSpan.textContent = `${t('pageLabel')} 1 / ${totalPages}`;
 
                     navDiv.appendChild(prevBtn);
                     navDiv.appendChild(pageInfoSpan);
@@ -1164,13 +1329,12 @@
                             canvas.style.height = 'auto';
                             await p.render({ canvasContext: context, viewport: vp }).promise;
                             currentPage = num;
-                            pageInfoSpan.textContent = `الصفحة ${num} / ${totalPages}`;
-                            modalPageInfo.textContent = `الصفحة ${num} / ${totalPages}`;
-                        } catch (e) { showToast('خطأ في عرض الصفحة', '❌'); }
+                            pageInfoSpan.textContent = `${t('pageLabel')} ${num} / ${totalPages}`;
+                            modalPageInfo.textContent = `${t('pageLabel')} ${num} / ${totalPages}`;
+                        } catch (e) { showToast('toastErrorPage', '❌'); }
                     };
                     prevBtn.addEventListener('click', () => { if (currentPage > 1) renderPage(currentPage - 1); });
-                    nextBtn.addEventListener('click', () => { if (currentPage < totalPages) renderPage(currentPage +
-                            1); });
+                    nextBtn.addEventListener('click', () => { if (currentPage < totalPages) renderPage(currentPage + 1); });
                     const keyHandler = (e) => {
                         if (!modalOverlay.classList.contains('active')) return;
                         if (e.key === 'ArrowRight' && currentPage < totalPages) renderPage(currentPage + 1);
@@ -1182,7 +1346,7 @@
                 } catch (err) {
                     console.error('PDF viewer error:', err);
                     modalBody.innerHTML =
-                        `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>تعذر عرض هذا الكتاب.</p><p class="text-sm">${escapeHtml(err.message || 'خطأ غير معروف')}</p></div>`;
+                        `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>${t('toastLoadError')}</p><p class="text-sm">${escapeHtml(err.message || '')}</p></div>`;
                 }
             }
 
@@ -1204,7 +1368,7 @@
                 buildIndex();
                 renderLocalBooks();
                 if (searchMode === 'local' && searchInput.value.trim()) searchLocal(searchInput.value);
-                showToast(`تمت إضافة "${book.name}"`, '📚');
+                showToast('toastAdded', '📚', book.name);
             }
 
             function removeBook(id) {
@@ -1215,7 +1379,7 @@
                 buildIndex();
                 renderLocalBooks();
                 if (searchMode === 'local' && searchInput.value.trim()) searchLocal(searchInput.value);
-                if (book) showToast(`تم حذف "${book.name}"`, '🗑️');
+                if (book) showToast('toastDeleted', '🗑️', book.name);
             }
 
             function clearLibrary() {
@@ -1225,7 +1389,7 @@
                 saveBooks();
                 buildIndex();
                 renderLocalBooks();
-                showToast('تم مسح المكتبة بالكامل', '🧹');
+                showToast('toastLibraryCleared', '🧹');
             }
 
             function saveBooks() {
@@ -1245,7 +1409,7 @@
                     books = data;
                     buildIndex();
                     renderLocalBooks();
-                    showToast(`تم تحميل ${books.length} كتاب من المكتبة`, '📚');
+                    showToast('toastAdded', '📚', books.length + ' ' + (t('booksCount') || 'كتاب'));
                 } catch (e) { console.warn('Load error:', e); }
             }
 
@@ -1253,12 +1417,12 @@
                 if (books.length === 0) {
                     emptyState.classList.remove('hidden');
                     booksGrid.innerHTML = '';
-                    bookCount.textContent = '0 كتاب';
+                    bookCount.textContent = '0 ' + (t('booksCount') || 'كتاب');
                     updateStats();
                     return;
                 }
                 emptyState.classList.add('hidden');
-                bookCount.textContent = `${books.length} كتاب`;
+                bookCount.textContent = `${books.length} ` + (t('booksCount') || 'كتاب');
 
                 let filtered = [...books];
                 if (currentFilter === 'recent') {
@@ -1291,9 +1455,9 @@
             async function handleFiles(files) {
                 const pdfFiles = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith(
                     '.pdf'));
-                if (pdfFiles.length === 0) { showToast('يرجى اختيار ملفات PDF فقط', '⚠️'); return; }
+                if (pdfFiles.length === 0) { showToast('toastNoPDF', '⚠️'); return; }
                 loadingIndicator.style.display = 'flex';
-                loadingText.textContent = '⏳ جاري معالجة الملفات...';
+                loadingText.textContent = t('processingFiles');
                 let success = 0;
                 for (let file of pdfFiles) {
                     const name = file.name.replace(/\.pdf$/i, '') || file.name;
@@ -1326,12 +1490,12 @@
                         addBook(name, size, fullText, pages, dataUrl);
                         success++;
                     } catch (err) {
-                        showToast(`خطأ في "${name}": ${err.message || 'غير معروف'}`, '❌');
+                        showToast('toastAddError', '❌', name);
                     }
                 }
                 loadingIndicator.style.display = 'none';
-                if (success > 0) showToast(`تمت إضافة ${success} كتاب بنجاح`, '🎉');
-                else showToast('لم تتم إضافة أي كتاب، تأكد من صحة الملفات', '⚠️');
+                if (success > 0) showToast('toastAddedSuccess', '🎉', success);
+                else showToast('toastNoBooksAdded', '⚠️');
             }
 
             // ---- DO SEARCH ----
@@ -1340,11 +1504,11 @@
                 if (!q) {
                     if (searchMode === 'local') {
                         renderLocalBooks();
-                        searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
+                        searchStat.textContent = t('searchLocalPrompt');
                     } else {
                         booksGrid.innerHTML =
-                            `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-message text-4xl block mb-2"></i> اكتب كلمة للبحث على الإنترنت</div>`;
-                        searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت';
+                            `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-message text-4xl block mb-2"></i> ${t('clickToSearch')}</div>`;
+                        searchStat.textContent = t('searchInternetPrompt');
                         paginationControls.style.display = 'none';
                     }
                     return;
@@ -1368,26 +1532,26 @@
             localModeBtn.addEventListener('click', function() {
                 searchMode = 'local';
                 localModeBtn.className =
-                'px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition';
+                    'px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition';
                 internetModeBtn.className =
                     'px-4 py-1 rounded-full text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 transition';
                 paginationControls.style.display = 'none';
                 if (searchInput.value.trim()) doSearch();
                 else renderLocalBooks();
-                searchStat.textContent = '🔍 جاهز للبحث في مكتبتك';
+                searchStat.textContent = t('searchLocalPrompt');
             });
 
             internetModeBtn.addEventListener('click', function() {
                 searchMode = 'internet';
                 internetModeBtn.className =
-                'px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition';
+                    'px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition';
                 localModeBtn.className =
                     'px-4 py-1 rounded-full text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 transition';
                 if (searchInput.value.trim()) doSearch();
                 else {
                     booksGrid.innerHTML =
-                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-globe text-4xl block mb-2"></i> اكتب موضوعاً للبحث عن كتب ومجلات على الإنترنت</div>`;
-                    searchStat.textContent = '🌐 جاهز للبحث على الإنترنت (جميع الأنواع)';
+                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-globe text-4xl block mb-2"></i> ${t('clickToSearch')}</div>`;
+                    searchStat.textContent = t('searchInternetPrompt');
                     paginationControls.style.display = 'none';
                 }
             });
@@ -1423,6 +1587,11 @@
             modalClose.addEventListener('click', closeModal);
             modalOverlay.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
+            // ---- LANGUAGE SELECTOR ----
+            document.getElementById('langSelect').addEventListener('change', function() {
+                applyLanguage(this.value);
+            });
+
             // ---- PWA ----
             function registerPWA() {
                 try {
@@ -1448,8 +1617,8 @@
                         display: 'standalone',
                         background_color: '#111827',
                         theme_color: '#111827',
-                        dir: 'rtl',
-                        lang: 'ar',
+                        dir: (currentLang === 'ar') ? 'rtl' : 'ltr',
+                        lang: currentLang,
                         icons: [{ src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" fill="%23111827"/%3E%3Ctext x="256" y="340" text-anchor="middle" font-size="280" fill="%2334d399" font-family="serif"%3E📖%3C/text%3E%3C/svg%3E',
                             sizes: '512x512', type: 'image/svg+xml' }],
                     };
@@ -1464,11 +1633,12 @@
 
             // ---- INIT ----
             function init() {
-                // تحميل العدادات
+                // تحديد اللغة المفضلة
+                const preferred = getPreferredLanguage();
+                applyLanguage(preferred);
+
                 loadCounters();
-                // زيادة عداد الزوار
                 incrementVisits();
-                // جلب بلد الزائر
                 fetchUserCountry();
 
                 loadBooks();
@@ -1478,15 +1648,15 @@
                 } else {
                     renderLocalBooks();
                 }
+                // تفعيل الوضع المحلي افتراضياً
                 localModeBtn.click();
-                console.log('🌺 زهرة Zohra جاهزة! (مع إحصائيات الزوار والتحميلات)');
-                console.log(`📚 ${books.length} كتاب في المكتبة`);
+                console.log('🌺 Zohra ready! (multi-language)');
+                console.log(`📚 ${books.length} books in library`);
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
             else init();
 
-            // تصدير دوال للاستخدام في onclick
             window.openPdfViewer = openPdfViewer;
             window.closeModal = closeModal;
             window.openPdfViewerFromUrl = openPdfViewerFromUrl;
