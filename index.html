@@ -10,510 +10,22 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>زهرة Zohra - البحث الذكي عن الكتب</title>
 
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- PDF.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
     </script>
 
     <style>
-        /* (جميع التنسيقات السابقة كما هي، تم حذفها لتوفير المساحة ولكنها موجودة في الكود الكامل أدناه) */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        :root {
-            --primary: #c9a84c;
-            --primary-dark: #a8892e;
-            --primary-glow: rgba(201, 168, 76, 0.35);
-            --bg-dark: #0d1b2a;
-            --bg-card: #1b2d45;
-            --bg-card-hover: #243b56;
-            --bg-input: #0f1f30;
-            --text-light: #f0e9d8;
-            --text-muted: #b8a99a;
-            --text-gold: #e8d5a3;
-            --shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
-            --radius: 18px;
-            --radius-sm: 10px;
-            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            --font-arabic: 'Segoe UI', 'Tahoma', 'Arial', system-ui, sans-serif;
-        }
-        html,
+        /* تنسيقات إضافية لتكامل أفضل مع Tailwind */
         body {
-            height: 100%;
-            font-family: var(--font-arabic);
-            background: var(--bg-dark);
-            color: var(--text-light);
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #111827;
         }
-        a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 8px;
-        }
-        #app {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 20px 30px;
-            position: relative;
-        }
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 0 12px;
-            border-bottom: 1px solid rgba(201, 168, 76, 0.2);
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .brand-icon {
-            font-size: 2.2rem;
-            line-height: 1;
-            filter: drop-shadow(0 0 12px var(--primary-glow));
-        }
-        .brand h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), #f5e6b0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: 1px;
-        }
-        .brand small {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            -webkit-text-fill-color: var(--text-muted);
-            display: block;
-            margin-top: -4px;
-            font-weight: 300;
-            letter-spacing: 0.5px;
-        }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-        .badge-pwa {
-            background: rgba(201, 168, 76, 0.15);
-            border: 1px solid rgba(201, 168, 76, 0.3);
-            border-radius: 40px;
-            padding: 4px 14px;
-            font-size: 0.7rem;
-            color: var(--text-gold);
-            letter-spacing: 0.3px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-        .badge-pwa .dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #4caf50;
-            display: inline-block;
-            animation: pulse-dot 1.8s infinite;
-        }
-        @keyframes pulse-dot {
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.4;
-                transform: scale(0.8);
-            }
-        }
-        .search-section {
-            margin: 28px 0 20px;
-        }
-        .search-box {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: var(--bg-input);
-            border: 1px solid rgba(201, 168, 76, 0.2);
-            border-radius: 60px;
-            padding: 4px 6px 4px 4px;
-            transition: var(--transition);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-        }
-        .search-box:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 4px 32px rgba(201, 168, 76, 0.15), inset 0 0 0 1px rgba(201, 168, 76, 0.1);
-        }
-        .search-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 16px 22px;
-            font-size: 1.05rem;
-            color: var(--text-light);
-            font-family: var(--font-arabic);
-            outline: none;
-            min-width: 0;
-        }
-        .search-box input::placeholder {
-            color: var(--text-muted);
-            opacity: 0.7;
-        }
-        .search-box .btn-search {
-            background: var(--primary);
-            border: none;
-            border-radius: 40px;
-            padding: 12px 28px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #0d1b2a;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: var(--font-arabic);
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .search-box .btn-search:hover {
-            background: var(--primary-dark);
-            transform: scale(1.02);
-            box-shadow: 0 0 24px var(--primary-glow);
-        }
-        .search-box .btn-search:active {
-            transform: scale(0.96);
-        }
-        .search-box .btn-search svg {
-            width: 20px;
-            height: 20px;
-        }
-        .filters-bar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 12px 0 18px;
-            flex-wrap: wrap;
-        }
-        .filters-bar .chip {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 30px;
-            padding: 6px 18px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            user-select: none;
-        }
-        .filters-bar .chip:hover,
-        .filters-bar .chip.active {
-            background: rgba(201, 168, 76, 0.12);
-            border-color: var(--primary);
-            color: var(--text-gold);
-        }
-        .filters-bar .chip .count {
-            background: rgba(201, 168, 76, 0.2);
-            border-radius: 20px;
-            padding: 0 10px;
-            font-size: 0.7rem;
-            color: var(--text-gold);
-        }
-        .filters-bar .spacer {
-            flex: 1;
-        }
-        .filters-bar .stat {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        .mode-toggle {
-            display: flex;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            overflow: hidden;
-        }
-        .mode-toggle button {
-            background: transparent;
-            border: none;
-            padding: 6px 16px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: var(--font-arabic);
-        }
-        .mode-toggle button.active {
-            background: var(--primary);
-            color: #0d1b2a;
-            font-weight: 600;
-        }
-        .mode-toggle button:not(.active):hover {
-            color: var(--text-gold);
-        }
-        .upload-area {
-            background: var(--bg-card);
-            border: 2px dashed rgba(201, 168, 76, 0.2);
-            border-radius: var(--radius);
-            padding: 30px 20px;
-            text-align: center;
-            transition: var(--transition);
-            margin-bottom: 24px;
-            cursor: pointer;
-            position: relative;
-        }
-        .upload-area:hover,
-        .upload-area.dragover {
-            border-color: var(--primary);
-            background: rgba(201, 168, 76, 0.05);
-        }
-        .upload-area .icon {
-            font-size: 3rem;
-            opacity: 0.5;
-            margin-bottom: 8px;
-        }
-        .upload-area p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-        .upload-area .highlight {
-            color: var(--primary);
-            font-weight: 600;
-        }
-        .upload-area input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        .library-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 12px 0 16px;
-        }
-        .library-header h2 {
-            font-size: 1.2rem;
-            font-weight: 400;
-            color: var(--text-gold);
-        }
-        .library-header .clear-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            cursor: pointer;
-            padding: 4px 12px;
-            border-radius: 20px;
-            transition: var(--transition);
-        }
-        .library-header .clear-btn:hover {
-            background: rgba(255, 0, 0, 0.08);
-            color: #ff6b6b;
-        }
-        .book-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 18px;
-            margin-bottom: 30px;
-        }
-        .book-card {
-            background: var(--bg-card);
-            border-radius: var(--radius-sm);
-            padding: 18px 16px 16px;
-            transition: var(--transition);
-            border: 1px solid transparent;
-            cursor: pointer;
-            position: relative;
-        }
-        .book-card:hover {
-            background: var(--bg-card-hover);
-            border-color: rgba(201, 168, 76, 0.25);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
-        }
-        .book-card .pdf-icon {
-            font-size: 2.4rem;
-            text-align: center;
-            margin-bottom: 8px;
-            opacity: 0.8;
-        }
-        .book-card .title {
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: var(--text-light);
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .book-card .meta {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 6px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .book-card .badge-pdf {
-            background: rgba(201, 168, 76, 0.15);
-            border-radius: 12px;
-            padding: 2px 10px;
-            font-size: 0.6rem;
-            color: var(--text-gold);
-        }
-        .book-card .remove-btn {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: rgba(0, 0, 0, 0.4);
-            border: none;
-            color: var(--text-muted);
-            border-radius: 50%;
-            width: 26px;
-            height: 26px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-        }
-        .book-card:hover .remove-btn {
-            opacity: 1;
-        }
-        .book-card .remove-btn:hover {
-            background: rgba(255, 0, 0, 0.25);
-            color: #ff6b6b;
-        }
-        .results-container {
-            margin-top: 8px;
-        }
-        .result-item {
-            background: var(--bg-card);
-            border-radius: var(--radius-sm);
-            padding: 16px 20px;
-            margin-bottom: 12px;
-            border-right: 3px solid var(--primary);
-            transition: var(--transition);
-            animation: fadeSlide 0.3s ease;
-        }
-        .result-item:hover {
-            background: var(--bg-card-hover);
-        }
-        .result-item .result-title {
-            font-weight: 600;
-            color: var(--text-gold);
-            font-size: 1rem;
-            margin-bottom: 4px;
-        }
-        .result-item .result-meta {
-            display: flex;
-            gap: 16px;
-            margin-top: 4px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .result-item .result-cover {
-            float: left;
-            width: 50px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 12px;
-            background: var(--bg-input);
-        }
-        .result-item .result-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .result-item .result-actions button {
-            background: rgba(201, 168, 76, 0.15);
-            border: 1px solid rgba(201, 168, 76, 0.3);
-            color: var(--text-gold);
-            padding: 4px 16px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: var(--font-arabic);
-        }
-        .result-item .result-actions button:hover {
-            background: var(--primary);
-            color: #0d1b2a;
-        }
-        .result-item .result-actions button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        .result-item .result-actions .btn-open {
-            background: rgba(100, 149, 237, 0.2);
-            border-color: rgba(100, 149, 237, 0.3);
-            color: #a0c4ff;
-        }
-        .result-item .result-actions .btn-open:hover {
-            background: #4a7bd6;
-            color: #fff;
-        }
-        @keyframes fadeSlide {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-muted);
-        }
-        .empty-state .big-icon {
-            font-size: 4rem;
-            opacity: 0.3;
-            margin-bottom: 16px;
-        }
-        .empty-state h3 {
-            color: var(--text-gold);
-            font-weight: 400;
-            font-size: 1.2rem;
-        }
-        .empty-state p {
-            max-width: 400px;
-            margin: 8px auto 0;
-            font-size: 0.9rem;
-        }
+        /* تنسيقات العارض */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -524,21 +36,19 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            animation: fadeIn 0.25s ease;
         }
         .modal-overlay.active {
             display: flex;
         }
         .modal-content {
-            background: var(--bg-dark);
-            border-radius: var(--radius);
+            background: #1f2937;
+            border-radius: 18px;
             max-width: 900px;
             width: 100%;
             max-height: 90vh;
             display: flex;
             flex-direction: column;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(201, 168, 76, 0.15);
+            border: 1px solid #374151;
             overflow: hidden;
         }
         .modal-header {
@@ -546,32 +56,32 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px 24px;
-            border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+            border-bottom: 1px solid #374151;
             flex-shrink: 0;
         }
         .modal-header h3 {
             font-weight: 400;
-            color: var(--text-gold);
+            color: #34d399;
             font-size: 1.1rem;
         }
         .modal-header .close-modal {
             background: none;
             border: none;
-            color: var(--text-muted);
+            color: #9ca3af;
             font-size: 1.6rem;
             cursor: pointer;
             padding: 0 8px;
-            transition: var(--transition);
+            transition: 0.2s;
         }
         .modal-header .close-modal:hover {
-            color: #ff6b6b;
+            color: #f87171;
             transform: rotate(90deg);
         }
         .modal-body {
             flex: 1;
             overflow-y: auto;
             padding: 20px 24px;
-            background: #0a141f;
+            background: #111827;
         }
         .modal-body canvas {
             width: 100% !important;
@@ -581,57 +91,61 @@
         }
         .modal-footer {
             padding: 12px 24px;
-            border-top: 1px solid rgba(201, 168, 76, 0.08);
+            border-top: 1px solid #374151;
             display: flex;
             justify-content: space-between;
-            color: var(--text-muted);
+            color: #9ca3af;
             font-size: 0.8rem;
             flex-shrink: 0;
         }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.96);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        /* تنسيق شريط البحث */
+        .search-input {
+            background: #1f2937;
+            color: #f3f4f6;
+            border: 1px solid #4b5563;
         }
-        .loading-bar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            color: var(--text-muted);
-            font-size: 0.85rem;
+        .search-input:focus {
+            outline: none;
+            ring: 2px solid #34d399;
+            border-color: #34d399;
         }
-        .spinner {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(201, 168, 76, 0.15);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+        /* بطاقات الكتب */
+        .book-card {
+            transition: all 0.3s ease;
+            border: 1px solid #374151;
         }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        .book-card:hover {
+            border-color: #34d399;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
+        /* تنسيق منطقة الرفع */
+        .upload-area {
+            border: 2px dashed #4b5563;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #34d399;
+            background: rgba(52, 211, 153, 0.05);
+        }
+        .upload-area.dragover {
+            border-color: #34d399;
+            background: rgba(52, 211, 153, 0.1);
+        }
+        /* رسائل التنبيه */
         .toast {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: var(--bg-card);
-            border: 1px solid rgba(201, 168, 76, 0.2);
-            border-radius: var(--radius-sm);
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 12px;
             padding: 14px 28px;
-            color: var(--text-light);
+            color: #f3f4f6;
             font-size: 0.9rem;
-            box-shadow: var(--shadow);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
             z-index: 2000;
             opacity: 0;
             transition: all 0.4s ease;
@@ -646,207 +160,246 @@
         .toast .toast-icon {
             margin-left: 10px;
         }
-        .pagination {
-            display: flex;
-            justify-content: center;
+        /* تنسيق أزرار التحميل والقراءة */
+        .btn-action {
+            transition: 0.2s;
+        }
+        .btn-action:hover {
+            transform: scale(1.02);
+        }
+        /* إخفاء عناصر غير مرغوب فيها من التطبيق القديم */
+        .old-style {
+            display: none;
+        }
+        /* تخصيص شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #34d399;
+            border-radius: 8px;
+        }
+        /* تنسيق النافذة المنبثقة للقراءة الفورية (نسخة محسنة) */
+        .reader-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: none;
             align-items: center;
-            gap: 16px;
-            margin-top: 20px;
-            padding: 12px 0;
-            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+        .reader-modal.active {
+            display: flex;
+        }
+        .reader-content {
+            background: #1f2937;
+            border-radius: 18px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #374151;
+            overflow: hidden;
+        }
+        .reader-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #374151;
+            flex-shrink: 0;
+        }
+        .reader-header h3 {
+            font-weight: 400;
+            color: #34d399;
+            font-size: 1.1rem;
+        }
+        .reader-header .close-reader {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: 1.6rem;
+            cursor: pointer;
+            padding: 0 8px;
+            transition: 0.2s;
+        }
+        .reader-header .close-reader:hover {
+            color: #f87171;
+            transform: rotate(90deg);
+        }
+        .reader-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            background: #111827;
+            color: #f3f4f6;
+        }
+        .reader-body canvas {
+            width: 100% !important;
+            height: auto !important;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+        }
+        .reader-footer {
+            padding: 12px 24px;
+            border-top: 1px solid #374151;
+            display: flex;
+            justify-content: space-between;
+            color: #9ca3af;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        /* تنسيق زر التحميل والقراءة في البطاقات */
+        .book-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .book-actions button,
+        .book-actions a {
+            transition: 0.2s;
+        }
+        .book-actions button:hover,
+        .book-actions a:hover {
+            transform: scale(1.03);
+        }
+        /* تنسيق منطقة رفع الملفات */
+        .upload-zone {
+            border: 2px dashed #4b5563;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: #34d399;
+            background: rgba(52, 211, 153, 0.05);
+        }
+        /* تنسيق شريط التصفية */
+        .filter-chip {
+            background: #1f2937;
+            border: 1px solid #374151;
+            color: #9ca3af;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: rgba(52, 211, 153, 0.15);
+            border-color: #34d399;
+            color: #34d399;
+        }
+        .filter-chip .count {
+            background: rgba(52, 211, 153, 0.2);
+            border-radius: 20px;
+            padding: 0 8px;
+            font-size: 0.7rem;
+            color: #34d399;
+        }
+        /* تنسيق التحميل */
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(52, 211, 153, 0.15);
+            border-top-color: #34d399;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
         .pagination button {
-            background: rgba(201, 168, 76, 0.15);
-            border: 1px solid rgba(201, 168, 76, 0.3);
-            color: var(--text-gold);
-            padding: 6px 20px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: var(--font-arabic);
+            transition: 0.2s;
         }
         .pagination button:hover:not(:disabled) {
-            background: var(--primary);
-            color: #0d1b2a;
+            background: #34d399;
+            color: #111827;
         }
         .pagination button:disabled {
             opacity: 0.3;
             cursor: not-allowed;
         }
-        .pagination .page-info {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-        .pagination .loading-more {
-            color: var(--text-gold);
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        @media (max-width: 700px) {
-            .brand h1 {
-                font-size: 1.4rem;
-            }
-            .brand-icon {
-                font-size: 1.8rem;
-            }
-            .search-box input {
-                font-size: 0.9rem;
-                padding: 12px 16px;
-            }
-            .search-box .btn-search {
-                padding: 10px 18px;
-                font-size: 0.85rem;
-            }
-            .book-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 12px;
-            }
-            .book-card {
-                padding: 14px 12px;
-            }
-            .filters-bar {
-                gap: 8px;
-            }
-            .filters-bar .chip {
-                padding: 4px 12px;
-                font-size: 0.7rem;
-            }
-            .modal-content {
-                max-height: 95vh;
-                margin: 10px;
-            }
-            .modal-body {
-                padding: 12px;
-            }
-            .mode-toggle button {
-                padding: 4px 10px;
-                font-size: 0.65rem;
-            }
-            .result-item .result-cover {
-                width: 40px;
-                height: 56px;
-            }
-            .pagination button {
-                padding: 4px 14px;
-                font-size: 0.75rem;
-            }
-        }
-        @media (max-width: 480px) {
-            .header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px;
-            }
-            .header-actions {
-                justify-content: space-between;
-            }
-            .brand small {
-                font-size: 0.65rem;
-            }
-            .search-box {
-                border-radius: 30px;
-            }
-            .search-box input {
-                padding: 10px 14px;
-                font-size: 0.85rem;
-            }
-            .search-box .btn-search {
-                padding: 8px 14px;
-                font-size: 0.75rem;
-            }
-            .search-box .btn-search span {
-                display: none;
-            }
-            .book-grid {
-                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            }
-        }
     </style>
 </head>
-<body>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
 
-    <div id="app">
-        <header class="header">
-            <div class="brand">
-                <span class="brand-icon">📖</span>
-                <div>
-                    <h1>زهرة</h1>
-                    <small>Zohra · البحث الذكي في الكتب</small>
-                </div>
+    <!-- شريط الرأس (مدمج مع عناصر زهرة) -->
+    <header class="bg-gray-800 border-b border-gray-700 p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl text-emerald-400"><i class="fa-solid fa-book-open"></i></span>
+                <h1 class="text-2xl font-bold text-emerald-400">زهرة <span class="text-sm font-normal text-gray-400">Zohra</span></h1>
             </div>
-            <div class="header-actions">
-                <span class="badge-pwa">
-                    <span class="dot"></span>
-                    PWA جاهز
-                </span>
-                <span style="font-size:0.8rem;color:var(--text-muted);" id="bookCount">0 كتاب</span>
+            <!-- شريط البحث -->
+            <div class="relative w-full md:w-96">
+                <input type="text" id="searchInput" placeholder="ابحث عن كتاب، مؤلف، موضوع..." class="w-full bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-gray-600">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
             </div>
-        </header>
-
-        <section class="search-section">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="ابحث عن أي موضوع (كتب، كتب إلكترونية، مجلات)..." autocomplete="off" />
-                <button class="btn-search" id="searchBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <span>بحث</span>
-                </button>
+            <!-- أزرار وضع البحث -->
+            <div class="flex gap-2">
+                <button id="localModeBtn" class="px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition">📁 محلي</button>
+                <button id="internetModeBtn" class="px-4 py-1 rounded-full text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 transition">🌐 إنترنت</button>
             </div>
-        </section>
-
-        <div class="filters-bar">
-            <span class="chip active" data-filter="all">📚 الكل <span class="count" id="filterAll">0</span></span>
-            <span class="chip" data-filter="recent">🕒 حديثة <span class="count" id="filterRecent">0</span></span>
-            <span class="chip" data-filter="large">📄 كبيرة <span class="count" id="filterLarge">0</span></span>
-            <span class="spacer"></span>
-            <div class="mode-toggle" id="modeToggle">
-                <button class="active" data-mode="local">📁 محلي</button>
-                <button data-mode="internet">🌐 إنترنت</button>
-            </div>
-            <span class="stat" id="searchStat">🔍 جاهز للبحث</span>
         </div>
-
-        <div class="upload-area" id="uploadArea">
-            <div class="icon">📤</div>
-            <p>اسحب ملف PDF هنا أو <span class="highlight">انقر للاختيار</span></p>
-            <p style="font-size:0.75rem;margin-top:6px;opacity:0.6;">يدعم ملفات PDF فقط · سيتم فهرستها للبحث الذكي</p>
-            <input type="file" id="fileInput" accept=".pdf" multiple />
+        <!-- شريط التصفية والإحصائيات -->
+        <div class="max-w-6xl mx-auto mt-3 flex flex-wrap items-center gap-3">
+            <span class="filter-chip active" data-filter="all">📚 الكل <span class="count" id="filterAll">0</span></span>
+            <span class="filter-chip" data-filter="recent">🕒 حديثة <span class="count" id="filterRecent">0</span></span>
+            <span class="filter-chip" data-filter="large">📄 كبيرة <span class="count" id="filterLarge">0</span></span>
+            <span class="text-sm text-gray-400 mr-auto" id="searchStat">🔍 جاهز للبحث</span>
+            <span class="text-sm text-gray-400" id="bookCount">0 كتاب</span>
+            <button id="clearLibraryBtn" class="text-sm text-red-400 hover:text-red-300 transition"><i class="fa-regular fa-trash-can"></i> مسح المكتبة</button>
         </div>
+    </header>
 
-        <div class="library-header">
-            <h2>📚 مكتبتي</h2>
-            <button class="clear-btn" id="clearLibrary">🗑️ مسح الكل</button>
-        </div>
-        <div id="bookGrid" class="book-grid"></div>
-
-        <div id="resultsContainer" class="results-container"></div>
-
-        <div id="paginationControls" class="pagination" style="display:none;">
-            <button id="prevPageBtn">◀ السابق</button>
-            <span class="page-info" id="pageInfo">الصفحة 1</span>
-            <button id="nextPageBtn">التالي ▶</button>
-            <span class="loading-more" id="loadingMore" style="display:none;">
-                <span class="spinner" style="width:18px;height:18px;"></span> جاري تحميل المزيد...
-            </span>
-        </div>
-
-        <div id="emptyState" class="empty-state">
-            <div class="big-icon">📕</div>
-            <h3>لم تُضف أي كتب بعد</h3>
-            <p>قم برفع ملفات PDF لتتمكن من البحث فيها، أو استخدم "بحث إنترنت" للعثور على كتب ومجلات جديدة مجانية بجميع اللغات.</p>
-        </div>
-
-        <div id="loadingIndicator" style="display:none;" class="loading-bar">
-            <span class="spinner"></span>
-            <span id="loadingText">جاري معالجة الملفات...</span>
+    <!-- منطقة رفع الملفات -->
+    <div class="max-w-6xl mx-auto px-4 mt-4">
+        <div id="uploadArea" class="upload-zone rounded-xl p-6 text-center">
+            <div class="text-4xl text-gray-500 mb-2"><i class="fa-regular fa-file-pdf"></i></div>
+            <p class="text-gray-400">اسحب ملف PDF هنا أو <span class="text-emerald-400 font-semibold">انقر للاختيار</span></p>
+            <p class="text-xs text-gray-500 mt-1">يدعم ملفات PDF · سيتم فهرستها للبحث الذكي</p>
+            <input type="file" id="fileInput" accept=".pdf" multiple class="hidden" />
         </div>
     </div>
 
+    <!-- شبكة عرض الكتب -->
+    <main class="max-w-6xl mx-auto p-4 mt-4">
+        <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- سيتم توليد البطاقات بواسطة JavaScript -->
+        </div>
+        <!-- عنصر التحميل عند جلب المزيد من الإنترنت -->
+        <div id="paginationControls" class="flex justify-center items-center gap-4 mt-6 hidden">
+            <button id="prevPageBtn" class="px-4 py-2 bg-gray-700 rounded-lg text-gray-300 hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed">◀ السابق</button>
+            <span class="text-gray-400" id="pageInfo">الصفحة 1</span>
+            <button id="nextPageBtn" class="px-4 py-2 bg-gray-700 rounded-lg text-gray-300 hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed">التالي ▶</button>
+            <span id="loadingMore" class="text-emerald-400 text-sm hidden"><i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...</span>
+        </div>
+        <!-- رسالة عدم وجود نتائج -->
+        <div id="emptyState" class="text-center py-12 hidden">
+            <div class="text-6xl text-gray-600 mb-4"><i class="fa-regular fa-folder-open"></i></div>
+            <h3 class="text-xl text-gray-300">لم تُضف أي كتب بعد</h3>
+            <p class="text-gray-500 mt-2">قم برفع ملفات PDF أو استخدم "بحث إنترنت" للعثور على كتب ومجلات جديدة.</p>
+        </div>
+        <!-- مؤشر التحميل -->
+        <div id="loadingIndicator" class="flex items-center gap-3 text-gray-400 mt-4 hidden">
+            <span class="loading-spinner"></span>
+            <span id="loadingText">جاري معالجة الملفات...</span>
+        </div>
+    </main>
+
+    <!-- نافذة عارض PDF (مدمجة من زهرة) -->
     <div class="modal-overlay" id="pdfModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -854,9 +407,9 @@
                 <button class="close-modal" id="modalClose">✕</button>
             </div>
             <div class="modal-body" id="modalBody">
-                <div style="text-align:center;padding:40px 0;color:var(--text-muted);">
-                    <span class="spinner"></span>
-                    <p style="margin-top:12px;">جاري تحميل الكتاب...</p>
+                <div class="text-center py-10 text-gray-400">
+                    <span class="loading-spinner"></span>
+                    <p class="mt-3">جاري تحميل الكتاب...</p>
                 </div>
             </div>
             <div class="modal-footer">
@@ -866,22 +419,62 @@
         </div>
     </div>
 
+    <!-- رسائل التنبيه -->
     <div class="toast" id="toast"></div>
 
+    <!-- ============================================================ -->
+    <!-- كود JavaScript الكامل لتطبيق زهرة (مدمج مع الواجهة الجديدة) -->
     <script>
         (function() {
             'use strict';
 
+            // ---- CONFIG ----
             const STORAGE_KEY = 'zohra_books';
             const SNIPPET_WORDS = 28;
 
+            // ---- STATE ----
             let books = [];
             let searchIndex = {};
             let currentFilter = 'all';
             let currentResults = [];
-            let searchMode = 'local';
+            let searchMode = 'local'; // 'local' or 'internet'
 
-            // Internet search state
+            // ---- DOM REFS ----
+            const $ = (s) => document.querySelector(s);
+            const $$ = (s) => document.querySelectorAll(s);
+
+            const searchInput = $('#searchInput');
+            const booksGrid = $('#booksGrid');
+            const emptyState = $('#emptyState');
+            const loadingIndicator = $('#loadingIndicator');
+            const loadingText = $('#loadingText');
+            const bookCount = $('#bookCount');
+            const searchStat = $('#searchStat');
+            const filterAll = $('#filterAll');
+            const filterRecent = $('#filterRecent');
+            const filterLarge = $('#filterLarge');
+            const toast = $('#toast');
+            const localModeBtn = $('#localModeBtn');
+            const internetModeBtn = $('#internetModeBtn');
+            const clearLibraryBtn = $('#clearLibraryBtn');
+            const fileInput = $('#fileInput');
+            const uploadArea = $('#uploadArea');
+
+            // Modal PDF
+            const modalOverlay = $('#pdfModal');
+            const modalClose = $('#modalClose');
+            const modalTitle = $('#modalTitle');
+            const modalBody = $('#modalBody');
+            const modalPageInfo = $('#modalPageInfo');
+
+            // Pagination
+            const paginationControls = $('#paginationControls');
+            const prevPageBtn = $('#prevPageBtn');
+            const nextPageBtn = $('#nextPageBtn');
+            const pageInfo = $('#pageInfo');
+            const loadingMore = $('#loadingMore');
+
+            // ---- Internet search state ----
             let internetResults = [];
             let currentPage = 1;
             let resultsPerPage = 10;
@@ -889,41 +482,6 @@
             let isLoadingMore = false;
             let hasMoreResults = true;
             let lastQuery = '';
-            let totalFetched = 0;
-            let isFetchingAll = false;
-
-            const $ = (s) => document.querySelector(s);
-            const $$ = (s) => document.querySelectorAll(s);
-
-            const searchInput = $('#searchInput');
-            const searchBtn = $('#searchBtn');
-            const fileInput = $('#fileInput');
-            const uploadArea = $('#uploadArea');
-            const bookGrid = $('#bookGrid');
-            const resultsContainer = $('#resultsContainer');
-            const emptyState = $('#emptyState');
-            const loadingIndicator = $('#loadingIndicator');
-            const loadingText = $('#loadingText');
-            const clearLibraryBtn = $('#clearLibrary');
-            const bookCount = $('#bookCount');
-            const searchStat = $('#searchStat');
-            const filterAll = $('#filterAll');
-            const filterRecent = $('#filterRecent');
-            const filterLarge = $('#filterLarge');
-            const toast = $('#toast');
-            const modeToggle = $('#modeToggle');
-
-            const modalOverlay = $('#pdfModal');
-            const modalClose = $('#modalClose');
-            const modalTitle = $('#modalTitle');
-            const modalBody = $('#modalBody');
-            const modalPageInfo = $('#modalPageInfo');
-
-            const paginationControls = $('#paginationControls');
-            const prevPageBtn = $('#prevPageBtn');
-            const nextPageBtn = $('#nextPageBtn');
-            const pageInfo = $('#pageInfo');
-            const loadingMore = $('#loadingMore');
 
             let pdfjsLib = window.pdfjsLib;
             if (pdfjsLib) {
@@ -931,6 +489,7 @@
                     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             }
 
+            // ---- UTILITY ----
             function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
             function formatSize(bytes) {
@@ -947,7 +506,7 @@
                 toast.innerHTML = `<span class="toast-icon">${icon}</span> ${msg}`;
                 toast.classList.add('show');
                 clearTimeout(toast._timer);
-                toast._timer = setTimeout(() => toast.classList.remove('show'), 5000);
+                toast._timer = setTimeout(() => toast.classList.remove('show'), 4000);
             }
 
             function debounce(fn, ms = 400) {
@@ -968,7 +527,7 @@
                 return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             }
 
-            // ---- Text processing ----
+            // ---- TEXT PROCESSING ----
             function tokenizeArabic(text) {
                 if (!text) return [];
                 let t = text.replace(/[\u0622\u0623\u0625]/g, '\u0627').replace(/\u0640/g, '')
@@ -1008,7 +567,7 @@
                 return result;
             }
 
-            // ---- Local search ----
+            // ---- LOCAL SEARCH ----
             function buildIndex() {
                 searchIndex = {};
                 for (let book of books) {
@@ -1032,16 +591,18 @@
             function searchLocal(query) {
                 if (!query.trim()) {
                     currentResults = [];
-                    renderLocalResults([]);
+                    renderBooksGrid(books);
                     searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
+                    paginationControls.style.display = 'none';
                     return;
                 }
                 const qTerms = processText(query);
                 const qKeys = qTerms.map(t => t.key);
                 if (qKeys.length === 0) {
                     currentResults = [];
-                    renderLocalResults([]);
+                    renderBooksGrid(books);
                     searchStat.textContent = '🔍 لا توجد كلمات صالحة للبحث';
+                    paginationControls.style.display = 'none';
                     return;
                 }
                 const matched = new Map();
@@ -1078,82 +639,18 @@
                 }
                 results.sort((a, b) => b.score - a.score);
                 currentResults = results.map(r => ({ book: r.book, score: r.score, matches: r.matches }));
-                renderLocalResults(currentResults);
+                // عرض الكتب المطابقة في الشبكة
+                const matchedBooks = currentResults.map(r => r.book);
+                renderBooksGrid(matchedBooks);
                 searchStat.textContent = `🔍 تم العثور على ${currentResults.length} نتيجة في مكتبتك`;
                 paginationControls.style.display = 'none';
             }
 
-            function renderLocalResults(results) {
-                if (!results || results.length === 0) {
-                    resultsContainer.innerHTML = '';
-                    return;
-                }
-                resultsContainer.innerHTML = results.map((r, idx) => {
-                    const book = r.book;
-                    const snippet = getSnippet(book.text || '', searchInput.value, SNIPPET_WORDS);
-                    return `
-                            <div class="result-item" data-id="${book.id}">
-                                <div class="result-title">📄 ${escapeHtml(book.name)}</div>
-                                <div class="result-snippet">${snippet}</div>
-                                <div class="result-meta">
-                                    <span class="score">⭐ الأهمية: ${r.score.toFixed(1)}</span>
-                                    <span>📄 ${book.pages || '?'} صفحة</span>
-                                    <span class="book-ref" data-id="${book.id}">👁️ عرض الكتاب</span>
-                                </div>
-                            </div>
-                        `;
-                }).join('');
-
-                document.querySelectorAll('.result-item .book-ref').forEach(el => {
-                    el.addEventListener('click', function() {
-                        const id = this.dataset.id;
-                        const book = books.find(b => b.id === id);
-                        if (book) openPdfViewer(book);
-                    });
-                });
-                document.querySelectorAll('.result-item').forEach(el => {
-                    el.addEventListener('click', function(e) {
-                        if (e.target.closest('.book-ref')) return;
-                        const id = this.dataset.id;
-                        const book = books.find(b => b.id === id);
-                        if (book) openPdfViewer(book);
-                    });
-                });
-            }
-
-            function getSnippet(text, query, wordCount) {
-                if (!text) return '...';
-                const words = text.split(/\s+/);
-                if (words.length <= wordCount) return text;
-                const q = query.trim().toLowerCase();
-                const qWords = q.split(/\s+/).filter(w => w.length > 1);
-                let bestIdx = 0,
-                    bestScore = 0;
-                for (let i = 0; i < words.length - 5; i++) {
-                    let score = 0;
-                    const chunk = words.slice(i, i + 10).join(' ').toLowerCase();
-                    for (let qw of qWords) { if (chunk.includes(qw)) score += 2; }
-                    if (score > bestScore) { bestScore = score;
-                        bestIdx = i; }
-                }
-                let start = Math.max(0, bestIdx - Math.floor(wordCount / 2));
-                let end = Math.min(words.length, start + wordCount);
-                if (end - start < wordCount && start > 0) { start = Math.max(0, end - wordCount); }
-                let snippet = words.slice(start, end).join(' ');
-                if (start > 0) snippet = '... ' + snippet;
-                if (end < words.length) snippet = snippet + ' ...';
-                for (let qw of qWords) {
-                    if (qw.length < 2) continue;
-                    const regex = new RegExp('(' + escapeRegex(qw) + ')', 'gi');
-                    snippet = snippet.replace(regex, '<mark>$1</mark>');
-                }
-                return snippet;
-            }
-
-            // ---- Internet search (ALL content: books, eBooks, magazines) ----
+            // ---- INTERNET SEARCH (All languages & types) ----
             async function searchInternet(query, page = 1) {
                 if (!query.trim()) {
-                    resultsContainer.innerHTML = '';
+                    booksGrid.innerHTML =
+                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-message text-4xl block mb-2"></i> اكتب كلمة للبحث على الإنترنت</div>`;
                     searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)';
                     paginationControls.style.display = 'none';
                     return;
@@ -1165,10 +662,8 @@
                     totalResults = 0;
                     hasMoreResults = true;
                     lastQuery = query;
-                    totalFetched = 0;
-                    isFetchingAll = false;
-                    resultsContainer.innerHTML =
-                        `<div class="loading-bar"><span class="spinner"></span><span>جاري البحث على الإنترنت (جميع اللغات والأنواع)...</span></div>`;
+                    booksGrid.innerHTML =
+                        `<div class="col-span-full flex items-center justify-center gap-3 text-gray-400 py-8"><span class="loading-spinner"></span><span>جاري البحث على الإنترنت (جميع اللغات والأنواع)...</span></div>`;
                     searchStat.textContent = '🌐 جاري البحث...';
                     paginationControls.style.display = 'none';
                 }
@@ -1182,7 +677,7 @@
                 let newResults = [];
                 let hasMore = false;
 
-                // Open Library (all content: books, magazines, eBooks)
+                // Open Library (all content)
                 try {
                     const olUrl =
                         `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`;
@@ -1197,7 +692,6 @@
                             const coverId = doc.cover_i || doc.cover_edition_key;
                             const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` :
                                 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E';
-                            // محاولة استخراج النوع من الموضوعات
                             let type = 'كتاب';
                             if (doc.subject) {
                                 const subjects = doc.subject.map(s => s.toLowerCase());
@@ -1248,7 +742,6 @@
                             const authors = info.authors ? info.authors.join('، ') : 'مؤلف غير معروف';
                             const year = info.publishedDate ? info.publishedDate.substring(0, 4) : '';
                             const cover = info.imageLinks ? info.imageLinks.thumbnail : null;
-                            // محاولة استخراج النوع من التصنيفات
                             let type = 'كتاب';
                             if (info.categories) {
                                 const cats = info.categories.map(c => c.toLowerCase());
@@ -1281,12 +774,11 @@
                     }
                 }
 
-                totalFetched = internetResults.length;
                 isLoadingMore = false;
 
                 if (internetResults.length === 0) {
-                    resultsContainer.innerHTML =
-                        `<div class="empty-state" style="padding:20px;"><div class="big-icon">🔍</div><h3>لا توجد نتائج متاحة بهذا البحث</h3><p>جرّب كلمات بحث أخرى (كتب، مجلات، مواضيع علمية، إلخ).</p></div>`;
+                    booksGrid.innerHTML =
+                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-face-frown text-4xl block mb-2"></i> لا توجد نتائج متاحة بهذا البحث</div>`;
                     searchStat.textContent = '🌐 لم يتم العثور على نتائج';
                     paginationControls.style.display = 'none';
                     return;
@@ -1302,8 +794,8 @@
                 searchStat.textContent = `🌐 تم العثور على ${internetResults.length} نتيجة (إجمالي ~${totalAvailable})`;
 
                 if (hasMore && internetResults.length < currentPage * resultsPerPage) {
-                    const nextApiPage = Math.ceil(internetResults.length / limit) + 1;
-                    loadingMore.style.display = 'flex';
+                    const nextApiPage = Math.ceil(internetResults.length / 100) + 1;
+                    loadingMore.style.display = 'inline-flex';
                     await searchInternet(lastQuery, nextApiPage);
                     loadingMore.style.display = 'none';
                 }
@@ -1320,69 +812,24 @@
                     return;
                 }
 
-                resultsContainer.innerHTML = pageResults.map(r => {
-                    const typeIcon = r.type === 'مجلة' ? '📰' : (r.type === 'كتاب إلكتروني' ? '📱' : '📚');
-                    return `
-                            <div class="result-item" data-id="${r.id}">
-                                <img class="result-cover" src="${r.cover}" alt="غلاف" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'" />
-                                <div class="result-title">${typeIcon} ${escapeHtml(r.title)}</div>
-                                <div style="font-size:0.85rem;color:var(--text-muted);">✍️ ${escapeHtml(r.author)}</div>
-                                ${r.year ? `<div style="font-size:0.75rem;color:var(--text-muted);">📅 ${r.year}</div>` : ''}
-                                <div style="font-size:0.7rem;color:var(--text-gold);">${r.type}</div>
-                                <div class="result-actions">
-                                    ${r.iaId ? `
-                                        <button class="btn-add-internet" data-ia="${r.iaId}" data-title="${escapeHtml(r.title)}">⬇️ تحميل + إضافة</button>
-                                        <button class="btn-preview-internet" data-ia="${r.iaId}" data-title="${escapeHtml(r.title)}">👁️ معاينة</button>
-                                    ` : `
-                                        <button class="btn-add-google" data-url="${escapeHtml(r.directPdf)}" data-title="${escapeHtml(r.title)}">⬇️ تحميل + إضافة</button>
-                                        <button class="btn-preview-google" data-url="${escapeHtml(r.directPdf)}" data-title="${escapeHtml(r.title)}">👁️ معاينة</button>
-                                    `}
-                                    <button class="btn-open-link" data-url="${r.directPdf || `https://archive.org/details/${r.iaId}`}" data-title="${escapeHtml(r.title)}" style="background:rgba(100,149,237,0.2);border-color:rgba(100,149,237,0.3);color:#a0c4ff;">🔗 فتح الرابط</button>
-                                </div>
-                            </div>
-                        `;
-                }).join('');
+                // تحويل النتائج إلى صيغة الكتب (نفس بنية books)
+                const displayBooks = pageResults.map(r => ({
+                    id: r.id,
+                    name: r.title,
+                    author: r.author,
+                    year: r.year,
+                    cover: r.cover,
+                    type: r.type,
+                    iaId: r.iaId,
+                    directPdf: r.directPdf,
+                    size: 0,
+                    pages: 0,
+                    uploaded: Date.now(),
+                    data: null,
+                    text: ''
+                }));
 
-                // ربط الأحداث
-                resultsContainer.querySelectorAll('.btn-add-internet').forEach(btn => {
-                    btn.addEventListener('click', async function() {
-                        const iaId = this.dataset.ia;
-                        const title = this.dataset.title;
-                        this.disabled = true;
-                        this.textContent = '⏳ جاري التحميل...';
-                        await downloadAndAddBook(iaId, title);
-                        this.textContent = '✅ تمت الإضافة';
-                        setTimeout(() => { this.textContent = '⬇️ تحميل + إضافة';
-                            this.disabled = false; }, 2000);
-                    });
-                });
-                resultsContainer.querySelectorAll('.btn-preview-internet').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        window.open(`https://archive.org/details/${this.dataset.ia}`, '_blank');
-                    });
-                });
-                resultsContainer.querySelectorAll('.btn-add-google').forEach(btn => {
-                    btn.addEventListener('click', async function() {
-                        const url = this.dataset.url;
-                        const title = this.dataset.title;
-                        this.disabled = true;
-                        this.textContent = '⏳ جاري التحميل...';
-                        await downloadFromUrl(url, title);
-                        this.textContent = '✅ تمت الإضافة';
-                        setTimeout(() => { this.textContent = '⬇️ تحميل + إضافة';
-                            this.disabled = false; }, 2000);
-                    });
-                });
-                resultsContainer.querySelectorAll('.btn-preview-google').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        window.open(this.dataset.url, '_blank');
-                    });
-                });
-                resultsContainer.querySelectorAll('.btn-open-link').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        window.open(this.dataset.url, '_blank');
-                    });
-                });
+                renderBooksGrid(displayBooks, true);
             }
 
             function updatePaginationButtons(page, maxPages, hasMore) {
@@ -1397,7 +844,7 @@
                 if (page > maxPages) {
                     if (hasMoreResults) {
                         const nextApiPage = Math.ceil(internetResults.length / 100) + 1;
-                        loadingMore.style.display = 'flex';
+                        loadingMore.style.display = 'inline-flex';
                         await searchInternet(lastQuery, nextApiPage);
                         loadingMore.style.display = 'none';
                         const newMaxPages = Math.ceil(internetResults.length / resultsPerPage) || 1;
@@ -1418,199 +865,224 @@
                 renderInternetPage(currentPage);
                 const maxPages2 = Math.ceil(internetResults.length / resultsPerPage) || 1;
                 updatePaginationButtons(currentPage, maxPages2, hasMoreResults);
-                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                booksGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
-            // ---- DOWNLOAD FUNCTIONS ----
-            async function downloadFromUrl(url, title) {
-                loadingIndicator.style.display = 'flex';
-                loadingText.textContent = `⏬ جاري تحميل "${title}"...`;
-                try {
-                    const resp = await fetch(url, {
-                        mode: 'cors',
-                        credentials: 'omit',
-                        headers: { 'Accept': 'application/pdf' }
-                    });
-                    if (!resp.ok) {
-                        showToast(`تعذر تحميل "${title}"، سيتم فتح الرابط.`, 'ℹ️');
-                        window.open(url, '_blank');
-                        loadingIndicator.style.display = 'none';
-                        return;
+            // ---- RENDER BOOKS GRID (بطاقات محسنة) ----
+            function renderBooksGrid(booksList, isInternet = false) {
+                if (!booksList || booksList.length === 0) {
+                    if (searchMode === 'local' && books.length === 0) {
+                        emptyState.classList.remove('hidden');
+                    } else {
+                        emptyState.classList.add('hidden');
+                        booksGrid.innerHTML =
+                            `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-folder-open text-4xl block mb-2"></i> لا توجد كتب لعرضها</div>`;
                     }
-                    const blob = await resp.blob();
-                    const size = blob.size;
-                    if (size < 1000) {
-                        showToast(`الملف "${title}" فارغ أو غير صالح.`, '⚠️');
-                        window.open(url, '_blank');
-                        loadingIndicator.style.display = 'none';
-                        return;
-                    }
-
-                    loadingText.textContent = `📄 جاري فهرسة "${title}"...`;
-                    const arrayBuffer = await blob.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    const pages = pdf.numPages;
-                    const maxPages = Math.min(pages, 80);
-                    let fullText = '';
-                    for (let i = 1; i <= maxPages; i++) {
-                        try {
-                            const page = await pdf.getPage(i);
-                            const content = await page.getTextContent();
-                            const strings = content.items.map(item => item.str);
-                            fullText += strings.join(' ') + ' ';
-                        } catch (e) {}
-                        if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
-                    }
-                    const reader = new FileReader();
-                    const dataUrl = await new Promise((resolve) => {
-                        reader.onload = () => resolve(reader.result);
-                        reader.readAsDataURL(blob);
-                    });
-                    addBook(title, size, fullText, pages, dataUrl);
-                    loadingIndicator.style.display = 'none';
-                    showToast(`✅ تمت إضافة "${title}" إلى المكتبة`, '📚');
-                } catch (err) {
-                    loadingIndicator.style.display = 'none';
-                    showToast(`فشل تحميل "${title}"، سيتم فتح الرابط.`, 'ℹ️');
-                    window.open(url, '_blank');
-                }
-            }
-
-            async function downloadAndAddBook(iaId, title) {
-                const pdfUrl = `https://archive.org/download/${iaId}/${iaId}.pdf`;
-                await downloadFromUrl(pdfUrl, title);
-            }
-
-            // ---- BOOK MANAGEMENT ----
-            function addBook(name, size, text, pages, data) {
-                const id = genId();
-                const book = { id, name: name || 'كتاب بدون عنوان', size: size || 0, pages: pages || 0, text: text || '',
-                    uploaded: Date.now(), data: data || null };
-                books.push(book);
-                saveBooks();
-                buildIndex();
-                renderBooks();
-                if (searchMode === 'local' && searchInput.value.trim()) searchLocal(searchInput.value);
-            }
-
-            function removeBook(id) {
-                if (!confirm('هل تريد حذف هذا الكتاب؟')) return;
-                const book = books.find(b => b.id === id);
-                books = books.filter(b => b.id !== id);
-                saveBooks();
-                buildIndex();
-                renderBooks();
-                if (searchMode === 'local' && searchInput.value.trim()) searchLocal(searchInput.value);
-                else { resultsContainer.innerHTML = '';
-                    searchStat.textContent = '🔍 جاهز للبحث'; }
-                if (book) showToast(`تم حذف "${book.name}"`, '🗑️');
-            }
-
-            function clearLibrary() {
-                if (books.length === 0) return;
-                if (!confirm('هل تريد حذف جميع الكتب؟')) return;
-                books = [];
-                saveBooks();
-                buildIndex();
-                renderBooks();
-                resultsContainer.innerHTML = '';
-                searchStat.textContent = '🔍 جاهز للبحث';
-                showToast('تم مسح المكتبة بالكامل', '🧹');
-            }
-
-            function saveBooks() {
-                try {
-                    const toStore = books.map(b => ({ id: b.id, name: b.name, size: b.size, pages: b.pages, text: b.text,
-                        uploaded: b.uploaded }));
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
-                } catch (e) { console.warn('Save error:', e); }
-            }
-
-            function loadBooks() {
-                try {
-                    const raw = localStorage.getItem(STORAGE_KEY);
-                    if (!raw) return;
-                    const data = JSON.parse(raw);
-                    if (!Array.isArray(data)) return;
-                    books = data;
-                    buildIndex();
-                    renderBooks();
-                    showToast(`تم تحميل ${books.length} كتاب من المكتبة`, '📚');
-                } catch (e) { console.warn('Load error:', e); }
-            }
-
-            function renderBooks() {
-                if (books.length === 0) {
-                    bookGrid.innerHTML = '';
-                    emptyState.style.display = 'block';
-                    bookCount.textContent = '0 كتاب';
-                    updateStats();
                     return;
                 }
-                emptyState.style.display = 'none';
-                bookCount.textContent = `${books.length} كتاب`;
+                emptyState.classList.add('hidden');
 
-                let filtered = [...books];
-                if (currentFilter === 'recent') {
-                    filtered.sort((a, b) => b.uploaded - a.uploaded);
-                    filtered = filtered.slice(0, 8);
-                } else if (currentFilter === 'large') {
-                    filtered = filtered.filter(b => b.size > 1024 * 1024);
+                booksGrid.innerHTML = booksList.map(book => {
+                    const cover = book.cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E';
+                    const typeIcon = book.type === 'مجلة' ? '📰' : (book.type === 'كتاب إلكتروني' ? '📱' : '📚');
+                    const title = book.name || 'بدون عنوان';
+                    const author = book.author || 'مؤلف غير معروف';
+                    const year = book.year || '';
+                    const size = book.size ? formatSize(book.size) : '';
+                    const pages = book.pages ? book.pages + ' صفحة' : '';
+                    const isLocal = !isInternet;
+
+                    // تحديد الرابط للتحميل أو العرض
+                    let downloadUrl = '#';
+                    let canDownload = false;
+                    if (book.iaId) {
+                        downloadUrl = `https://archive.org/download/${book.iaId}/${book.iaId}.pdf`;
+                        canDownload = true;
+                    } else if (book.directPdf) {
+                        downloadUrl = book.directPdf;
+                        canDownload = true;
+                    }
+
+                    return `
+                            <div class="book-card bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700 hover:border-emerald-500 transition duration-300 flex flex-col justify-between">
+                                <img src="${cover}" alt="${title}" class="w-full h-48 object-cover bg-gray-700" loading="lazy">
+                                <div class="p-4 flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm">${typeIcon}</span>
+                                            <h2 class="font-bold text-lg text-white line-clamp-1">${escapeHtml(title)}</h2>
+                                        </div>
+                                        <p class="text-sm text-gray-400 mt-1">${escapeHtml(author)}</p>
+                                        ${year ? `<p class="text-xs text-gray-500">📅 ${year}</p>` : ''}
+                                        ${book.type ? `<span class="text-xs text-emerald-400">${book.type}</span>` : ''}
+                                        ${isLocal ? `<div class="text-xs text-gray-500 mt-1">${size} ${pages}</div>` : ''}
+                                    </div>
+                                    <div class="book-actions mt-4 pt-3 border-t border-gray-700">
+                                        <button onclick="window.openPdfViewerWrapper('${book.id}')" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
+                                            <i class="fa-regular fa-eye"></i> قراءة
+                                        </button>
+                                        ${canDownload ? `
+                                            <a href="${downloadUrl}" download class="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-gray-200 py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
+                                                <i class="fa-regular fa-download"></i> تحميل
+                                            </a>
+                                        ` : `
+                                            <button onclick="window.openLink('${downloadUrl}')" class="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-gray-200 py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
+                                                <i class="fa-regular fa-link"></i> فتح
+                                            </button>
+                                        `}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                }).join('');
+
+                // ربط أحداث الأزرار المخصصة
+                // (سيتم استدعاء الدوال العامة)
+            }
+
+            // ---- دوال مساعدة للربط ----
+            window.openPdfViewerWrapper = function(bookId) {
+                // البحث عن الكتاب في المكتبة المحلية أو في نتائج الإنترنت
+                let book = books.find(b => b.id === bookId);
+                if (!book && internetResults.length > 0) {
+                    const found = internetResults.find(r => r.id === bookId);
+                    if (found) {
+                        // تحويل إلى صيغة الكتاب المحلي
+                        book = {
+                            id: found.id,
+                            name: found.title,
+                            author: found.author,
+                            year: found.year,
+                            cover: found.cover,
+                            type: found.type,
+                            iaId: found.iaId,
+                            directPdf: found.directPdf,
+                            size: 0,
+                            pages: 0,
+                            uploaded: Date.now(),
+                            data: null,
+                            text: ''
+                        };
+                        // إذا كان لدينا iaId، نحاول تحميل الملف وعرضه
+                        if (found.iaId) {
+                            // نمرر الكائن مع رابط التحميل
+                            openPdfViewerFromUrl(found.directPdf, found.title);
+                            return;
+                        } else if (found.directPdf) {
+                            openPdfViewerFromUrl(found.directPdf, found.title);
+                            return;
+                        }
+                    }
                 }
+                if (book) {
+                    openPdfViewer(book);
+                } else {
+                    showToast('الكتاب غير موجود في المكتبة', '⚠️');
+                }
+            };
 
-                bookGrid.innerHTML = filtered.map(book => `
-                        <div class="book-card" data-id="${book.id}">
-                            <div class="pdf-icon">📄</div>
-                            <div class="title">${escapeHtml(book.name)}</div>
-                            <div class="meta">
-                                <span>${formatSize(book.size)}</span>
-                                <span class="badge-pdf">${book.pages || '?'} صفحة</span>
-                            </div>
-                            <div class="meta" style="margin-top:2px;font-size:0.65rem;">
-                                <span>📅 ${formatDate(book.uploaded)}</span>
-                            </div>
-                            <button class="remove-btn" data-id="${book.id}" title="حذف">✕</button>
-                        </div>
-                    `).join('');
+            window.openLink = function(url) {
+                if (url && url !== '#') {
+                    window.open(url, '_blank');
+                } else {
+                    showToast('لا يوجد رابط متاح', '⚠️');
+                }
+            };
 
-                document.querySelectorAll('.book-card').forEach(el => {
-                    el.addEventListener('click', function(e) {
-                        if (e.target.closest('.remove-btn')) return;
-                        const id = this.dataset.id;
-                        const book = books.find(b => b.id === id);
-                        if (book) openPdfViewer(book);
-                    });
-                });
-                document.querySelectorAll('.book-card .remove-btn').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const id = this.dataset.id;
-                        removeBook(id);
-                    });
-                });
-                updateStats();
+            // ---- عارض PDF من الرابط (للنتائج من الإنترنت) ----
+            async function openPdfViewerFromUrl(url, title) {
+                modalTitle.textContent = `📄 ${title}`;
+                modalBody.innerHTML =
+                    `<div class="text-center py-10 text-gray-400"><span class="loading-spinner"></span><p class="mt-3">جاري تحميل الكتاب...</p></div>`;
+                modalOverlay.classList.add('active');
+                modalPageInfo.textContent = 'جاري التحميل...';
+
+                try {
+                    const resp = await fetch(url, { mode: 'cors', credentials: 'omit' });
+                    if (!resp.ok) throw new Error('فشل التحميل');
+                    const blob = await resp.blob();
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    const totalPages = pdf.numPages;
+                    modalPageInfo.textContent = `الصفحة 1 / ${totalPages}`;
+                    const page = await pdf.getPage(1);
+                    const scale = 1.4;
+                    const viewport = page.getViewport({ scale });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    canvas.style.width = '100%';
+                    canvas.style.height = 'auto';
+                    modalBody.innerHTML = '';
+                    modalBody.appendChild(canvas);
+                    await page.render({ canvasContext: context, viewport }).promise;
+
+                    let currentPage = 1;
+                    const navDiv = document.createElement('div');
+                    navDiv.className = 'flex justify-center gap-4 mt-4 flex-wrap';
+                    const prevBtn = document.createElement('button');
+                    prevBtn.textContent = '◀ السابق';
+                    prevBtn.className =
+                        'bg-gray-700 border border-gray-600 text-gray-300 px-4 py-1 rounded-full hover:bg-gray-600 transition';
+                    const nextBtn = document.createElement('button');
+                    nextBtn.textContent = 'التالي ▶';
+                    nextBtn.className =
+                        'bg-gray-700 border border-gray-600 text-gray-300 px-4 py-1 rounded-full hover:bg-gray-600 transition';
+                    const pageInfoSpan = document.createElement('span');
+                    pageInfoSpan.className = 'text-gray-400';
+                    pageInfoSpan.textContent = `الصفحة 1 / ${totalPages}`;
+
+                    navDiv.appendChild(prevBtn);
+                    navDiv.appendChild(pageInfoSpan);
+                    navDiv.appendChild(nextBtn);
+                    modalBody.appendChild(navDiv);
+
+                    const renderPage = async (num) => {
+                        try {
+                            const p = await pdf.getPage(num);
+                            const vp = p.getViewport({ scale });
+                            canvas.width = vp.width;
+                            canvas.height = vp.height;
+                            canvas.style.width = '100%';
+                            canvas.style.height = 'auto';
+                            await p.render({ canvasContext: context, viewport: vp }).promise;
+                            currentPage = num;
+                            pageInfoSpan.textContent = `الصفحة ${num} / ${totalPages}`;
+                            modalPageInfo.textContent = `الصفحة ${num} / ${totalPages}`;
+                        } catch (e) { showToast('خطأ في عرض الصفحة', '❌'); }
+                    };
+                    prevBtn.addEventListener('click', () => { if (currentPage > 1) renderPage(currentPage - 1); });
+                    nextBtn.addEventListener('click', () => { if (currentPage < totalPages) renderPage(currentPage +
+                            1); });
+                    const keyHandler = (e) => {
+                        if (!modalOverlay.classList.contains('active')) return;
+                        if (e.key === 'ArrowRight' && currentPage < totalPages) renderPage(currentPage + 1);
+                        if (e.key === 'ArrowLeft' && currentPage > 1) renderPage(currentPage - 1);
+                        if (e.key === 'Escape') closeModal();
+                    };
+                    document.addEventListener('keydown', keyHandler);
+                    modalOverlay._keyHandler = keyHandler;
+                } catch (err) {
+                    console.error(err);
+                    modalBody.innerHTML =
+                        `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>تعذر عرض هذا الكتاب.</p><p class="text-sm">${escapeHtml(err.message || 'خطأ غير معروف')}</p><button onclick="window.open('${url}','_blank')" class="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg">فتح الرابط</button></div>`;
+                    modalPageInfo.textContent = 'غير متاح';
+                }
             }
 
-            function updateStats() {
-                filterAll.textContent = books.length;
-                const recent = books.filter(b => (Date.now() - b.uploaded) < 7 * 24 * 3600 * 1000);
-                filterRecent.textContent = recent.length;
-                const large = books.filter(b => b.size > 1024 * 1024);
-                filterLarge.textContent = large.length;
-            }
-
-            // ---- PDF Viewer ----
+            // ---- عارض PDF المحلي (من البيانات المخزنة) ----
             async function openPdfViewer(book) {
                 modalTitle.textContent = `📄 ${book.name}`;
                 modalBody.innerHTML =
-                    `<div style="text-align:center;padding:40px 0;color:var(--text-muted);"><span class="spinner"></span><p style="margin-top:12px;">جاري تحميل الكتاب...</p></div>`;
+                    `<div class="text-center py-10 text-gray-400"><span class="loading-spinner"></span><p class="mt-3">جاري تحميل الكتاب...</p></div>`;
                 modalOverlay.classList.add('active');
                 modalPageInfo.textContent = `الصفحة 0 / ${book.pages || '?'}`;
                 try {
                     let dataToUse = book.data;
                     if (!dataToUse) {
                         modalBody.innerHTML =
-                            `<div style="text-align:center;padding:40px 0;color:var(--text-muted);"><div style="font-size:3rem;margin-bottom:16px;">📄</div><p>لم يتم حفظ محتوى هذا الكتاب للعرض المباشر.</p><p style="font-size:0.8rem;margin-top:8px;">يرجى إعادة رفع الملف لعرضه.</p></div>`;
+                            `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>لم يتم حفظ محتوى هذا الكتاب للعرض المباشر.</p><p class="text-sm">يرجى إعادة رفع الملف لعرضه.</p></div>`;
                         modalPageInfo.textContent = 'غير متاح';
                         return;
                     }
@@ -1632,21 +1104,21 @@
 
                     let currentPage = 1;
                     const navDiv = document.createElement('div');
-                    navDiv.style.cssText =
-                        'display:flex;justify-content:center;gap:16px;margin-top:16px;padding:8px;flex-wrap:wrap;';
+                    navDiv.className = 'flex justify-center gap-4 mt-4 flex-wrap';
                     const prevBtn = document.createElement('button');
                     prevBtn.textContent = '◀ السابق';
-                    prevBtn.style.cssText =
-                        'background:var(--bg-card);border:1px solid rgba(201,168,76,0.2);color:var(--text-light);padding:6px 18px;border-radius:30px;cursor:pointer;';
+                    prevBtn.className =
+                        'bg-gray-700 border border-gray-600 text-gray-300 px-4 py-1 rounded-full hover:bg-gray-600 transition';
                     const nextBtn = document.createElement('button');
                     nextBtn.textContent = 'التالي ▶';
-                    nextBtn.style.cssText =
-                        'background:var(--bg-card);border:1px solid rgba(201,168,76,0.2);color:var(--text-light);padding:6px 18px;border-radius:30px;cursor:pointer;';
-                    const pageInfo = document.createElement('span');
-                    pageInfo.style.cssText = 'color:var(--text-muted);padding:6px 12px;';
-                    pageInfo.textContent = `الصفحة 1 / ${totalPages}`;
+                    nextBtn.className =
+                        'bg-gray-700 border border-gray-600 text-gray-300 px-4 py-1 rounded-full hover:bg-gray-600 transition';
+                    const pageInfoSpan = document.createElement('span');
+                    pageInfoSpan.className = 'text-gray-400';
+                    pageInfoSpan.textContent = `الصفحة 1 / ${totalPages}`;
+
                     navDiv.appendChild(prevBtn);
-                    navDiv.appendChild(pageInfo);
+                    navDiv.appendChild(pageInfoSpan);
                     navDiv.appendChild(nextBtn);
                     modalBody.appendChild(navDiv);
 
@@ -1660,7 +1132,7 @@
                             canvas.style.height = 'auto';
                             await p.render({ canvasContext: context, viewport: vp }).promise;
                             currentPage = num;
-                            pageInfo.textContent = `الصفحة ${num} / ${totalPages}`;
+                            pageInfoSpan.textContent = `الصفحة ${num} / ${totalPages}`;
                             modalPageInfo.textContent = `الصفحة ${num} / ${totalPages}`;
                         } catch (e) { showToast('خطأ في عرض الصفحة', '❌'); }
                     };
@@ -1678,7 +1150,7 @@
                 } catch (err) {
                     console.error('PDF viewer error:', err);
                     modalBody.innerHTML =
-                        `<div style="text-align:center;padding:40px 0;color:var(--text-muted);"><div style="font-size:3rem;margin-bottom:16px;">⚠️</div><p>تعذر عرض هذا الكتاب.</p><p style="font-size:0.8rem;margin-top:8px;">${escapeHtml(err.message || 'خطأ غير معروف')}</p></div>`;
+                        `<div class="text-center py-10 text-gray-400"><i class="fa-regular fa-circle-exclamation text-4xl block mb-2"></i><p>تعذر عرض هذا الكتاب.</p><p class="text-sm">${escapeHtml(err.message || 'خطأ غير معروف')}</p></div>`;
                 }
             }
 
@@ -1688,6 +1160,100 @@
                     document.removeEventListener('keydown', modalOverlay._keyHandler);
                     delete modalOverlay._keyHandler;
                 }
+            }
+
+            // ---- BOOK MANAGEMENT ----
+            function addBook(name, size, text, pages, data) {
+                const id = genId();
+                const book = { id, name: name || 'كتاب بدون عنوان', size: size || 0, pages: pages || 0, text: text || '',
+                    uploaded: Date.now(), data: data || null };
+                books.push(book);
+                saveBooks();
+                buildIndex();
+                renderLocalBooks();
+                if (searchMode === 'local' && searchInput.value.trim()) searchLocal(searchInput.value);
+                showToast(`تمت إضافة "${book.name}"`, '📚');
+            }
+
+            function removeBook(id) {
+                if (!confirm('هل تريد حذف هذا الكتاب؟')) return;
+                const book = books.find(b => b.id === id);
+                books = books.filter(b => b.id !== id);
+                saveBooks();
+                buildIndex();
+                renderLocalBooks();
+                if (searchMode === 'local' && searchInput.value.trim()) searchLocal(searchInput.value);
+                if (book) showToast(`تم حذف "${book.name}"`, '🗑️');
+            }
+
+            function clearLibrary() {
+                if (books.length === 0) return;
+                if (!confirm('هل تريد حذف جميع الكتب؟')) return;
+                books = [];
+                saveBooks();
+                buildIndex();
+                renderLocalBooks();
+                showToast('تم مسح المكتبة بالكامل', '🧹');
+            }
+
+            function saveBooks() {
+                try {
+                    const toStore = books.map(b => ({ id: b.id, name: b.name, size: b.size, pages: b.pages, text: b.text,
+                        uploaded: b.uploaded }));
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
+                } catch (e) { console.warn('Save error:', e); }
+            }
+
+            function loadBooks() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return;
+                    const data = JSON.parse(raw);
+                    if (!Array.isArray(data)) return;
+                    books = data;
+                    buildIndex();
+                    renderLocalBooks();
+                    showToast(`تم تحميل ${books.length} كتاب من المكتبة`, '📚');
+                } catch (e) { console.warn('Load error:', e); }
+            }
+
+            function renderLocalBooks() {
+                if (books.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    booksGrid.innerHTML = '';
+                    bookCount.textContent = '0 كتاب';
+                    updateStats();
+                    return;
+                }
+                emptyState.classList.add('hidden');
+                bookCount.textContent = `${books.length} كتاب`;
+
+                let filtered = [...books];
+                if (currentFilter === 'recent') {
+                    filtered.sort((a, b) => b.uploaded - a.uploaded);
+                    filtered = filtered.slice(0, 8);
+                } else if (currentFilter === 'large') {
+                    filtered = filtered.filter(b => b.size > 1024 * 1024);
+                }
+
+                // إضافة معلومات إضافية للبطاقات
+                const displayBooks = filtered.map(b => ({
+                    ...b,
+                    author: 'مؤلف غير معروف', // يمكن تحسينها لاحقاً
+                    type: 'كتاب',
+                    cover: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E',
+                    year: '',
+                }));
+                renderBooksGrid(displayBooks, false);
+                updateStats();
+            }
+
+            function updateStats() {
+                filterAll.textContent = books.length;
+                const recent = books.filter(b => (Date.now() - b.uploaded) < 7 * 24 * 3600 * 1000);
+                filterRecent.textContent = recent.length;
+                const large = books.filter(b => b.size > 1024 * 1024);
+                filterLarge.textContent = large.length;
             }
 
             // ---- FILE HANDLING ----
@@ -1741,59 +1307,67 @@
             function doSearch() {
                 const q = searchInput.value.trim();
                 if (!q) {
-                    resultsContainer.innerHTML = '';
-                    if (searchMode === 'local') searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
-                    else searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)';
-                    currentResults = [];
-                    paginationControls.style.display = 'none';
+                    if (searchMode === 'local') {
+                        renderLocalBooks();
+                        searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
+                    } else {
+                        booksGrid.innerHTML =
+                            `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-message text-4xl block mb-2"></i> اكتب كلمة للبحث على الإنترنت</div>`;
+                        searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت';
+                        paginationControls.style.display = 'none';
+                    }
                     return;
                 }
                 if (searchMode === 'local') {
                     searchLocal(q);
-                    paginationControls.style.display = 'none';
                 } else {
                     internetResults = [];
                     currentPage = 1;
                     totalResults = 0;
                     hasMoreResults = true;
                     lastQuery = q;
-                    totalFetched = 0;
-                    isFetchingAll = false;
                     searchInternet(q, 1);
                 }
             }
 
             // ---- EVENTS ----
-            searchBtn.addEventListener('click', doSearch);
             searchInput.addEventListener('input', debounce(doSearch, 400));
             searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
 
-            modeToggle.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    modeToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    searchMode = this.dataset.mode;
-                    if (searchInput.value.trim()) doSearch();
-                    else {
-                        resultsContainer.innerHTML = '';
-                        if (searchMode === 'local') searchStat.textContent = '🔍 جاهز للبحث في مكتبتك';
-                        else searchStat.textContent = '🌐 جاهز للبحث على الإنترنت (جميع الأنواع)';
-                        paginationControls.style.display = 'none';
-                    }
-                });
+            // تبديل وضع البحث
+            localModeBtn.addEventListener('click', function() {
+                searchMode = 'local';
+                localModeBtn.className =
+                'px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition';
+                internetModeBtn.className =
+                    'px-4 py-1 rounded-full text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 transition';
+                paginationControls.style.display = 'none';
+                if (searchInput.value.trim()) doSearch();
+                else renderLocalBooks();
+                searchStat.textContent = '🔍 جاهز للبحث في مكتبتك';
             });
 
-            prevPageBtn.addEventListener('click', () => {
-                if (currentPage > 1) goToPage(currentPage - 1);
-            });
-            nextPageBtn.addEventListener('click', () => {
-                goToPage(currentPage + 1);
+            internetModeBtn.addEventListener('click', function() {
+                searchMode = 'internet';
+                internetModeBtn.className =
+                'px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition';
+                localModeBtn.className =
+                    'px-4 py-1 rounded-full text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 transition';
+                if (searchInput.value.trim()) doSearch();
+                else {
+                    booksGrid.innerHTML =
+                        `<div class="col-span-full text-center py-12 text-gray-400"><i class="fa-regular fa-globe text-4xl block mb-2"></i> اكتب موضوعاً للبحث عن كتب ومجلات على الإنترنت</div>`;
+                    searchStat.textContent = '🌐 جاهز للبحث على الإنترنت (جميع الأنواع)';
+                    paginationControls.style.display = 'none';
+                }
             });
 
+            // رفع الملفات
             fileInput.addEventListener('change', function() {
                 if (this.files.length > 0) { handleFiles(this.files);
                     this.value = ''; }
             });
+            uploadArea.addEventListener('click', () => fileInput.click());
             uploadArea.addEventListener('dragover', (e) => { e.preventDefault();
                 uploadArea.classList.add('dragover'); });
             uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('dragover'); });
@@ -1803,17 +1377,25 @@
                 if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
             });
 
-            document.querySelectorAll('.filters-bar .chip').forEach(chip => {
+            // التصفية
+            document.querySelectorAll('.filter-chip').forEach(chip => {
                 chip.addEventListener('click', function() {
-                    document.querySelectorAll('.filters-bar .chip').forEach(c => c.classList.remove('active'));
+                    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
                     this.classList.add('active');
                     currentFilter = this.dataset.filter;
-                    renderBooks();
+                    renderLocalBooks();
                     if (searchMode === 'local' && searchInput.value.trim()) doSearch();
                 });
             });
 
+            // ترحيل الإنترنت
+            prevPageBtn.addEventListener('click', () => { if (currentPage > 1) goToPage(currentPage - 1); });
+            nextPageBtn.addEventListener('click', () => { goToPage(currentPage + 1); });
+
+            // مسح المكتبة
             clearLibraryBtn.addEventListener('click', clearLibrary);
+
+            // إغلاق المودال
             modalClose.addEventListener('click', closeModal);
             modalOverlay.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
@@ -1840,11 +1422,11 @@
                         description: 'منصة بحث ذكية عن الكتب الرقمية والكتب الإلكترونية والمجلات',
                         start_url: location.href.split('?')[0],
                         display: 'standalone',
-                        background_color: '#0d1b2a',
-                        theme_color: '#0d1b2a',
+                        background_color: '#111827',
+                        theme_color: '#111827',
                         dir: 'rtl',
                         lang: 'ar',
-                        icons: [{ src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" fill="%230d1b2a"/%3E%3Ctext x="256" y="340" text-anchor="middle" font-size="280" fill="%23c9a84c" font-family="serif"%3E📖%3C/text%3E%3C/svg%3E',
+                        icons: [{ src: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"%3E%3Crect width="512" height="512" fill="%23111827"/%3E%3Ctext x="256" y="340" text-anchor="middle" font-size="280" fill="%2334d399" font-family="serif"%3E📖%3C/text%3E%3C/svg%3E',
                             sizes: '512x512', type: 'image/svg+xml' }],
                     };
                     const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
@@ -1856,26 +1438,28 @@
                 } catch (e) {}
             }
 
+            // ---- INIT ----
             function init() {
                 loadBooks();
                 registerPWA();
-                if (books.length === 0) emptyState.style.display = 'block';
-                const params = new URLSearchParams(location.search);
-                const q = params.get('q');
-                if (q) {
-                    searchInput.value = q;
-                    if (q.length > 1) modeToggle.querySelector('[data-mode="internet"]').click();
-                    setTimeout(doSearch, 500);
+                if (books.length === 0) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    renderLocalBooks();
                 }
-                console.log('🌺 زهرة Zohra جاهزة! (بحث متعدد اللغات والأنواع: كتب، كتب إلكترونية، مجلات)');
+                // ضبط الوضع الافتراضي
+                localModeBtn.click();
+                console.log('🌺 زهرة Zohra جاهزة! (واجهة جديدة مع Tailwind)');
                 console.log(`📚 ${books.length} كتاب في المكتبة`);
             }
 
-            if (!window.Promise) window.Promise = function() {};
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
             else init();
 
-            window.__ZOHRA = { books, searchLocal, searchInternet, addBook, removeBook, clearLibrary };
+            // تصدير بعض الدوال للاستخدام في onclick
+            window.openPdfViewer = openPdfViewer;
+            window.closeModal = closeModal;
+            window.openPdfViewerFromUrl = openPdfViewerFromUrl;
 
         })();
     </script>
