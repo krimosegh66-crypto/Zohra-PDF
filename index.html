@@ -14,6 +14,17 @@
     </script>
 
     <style>
+        /* نفس التنسيقات السابقة مع إضافة بسيطة لعرض المصدر */
+        .result-item .result-source {
+            font-size: 0.65rem;
+            color: var(--primary);
+            background: rgba(201, 168, 76, 0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* باقي التنسيقات مطابقة لما سبق، تم اختصارها هنا لتوفير المساحة */
         *,
         *::before,
         *::after {
@@ -62,7 +73,6 @@
             background: var(--primary);
             border-radius: 8px;
         }
-
         #app {
             display: flex;
             flex-direction: column;
@@ -72,7 +82,6 @@
             padding: 0 20px 30px;
             position: relative;
         }
-
         .header {
             display: flex;
             align-items: center;
@@ -148,7 +157,6 @@
                 transform: scale(0.8);
             }
         }
-
         .search-section {
             margin: 28px 0 20px;
         }
@@ -211,7 +219,6 @@
             width: 20px;
             height: 20px;
         }
-
         .filters-bar {
             display: flex;
             align-items: center;
@@ -253,8 +260,6 @@
             font-size: 0.8rem;
             color: var(--text-muted);
         }
-
-        /* Toggle switch for search mode */
         .mode-toggle {
             display: flex;
             background: rgba(255, 255, 255, 0.05);
@@ -280,7 +285,6 @@
         .mode-toggle button:not(.active):hover {
             color: var(--text-gold);
         }
-
         .upload-area {
             background: var(--bg-card);
             border: 2px dashed rgba(201, 168, 76, 0.2);
@@ -316,7 +320,6 @@
             opacity: 0;
             cursor: pointer;
         }
-
         .library-header {
             display: flex;
             justify-content: space-between;
@@ -342,7 +345,6 @@
             background: rgba(255, 0, 0, 0.08);
             color: #ff6b6b;
         }
-
         .book-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -419,7 +421,6 @@
             background: rgba(255, 0, 0, 0.25);
             color: #ff6b6b;
         }
-
         .results-container {
             margin-top: 8px;
         }
@@ -459,6 +460,7 @@
             font-size: 0.7rem;
             color: var(--text-muted);
             flex-wrap: wrap;
+            align-items: center;
         }
         .result-item .result-meta .score {
             color: var(--primary);
@@ -502,6 +504,14 @@
             margin-right: 12px;
             background: var(--bg-input);
         }
+        .result-item .result-source {
+            font-size: 0.6rem;
+            color: var(--primary);
+            background: rgba(201, 168, 76, 0.1);
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
         @keyframes fadeSlide {
             from {
                 opacity: 0;
@@ -512,7 +522,6 @@
                 transform: translateY(0);
             }
         }
-
         .empty-state {
             text-align: center;
             padding: 50px 20px;
@@ -533,7 +542,6 @@
             margin: 8px auto 0;
             font-size: 0.9rem;
         }
-
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -618,7 +626,6 @@
                 transform: scale(1);
             }
         }
-
         .loading-bar {
             display: flex;
             align-items: center;
@@ -641,7 +648,6 @@
                 transform: rotate(360deg);
             }
         }
-
         .toast {
             position: fixed;
             bottom: 30px;
@@ -668,7 +674,6 @@
         .toast .toast-icon {
             margin-left: 10px;
         }
-
         @media (max-width: 700px) {
             .brand h1 {
                 font-size: 1.4rem;
@@ -809,7 +814,7 @@
         <div id="emptyState" class="empty-state">
             <div class="big-icon">📕</div>
             <h3>لم تُضف أي كتب بعد</h3>
-            <p>قم برفع ملفات PDF لتتمكن من البحث فيها، أو استخدم "بحث إنترنت" للعثور على كتب جديدة.</p>
+            <p>قم برفع ملفات PDF لتتمكن من البحث فيها، أو استخدم "بحث إنترنت" للعثور على كتب جديدة مجانية.</p>
         </div>
 
         <div id="loadingIndicator" style="display:none;" class="loading-bar">
@@ -843,18 +848,15 @@
         (function() {
             'use strict';
 
-            // ---- CONFIG ----
             const STORAGE_KEY = 'zohra_books';
             const SNIPPET_WORDS = 28;
 
-            // ---- STATE ----
             let books = [];
             let searchIndex = {};
             let currentFilter = 'all';
             let currentResults = [];
-            let searchMode = 'local'; // 'local' or 'internet'
+            let searchMode = 'local';
 
-            // ---- DOM REFS ----
             const $ = (s) => document.querySelector(s);
             const $$ = (s) => document.querySelectorAll(s);
 
@@ -888,7 +890,7 @@
                     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             }
 
-            // ---- UTILITY ----
+            // ---- UTILITIES ----
             function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
             function formatSize(bytes) {
@@ -926,15 +928,11 @@
                 return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             }
 
-            // ---- ARABIC TEXT PROCESSING ----
+            // ---- TEXT PROCESSING (same as before) ----
             function tokenizeArabic(text) {
                 if (!text) return [];
-                let t = text
-                    .replace(/[\u0622\u0623\u0625]/g, '\u0627')
-                    .replace(/\u0640/g, '')
-                    .replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, ' ')
-                    .replace(/\s+/g, ' ')
-                    .trim();
+                let t = text.replace(/[\u0622\u0623\u0625]/g, '\u0627').replace(/\u0640/g, '')
+                    .replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
                 let words = t.split(/\s+/);
                 const stops = new Set([
                     'من', 'الى', 'إلى', 'عن', 'على', 'في', 'مع', 'بين', 'عند',
@@ -951,19 +949,9 @@
             function stemArabic(word) {
                 let w = word;
                 const suffixes = ['ية', 'ات', 'ون', 'ين', 'ان', 'وا', 'ي', 'ة', 'اً', 'ًا', 'ٍ', 'ٌ', 'ِ', 'َ'];
-                for (let s of suffixes) {
-                    if (w.endsWith(s) && w.length > s.length + 1) {
-                        w = w.slice(0, -s.length);
-                        break;
-                    }
-                }
+                for (let s of suffixes) { if (w.endsWith(s) && w.length > s.length + 1) { w = w.slice(0, -s.length); break; } }
                 const prefixes = ['ال', 'لل', 'بال', 'كال', 'فال', 'وال'];
-                for (let p of prefixes) {
-                    if (w.startsWith(p) && w.length > p.length + 1) {
-                        w = w.slice(p.length);
-                        break;
-                    }
-                }
+                for (let p of prefixes) { if (w.startsWith(p) && w.length > p.length + 1) { w = w.slice(p.length); break; } }
                 return w;
             }
 
@@ -974,15 +962,13 @@
                 const result = [];
                 for (let i = 0; i < tokens.length; i++) {
                     const key = stems[i] || tokens[i];
-                    if (!set.has(key)) {
-                        set.add(key);
-                        result.push({ original: tokens[i], stem: stems[i] || tokens[i], key });
-                    }
+                    if (!set.has(key)) { set.add(key);
+                        result.push({ original: tokens[i], stem: stems[i] || tokens[i], key }); }
                 }
                 return result;
             }
 
-            // ---- SEARCH ENGINE (LOCAL) ----
+            // ---- LOCAL SEARCH ----
             function buildIndex() {
                 searchIndex = {};
                 for (let book of books) {
@@ -1010,7 +996,6 @@
                     searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
                     return;
                 }
-
                 const qTerms = processText(query);
                 const qKeys = qTerms.map(t => t.key);
                 if (qKeys.length === 0) {
@@ -1019,22 +1004,18 @@
                     searchStat.textContent = '🔍 لا توجد كلمات صالحة للبحث';
                     return;
                 }
-
                 const matched = new Map();
                 for (let key of qKeys) {
                     const bookIds = searchIndex[key] || new Set();
                     for (let id of bookIds) {
                         const book = books.find(b => b.id === id);
                         if (!book) continue;
-                        if (!matched.has(id)) {
-                            matched.set(id, { book, score: 0, matches: [] });
-                        }
+                        if (!matched.has(id)) matched.set(id, { book, score: 0, matches: [] });
                         const entry = matched.get(id);
                         entry.score += 1;
                         entry.matches.push(key);
                     }
                 }
-
                 const phrase = query.trim().toLowerCase();
                 let results = [];
                 for (let [id, entry] of matched) {
@@ -1044,30 +1025,24 @@
                     if (text.includes(phrase)) score += 8;
                     if (name.includes(phrase)) score += 5;
                     const words = phrase.split(/\s+/);
-                    for (let w of words) {
-                        if (w.length < 2) continue;
-                        if (text.includes(w)) score += 1;
-                        if (name.includes(w)) score += 1;
-                    }
+                    for (let w of words) { if (w.length < 2) continue; if (text.includes(w)) score += 1; if (name.includes(w))
+                            score += 1; }
                     if (qKeys.length > 1) {
                         let found = 0;
-                        for (let k of qKeys) {
-                            if (text.includes(k)) found++;
-                        }
+                        for (let k of qKeys) { if (text.includes(k)) found++; }
                         if (found >= qKeys.length * 0.6) score += 5;
                         if (found === qKeys.length) score += 4;
                     }
                     entry.score = score;
                     results.push(entry);
                 }
-
                 results.sort((a, b) => b.score - a.score);
                 currentResults = results.map(r => ({ book: r.book, score: r.score, matches: r.matches }));
                 renderResults(currentResults);
                 searchStat.textContent = `🔍 تم العثور على ${currentResults.length} نتيجة في مكتبتك`;
             }
 
-            // ---- SEARCH ON INTERNET (Open Library) ----
+            // ---- INTERNET SEARCH (Open Library + Google Books) ----
             async function searchInternet(query) {
                 if (!query.trim()) {
                     resultsContainer.innerHTML = '';
@@ -1075,78 +1050,131 @@
                     return;
                 }
 
-                // Show loading
                 resultsContainer.innerHTML =
-                    `<div class="loading-bar"><span class="spinner"></span><span>جاري البحث على الإنترنت...</span></div>`;
+                    `<div class="loading-bar"><span class="spinner"></span><span>جاري البحث على الإنترنت من مصادر متعددة...</span></div>`;
                 searchStat.textContent = '🌐 جاري البحث...';
 
+                let allResults = [];
+
+                // 1. Open Library
                 try {
-                    const url =
-                    `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=24`;
-                    const resp = await fetch(url);
-                    if (!resp.ok) throw new Error('فشل الاتصال بمكتبة Open Library');
-                    const data = await resp.json();
-
-                    // Filter only books with Internet Archive ID (have PDF)
-                    const docs = data.docs || [];
-                    const withIa = docs.filter(d => d.ia && d.ia.length > 0);
-
-                    if (withIa.length === 0) {
-                        resultsContainer.innerHTML = `
-                                <div class="empty-state" style="padding:20px;">
-                                    <div class="big-icon">🔍</div>
-                                    <h3>لا توجد كتب بصيغة PDF متاحة</h3>
-                                    <p>حاول استخدام كلمات بحث أخرى.</p>
-                                </div>
-                            `;
-                        searchStat.textContent = '🌐 لم يتم العثور على كتب';
-                        return;
+                    const olUrl =
+                        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=30`;
+                    const resp = await fetch(olUrl);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const docs = data.docs || [];
+                        const withIa = docs.filter(d => d.ia && d.ia.length > 0);
+                        for (let doc of withIa) {
+                            const iaId = doc.ia[0];
+                            const coverId = doc.cover_i || doc.cover_edition_key;
+                            const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` :
+                                'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E';
+                            allResults.push({
+                                id: iaId,
+                                title: doc.title || 'بدون عنوان',
+                                author: doc.author_name ? doc.author_name.join('، ') : 'مؤلف غير معروف',
+                                year: doc.first_publish_year || doc.publish_year?.[0] || '',
+                                cover: coverUrl,
+                                source: 'Open Library',
+                                iaId: iaId,
+                                directPdf: `https://archive.org/download/${iaId}/${iaId}.pdf`
+                            });
+                        }
                     }
+                } catch (e) { console.warn('Open Library error:', e); }
 
-                    renderInternetResults(withIa);
-                    searchStat.textContent = `🌐 تم العثور على ${withIa.length} كتاب على الإنترنت`;
+                // 2. Google Books (public domain / free)
+                try {
+                    const gbUrl =
+                        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}+subject:fiction&maxResults=20&filter=free-ebooks`;
+                    const resp = await fetch(gbUrl);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const items = data.items || [];
+                        for (let item of items) {
+                            const info = item.volumeInfo;
+                            // Check if there is a PDF link
+                            let pdfLink = null;
+                            if (item.accessInfo && item.accessInfo.pdf && item.accessInfo.pdf.isAvailable) {
+                                pdfLink = item.accessInfo.pdf.acsTokenLink || item.accessInfo.pdf.downloadLink;
+                            }
+                            // Also check for webReaderLink
+                            if (!pdfLink && item.accessInfo && item.accessInfo.webReaderLink) {
+                                pdfLink = item.accessInfo.webReaderLink;
+                            }
+                            // Skip if no PDF
+                            if (!pdfLink) continue;
 
-                } catch (err) {
-                    console.error(err);
+                            const id = item.id;
+                            const title = info.title || 'بدون عنوان';
+                            const authors = info.authors ? info.authors.join('، ') : 'مؤلف غير معروف';
+                            const year = info.publishedDate ? info.publishedDate.substring(0, 4) : '';
+                            const cover = info.imageLinks ? info.imageLinks.thumbnail : null;
+                            allResults.push({
+                                id: id,
+                                title: title,
+                                author: authors,
+                                year: year,
+                                cover: cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E',
+                                source: 'Google Books',
+                                iaId: null,
+                                directPdf: pdfLink
+                            });
+                        }
+                    }
+                } catch (e) { console.warn('Google Books error:', e); }
+
+                // Remove duplicates by title (simple)
+                const seen = new Set();
+                const unique = allResults.filter(r => {
+                    const key = r.title.toLowerCase().trim();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+
+                if (unique.length === 0) {
                     resultsContainer.innerHTML = `
                             <div class="empty-state" style="padding:20px;">
-                                <div class="big-icon">⚠️</div>
-                                <h3>حدث خطأ في البحث</h3>
-                                <p>${escapeHtml(err.message || 'يرجى التحقق من الاتصال بالإنترنت')}</p>
+                                <div class="big-icon">🔍</div>
+                                <h3>لا توجد كتب مجانية متاحة بهذا البحث</h3>
+                                <p>جرّب كلمات بحث أخرى أو استخدم عناوين محددة.</p>
                             </div>
                         `;
-                    searchStat.textContent = '🌐 خطأ في البحث';
+                    searchStat.textContent = '🌐 لم يتم العثور على كتب';
+                    return;
                 }
+
+                renderInternetResults(unique);
+                searchStat.textContent = `🌐 تم العثور على ${unique.length} كتاب مجاني من مصادر متعددة`;
             }
 
-            function renderInternetResults(docs) {
-                resultsContainer.innerHTML = docs.map(doc => {
-                    const iaId = doc.ia[0];
-                    const coverId = doc.cover_i || doc.cover_edition_key;
-                    const coverUrl = coverId ?
-                        `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` :
-                        'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E';
-
-                    const title = doc.title || 'بدون عنوان';
-                    const author = doc.author_name ? doc.author_name.join('، ') : 'مؤلف غير معروف';
-                    const year = doc.first_publish_year || doc.publish_year?.[0] || '';
-
+            function renderInternetResults(results) {
+                resultsContainer.innerHTML = results.map(r => {
                     return `
-                            <div class="result-item" data-ia="${iaId}">
-                                <img class="result-cover" src="${coverUrl}" alt="غلاف" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'" />
-                                <div class="result-title">📚 ${escapeHtml(title)}</div>
-                                <div style="font-size:0.85rem;color:var(--text-muted);">✍️ ${escapeHtml(author)}</div>
-                                ${year ? `<div style="font-size:0.75rem;color:var(--text-muted);">📅 ${year}</div>` : ''}
-                                <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">📦 معرف: ${iaId}</div>
+                            <div class="result-item" data-id="${r.id}">
+                                <img class="result-cover" src="${r.cover}" alt="غلاف" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'" />
+                                <div class="result-title">📚 ${escapeHtml(r.title)}</div>
+                                <div style="font-size:0.85rem;color:var(--text-muted);">✍️ ${escapeHtml(r.author)}</div>
+                                ${r.year ? `<div style="font-size:0.75rem;color:var(--text-muted);">📅 ${r.year}</div>` : ''}
+                                <div class="result-meta">
+                                    <span class="result-source">${r.source}</span>
+                                </div>
                                 <div class="result-actions">
-                                    <button class="btn-add-internet" data-ia="${iaId}" data-title="${escapeHtml(title)}">⬇️ تحميل + إضافة إلى المكتبة</button>
-                                    <button class="btn-preview-internet" data-ia="${iaId}" data-title="${escapeHtml(title)}">👁️ معاينة</button>
+                                    ${r.iaId ? `
+                                        <button class="btn-add-internet" data-ia="${r.iaId}" data-title="${escapeHtml(r.title)}">⬇️ تحميل + إضافة</button>
+                                        <button class="btn-preview-internet" data-ia="${r.iaId}" data-title="${escapeHtml(r.title)}">👁️ معاينة</button>
+                                    ` : `
+                                        <button class="btn-add-google" data-url="${escapeHtml(r.directPdf)}" data-title="${escapeHtml(r.title)}">⬇️ تحميل + إضافة</button>
+                                        <button class="btn-preview-google" data-url="${escapeHtml(r.directPdf)}" data-title="${escapeHtml(r.title)}">👁️ معاينة</button>
+                                    `}
                                 </div>
                             </div>
                         `;
                 }).join('');
 
-                // Attach events
+                // IA download
                 resultsContainer.querySelectorAll('.btn-add-internet').forEach(btn => {
                     btn.addEventListener('click', async function() {
                         const iaId = this.dataset.ia;
@@ -1155,39 +1183,48 @@
                         this.textContent = '⏳ جاري التحميل...';
                         await downloadAndAddBook(iaId, title);
                         this.textContent = '✅ تمت الإضافة';
-                        setTimeout(() => {
-                            this.textContent = '⬇️ تحميل + إضافة';
-                            this.disabled = false;
-                        }, 2000);
+                        setTimeout(() => { this.textContent = '⬇️ تحميل + إضافة';
+                            this.disabled = false; }, 2000);
+                    });
+                });
+                resultsContainer.querySelectorAll('.btn-preview-internet').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        window.open(`https://archive.org/details/${this.dataset.ia}`, '_blank');
                     });
                 });
 
-                resultsContainer.querySelectorAll('.btn-preview-internet').forEach(btn => {
+                // Google Books download (direct PDF link)
+                resultsContainer.querySelectorAll('.btn-add-google').forEach(btn => {
                     btn.addEventListener('click', async function() {
-                        const iaId = this.dataset.ia;
+                        const url = this.dataset.url;
                         const title = this.dataset.title;
-                        // Open in new tab using Internet Archive viewer
-                        window.open(`https://archive.org/details/${iaId}`, '_blank');
+                        this.disabled = true;
+                        this.textContent = '⏳ جاري التحميل...';
+                        await downloadFromUrl(url, title);
+                        this.textContent = '✅ تمت الإضافة';
+                        setTimeout(() => { this.textContent = '⬇️ تحميل + إضافة';
+                            this.disabled = false; }, 2000);
+                    });
+                });
+                resultsContainer.querySelectorAll('.btn-preview-google').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        window.open(this.dataset.url, '_blank');
                     });
                 });
             }
 
-            // ---- DOWNLOAD & ADD FROM INTERNET ----
-            async function downloadAndAddBook(iaId, title) {
-                const pdfUrl = `https://archive.org/download/${iaId}/${iaId}.pdf`;
+            // ---- DOWNLOAD FROM URL (Google Books) ----
+            async function downloadFromUrl(url, title) {
                 loadingIndicator.style.display = 'flex';
-                loadingText.textContent = `⏬ جاري تحميل "${title}" من الإنترنت...`;
-
+                loadingText.textContent = `⏬ جاري تحميل "${title}"...`;
                 try {
-                    const resp = await fetch(pdfUrl);
-                    if (!resp.ok) throw new Error('تعذر تحميل ملف PDF');
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error('تعذر تحميل الملف');
                     const blob = await resp.blob();
                     const size = blob.size;
                     if (size < 1000) throw new Error('الملف فارغ أو غير صالح');
 
                     loadingText.textContent = `📄 جاري فهرسة "${title}"...`;
-
-                    // Convert blob to arrayBuffer
                     const arrayBuffer = await blob.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                     const pages = pdf.numPages;
@@ -1199,30 +1236,30 @@
                             const content = await page.getTextContent();
                             const strings = content.items.map(item => item.str);
                             fullText += strings.join(' ') + ' ';
-                        } catch (e) { /* skip */ }
+                        } catch (e) {}
                         if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
                     }
-
-                    // Convert blob to data URL for viewer
                     const reader = new FileReader();
                     const dataUrl = await new Promise((resolve) => {
                         reader.onload = () => resolve(reader.result);
                         reader.readAsDataURL(blob);
                     });
-
-                    // Add to library
                     addBook(title, size, fullText, pages, dataUrl);
                     loadingIndicator.style.display = 'none';
                     showToast(`✅ تمت إضافة "${title}" إلى المكتبة`, '📚');
-
                 } catch (err) {
-                    console.error(err);
                     loadingIndicator.style.display = 'none';
-                    showToast(`❌ فشل تحميل "${title}": ${err.message || 'خطأ غير معروف'}`, '⚠️');
+                    showToast(`❌ فشل تحميل "${title}": ${err.message || 'خطأ'}`, '⚠️');
                 }
             }
 
-            // ---- RENDER ----
+            // ---- DOWNLOAD FROM INTERNET ARCHIVE ----
+            async function downloadAndAddBook(iaId, title) {
+                const pdfUrl = `https://archive.org/download/${iaId}/${iaId}.pdf`;
+                await downloadFromUrl(pdfUrl, title);
+            }
+
+            // ---- RENDER FUNCTIONS (local) ----
             function renderBooks() {
                 if (books.length === 0) {
                     bookGrid.innerHTML = '';
@@ -1265,7 +1302,6 @@
                         if (book) openPdfViewer(book);
                     });
                 });
-
                 document.querySelectorAll('.book-card .remove-btn').forEach(btn => {
                     btn.addEventListener('click', function(e) {
                         e.stopPropagation();
@@ -1273,7 +1309,6 @@
                         removeBook(id);
                     });
                 });
-
                 updateStats();
             }
 
@@ -1319,7 +1354,6 @@
                 if (!text) return '...';
                 const words = text.split(/\s+/);
                 if (words.length <= wordCount) return text;
-
                 const q = query.trim().toLowerCase();
                 const qWords = q.split(/\s+/).filter(w => w.length > 1);
                 let bestIdx = 0,
@@ -1327,25 +1361,16 @@
                 for (let i = 0; i < words.length - 5; i++) {
                     let score = 0;
                     const chunk = words.slice(i, i + 10).join(' ').toLowerCase();
-                    for (let qw of qWords) {
-                        if (chunk.includes(qw)) score += 2;
-                    }
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestIdx = i;
-                    }
+                    for (let qw of qWords) { if (chunk.includes(qw)) score += 2; }
+                    if (score > bestScore) { bestScore = score;
+                        bestIdx = i; }
                 }
-
                 let start = Math.max(0, bestIdx - Math.floor(wordCount / 2));
                 let end = Math.min(words.length, start + wordCount);
-                if (end - start < wordCount && start > 0) {
-                    start = Math.max(0, end - wordCount);
-                }
-
+                if (end - start < wordCount && start > 0) { start = Math.max(0, end - wordCount); }
                 let snippet = words.slice(start, end).join(' ');
                 if (start > 0) snippet = '... ' + snippet;
                 if (end < words.length) snippet = snippet + ' ...';
-
                 for (let qw of qWords) {
                     if (qw.length < 2) continue;
                     const regex = new RegExp('(' + escapeRegex(qw) + ')', 'gi');
@@ -1365,23 +1390,13 @@
             // ---- BOOK MANAGEMENT ----
             function addBook(name, size, text, pages, data) {
                 const id = genId();
-                const book = {
-                    id,
-                    name: name || 'كتاب بدون عنوان',
-                    size: size || 0,
-                    pages: pages || 0,
-                    text: text || '',
-                    uploaded: Date.now(),
-                    data: data || null,
-                };
+                const book = { id, name: name || 'كتاب بدون عنوان', size: size || 0, pages: pages || 0, text: text || '',
+                    uploaded: Date.now(), data: data || null };
                 books.push(book);
                 saveBooks();
                 buildIndex();
                 renderBooks();
-                // If local mode and query exists, re-run
-                if (searchMode === 'local' && searchInput.value.trim()) {
-                    searchLocal(searchInput.value);
-                }
+                if (searchMode === 'local' && searchInput.value.trim()) searchLocal(searchInput.value);
             }
 
             function removeBook(id) {
@@ -1391,14 +1406,9 @@
                 saveBooks();
                 buildIndex();
                 renderBooks();
-                if (searchMode === 'local' && searchInput.value.trim()) {
-                    searchLocal(searchInput.value);
-                } else if (searchMode === 'internet') {
-                    // keep internet results
-                } else {
-                    resultsContainer.innerHTML = '';
-                    searchStat.textContent = '🔍 جاهز للبحث';
-                }
+                if (searchMode === 'local' && searchInput.value.trim()) searchLocal(searchInput.value);
+                else { resultsContainer.innerHTML = '';
+                    searchStat.textContent = '🔍 جاهز للبحث'; }
                 if (book) showToast(`تم حذف "${book.name}"`, '🗑️');
             }
 
@@ -1417,14 +1427,8 @@
             // ---- SAVE / LOAD ----
             function saveBooks() {
                 try {
-                    const toStore = books.map(b => ({
-                        id: b.id,
-                        name: b.name,
-                        size: b.size,
-                        pages: b.pages,
-                        text: b.text,
-                        uploaded: b.uploaded,
-                    }));
+                    const toStore = books.map(b => ({ id: b.id, name: b.name, size: b.size, pages: b.pages, text: b.text,
+                        uploaded: b.uploaded }));
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
                 } catch (e) { console.warn('Save error:', e); }
             }
@@ -1445,31 +1449,21 @@
             // ---- PDF VIEWER ----
             async function openPdfViewer(book) {
                 modalTitle.textContent = `📄 ${book.name}`;
-                modalBody.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--text-muted);">
-                        <span class="spinner"></span>
-                        <p style="margin-top:12px;">جاري تحميل الكتاب...</p>
-                    </div>`;
+                modalBody.innerHTML =
+                    `<div style="text-align:center;padding:40px 0;color:var(--text-muted);"><span class="spinner"></span><p style="margin-top:12px;">جاري تحميل الكتاب...</p></div>`;
                 modalOverlay.classList.add('active');
                 modalPageInfo.textContent = `الصفحة 0 / ${book.pages || '?'}`;
-
                 try {
                     let dataToUse = book.data;
                     if (!dataToUse) {
-                        modalBody.innerHTML = `
-                            <div style="text-align:center;padding:40px 0;color:var(--text-muted);">
-                                <div style="font-size:3rem;margin-bottom:16px;">📄</div>
-                                <p>لم يتم حفظ محتوى هذا الكتاب للعرض المباشر.</p>
-                                <p style="font-size:0.8rem;margin-top:8px;">يرجى إعادة رفع الملف لعرضه.</p>
-                            </div>
-                        `;
+                        modalBody.innerHTML =
+                            `<div style="text-align:center;padding:40px 0;color:var(--text-muted);"><div style="font-size:3rem;margin-bottom:16px;">📄</div><p>لم يتم حفظ محتوى هذا الكتاب للعرض المباشر.</p><p style="font-size:0.8rem;margin-top:8px;">يرجى إعادة رفع الملف لعرضه.</p></div>`;
                         modalPageInfo.textContent = 'غير متاح';
                         return;
                     }
-
                     const pdf = await pdfjsLib.getDocument({ data: dataToUse }).promise;
                     const totalPages = pdf.numPages;
                     modalPageInfo.textContent = `الصفحة 1 / ${totalPages}`;
-
                     const page = await pdf.getPage(1);
                     const scale = 1.4;
                     const viewport = page.getViewport({ scale });
@@ -1479,7 +1473,6 @@
                     canvas.height = viewport.height;
                     canvas.style.width = '100%';
                     canvas.style.height = 'auto';
-
                     modalBody.innerHTML = '';
                     modalBody.appendChild(canvas);
                     await page.render({ canvasContext: context, viewport }).promise;
@@ -1499,7 +1492,6 @@
                     const pageInfo = document.createElement('span');
                     pageInfo.style.cssText = 'color:var(--text-muted);padding:6px 12px;';
                     pageInfo.textContent = `الصفحة 1 / ${totalPages}`;
-
                     navDiv.appendChild(prevBtn);
                     navDiv.appendChild(pageInfo);
                     navDiv.appendChild(nextBtn);
@@ -1519,11 +1511,9 @@
                             modalPageInfo.textContent = `الصفحة ${num} / ${totalPages}`;
                         } catch (e) { showToast('خطأ في عرض الصفحة', '❌'); }
                     };
-
                     prevBtn.addEventListener('click', () => { if (currentPage > 1) renderPage(currentPage - 1); });
                     nextBtn.addEventListener('click', () => { if (currentPage < totalPages) renderPage(currentPage +
                             1); });
-
                     const keyHandler = (e) => {
                         if (!modalOverlay.classList.contains('active')) return;
                         if (e.key === 'ArrowRight' && currentPage < totalPages) renderPage(currentPage + 1);
@@ -1532,16 +1522,10 @@
                     };
                     document.addEventListener('keydown', keyHandler);
                     modalOverlay._keyHandler = keyHandler;
-
                 } catch (err) {
                     console.error('PDF viewer error:', err);
-                    modalBody.innerHTML = `
-                            <div style="text-align:center;padding:40px 0;color:var(--text-muted);">
-                                <div style="font-size:3rem;margin-bottom:16px;">⚠️</div>
-                                <p>تعذر عرض هذا الكتاب.</p>
-                                <p style="font-size:0.8rem;margin-top:8px;">${escapeHtml(err.message || 'خطأ غير معروف')}</p>
-                            </div>
-                        `;
+                    modalBody.innerHTML =
+                        `<div style="text-align:center;padding:40px 0;color:var(--text-muted);"><div style="font-size:3rem;margin-bottom:16px;">⚠️</div><p>تعذر عرض هذا الكتاب.</p><p style="font-size:0.8rem;margin-top:8px;">${escapeHtml(err.message || 'خطأ غير معروف')}</p></div>`;
                 }
             }
 
@@ -1557,11 +1541,7 @@
             async function handleFiles(files) {
                 const pdfFiles = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith(
                     '.pdf'));
-                if (pdfFiles.length === 0) {
-                    showToast('يرجى اختيار ملفات PDF فقط', '⚠️');
-                    return;
-                }
-
+                if (pdfFiles.length === 0) { showToast('يرجى اختيار ملفات PDF فقط', '⚠️'); return; }
                 loadingIndicator.style.display = 'flex';
                 loadingText.textContent = '⏳ جاري معالجة الملفات...';
                 let success = 0;
@@ -1580,7 +1560,7 @@
                                 const content = await page.getTextContent();
                                 const strings = content.items.map(item => item.str);
                                 fullText += strings.join(' ') + ' ';
-                            } catch (e) { /* skip */ }
+                            } catch (e) {}
                             if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
                         }
                         let dataUrl = null;
@@ -1591,7 +1571,7 @@
                                     reader.onload = () => resolve(reader.result);
                                     reader.readAsDataURL(file);
                                 });
-                            } catch (e) { /* ignore */ }
+                            } catch (e) {}
                         }
                         addBook(name, size, fullText, pages, dataUrl);
                         success++;
@@ -1600,14 +1580,11 @@
                     }
                 }
                 loadingIndicator.style.display = 'none';
-                if (success > 0) {
-                    showToast(`تمت إضافة ${success} كتاب بنجاح`, '🎉');
-                } else {
-                    showToast('لم تتم إضافة أي كتاب، تأكد من صحة الملفات', '⚠️');
-                }
+                if (success > 0) showToast(`تمت إضافة ${success} كتاب بنجاح`, '🎉');
+                else showToast('لم تتم إضافة أي كتاب، تأكد من صحة الملفات', '⚠️');
             }
 
-            // ---- DO SEARCH (dispatcher) ----
+            // ---- DO SEARCH ----
             function doSearch() {
                 const q = searchInput.value.trim();
                 if (!q) {
@@ -1617,28 +1594,22 @@
                     currentResults = [];
                     return;
                 }
-                if (searchMode === 'local') {
-                    searchLocal(q);
-                } else {
-                    searchInternet(q);
-                }
+                if (searchMode === 'local') searchLocal(q);
+                else searchInternet(q);
             }
 
-            // ---- EVENT BINDING ----
+            // ---- EVENTS ----
             searchBtn.addEventListener('click', doSearch);
             searchInput.addEventListener('input', debounce(doSearch, 400));
             searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
 
-            // Mode toggle
             modeToggle.querySelectorAll('button').forEach(btn => {
                 btn.addEventListener('click', function() {
                     modeToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     searchMode = this.dataset.mode;
-                    // Clear results and re-run search if there's a query
-                    if (searchInput.value.trim()) {
-                        doSearch();
-                    } else {
+                    if (searchInput.value.trim()) doSearch();
+                    else {
                         resultsContainer.innerHTML = '';
                         if (searchMode === 'local') searchStat.textContent = '🔍 جاهز للبحث في مكتبتك';
                         else searchStat.textContent = '🌐 جاهز للبحث على الإنترنت';
@@ -1646,14 +1617,10 @@
                 });
             });
 
-            // File input
             fileInput.addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    handleFiles(this.files);
-                    this.value = '';
-                }
+                if (this.files.length > 0) { handleFiles(this.files);
+                    this.value = ''; }
             });
-
             uploadArea.addEventListener('dragover', (e) => { e.preventDefault();
                 uploadArea.classList.add('dragover'); });
             uploadArea.addEventListener('dragleave', () => { uploadArea.classList.remove('dragover'); });
@@ -1663,7 +1630,6 @@
                 if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
             });
 
-            // Filters
             document.querySelectorAll('.filters-bar .chip').forEach(chip => {
                 chip.addEventListener('click', function() {
                     document.querySelectorAll('.filters-bar .chip').forEach(c => c.classList.remove('active'));
@@ -1684,9 +1650,7 @@
                     const swCode = `
                             self.addEventListener('install', e => { e.waitUntil(self.skipWaiting()); });
                             self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
-                            self.addEventListener('fetch', e => {
-                                e.respondWith(fetch(e.request).catch(() => new Response('Offline', { status: 503 })));
-                            });
+                            self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => new Response('Offline', { status: 503 }))); });
                         `;
                     const blob = new Blob([swCode], { type: 'application/javascript' });
                     const swUrl = URL.createObjectURL(blob);
@@ -1695,7 +1659,7 @@
                             .then(() => console.log('Zohra: Service Worker registered'))
                             .catch(() => console.log('Zohra: SW registration skipped'));
                     }
-                } catch (e) { /* ignore */ }
+                } catch (e) {}
                 try {
                     const manifest = {
                         name: 'زهرة Zohra',
@@ -1716,7 +1680,7 @@
                     link.rel = 'manifest';
                     link.href = manifestUrl;
                     document.head.appendChild(link);
-                } catch (e) { /* ignore */ }
+                } catch (e) {}
             }
 
             // ---- INIT ----
@@ -1724,27 +1688,20 @@
                 loadBooks();
                 registerPWA();
                 if (books.length === 0) emptyState.style.display = 'block';
-
                 const params = new URLSearchParams(location.search);
                 const q = params.get('q');
                 if (q) {
                     searchInput.value = q;
-                    // Default to internet search if query looks like a title
-                    if (q.length > 2) {
-                        modeToggle.querySelector('[data-mode="internet"]').click();
-                    }
+                    if (q.length > 2) modeToggle.querySelector('[data-mode="internet"]').click();
                     setTimeout(doSearch, 500);
                 }
-                console.log('🌺 زهرة Zohra جاهزة! (مع بحث الإنترنت)');
+                console.log('🌺 زهرة Zohra جاهزة! (مع بحث إنترنت متعدد المصادر)');
                 console.log(`📚 ${books.length} كتاب في المكتبة`);
             }
 
             if (!window.Promise) window.Promise = function() {};
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
 
             window.__ZOHRA = { books, searchLocal, searchInternet, addBook, removeBook, clearLibrary };
 
