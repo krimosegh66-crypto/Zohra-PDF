@@ -14,17 +14,6 @@
     </script>
 
     <style>
-        /* نفس التنسيقات السابقة مع إضافة بسيطة لعرض المصدر */
-        .result-item .result-source {
-            font-size: 0.65rem;
-            color: var(--primary);
-            background: rgba(201, 168, 76, 0.1);
-            padding: 2px 10px;
-            border-radius: 20px;
-            display: inline-block;
-        }
-
-        /* باقي التنسيقات مطابقة لما سبق، تم اختصارها هنا لتوفير المساحة */
         *,
         *::before,
         *::after {
@@ -890,7 +879,6 @@
                     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             }
 
-            // ---- UTILITIES ----
             function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
             function formatSize(bytes) {
@@ -928,7 +916,6 @@
                 return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             }
 
-            // ---- TEXT PROCESSING (same as before) ----
             function tokenizeArabic(text) {
                 if (!text) return [];
                 let t = text.replace(/[\u0622\u0623\u0625]/g, '\u0627').replace(/\u0640/g, '')
@@ -968,7 +955,6 @@
                 return result;
             }
 
-            // ---- LOCAL SEARCH ----
             function buildIndex() {
                 searchIndex = {};
                 for (let book of books) {
@@ -1042,7 +1028,7 @@
                 searchStat.textContent = `🔍 تم العثور على ${currentResults.length} نتيجة في مكتبتك`;
             }
 
-            // ---- INTERNET SEARCH (Open Library + Google Books) ----
+            // ========== INTERNET SEARCH (MULTI-SOURCE, UNLIMITED) ==========
             async function searchInternet(query) {
                 if (!query.trim()) {
                     resultsContainer.innerHTML = '';
@@ -1056,10 +1042,10 @@
 
                 let allResults = [];
 
-                // 1. Open Library
+                // 1. Open Library (limit 100)
                 try {
                     const olUrl =
-                        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=30`;
+                        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=100`;
                     const resp = await fetch(olUrl);
                     if (resp.ok) {
                         const data = await resp.json();
@@ -1076,7 +1062,7 @@
                                 author: doc.author_name ? doc.author_name.join('، ') : 'مؤلف غير معروف',
                                 year: doc.first_publish_year || doc.publish_year?.[0] || '',
                                 cover: coverUrl,
-                                source: 'Open Library',
+                                source: 'Open Library (Internet Archive)',
                                 iaId: iaId,
                                 directPdf: `https://archive.org/download/${iaId}/${iaId}.pdf`
                             });
@@ -1084,26 +1070,23 @@
                     }
                 } catch (e) { console.warn('Open Library error:', e); }
 
-                // 2. Google Books (public domain / free)
+                // 2. Google Books (maxResults 40)
                 try {
                     const gbUrl =
-                        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}+subject:fiction&maxResults=20&filter=free-ebooks`;
+                        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=40&filter=free-ebooks`;
                     const resp = await fetch(gbUrl);
                     if (resp.ok) {
                         const data = await resp.json();
                         const items = data.items || [];
                         for (let item of items) {
                             const info = item.volumeInfo;
-                            // Check if there is a PDF link
                             let pdfLink = null;
                             if (item.accessInfo && item.accessInfo.pdf && item.accessInfo.pdf.isAvailable) {
                                 pdfLink = item.accessInfo.pdf.acsTokenLink || item.accessInfo.pdf.downloadLink;
                             }
-                            // Also check for webReaderLink
                             if (!pdfLink && item.accessInfo && item.accessInfo.webReaderLink) {
                                 pdfLink = item.accessInfo.webReaderLink;
                             }
-                            // Skip if no PDF
                             if (!pdfLink) continue;
 
                             const id = item.id;
@@ -1125,7 +1108,7 @@
                     }
                 } catch (e) { console.warn('Google Books error:', e); }
 
-                // Remove duplicates by title (simple)
+                // Remove duplicates
                 const seen = new Set();
                 const unique = allResults.filter(r => {
                     const key = r.title.toLowerCase().trim();
@@ -1139,7 +1122,7 @@
                             <div class="empty-state" style="padding:20px;">
                                 <div class="big-icon">🔍</div>
                                 <h3>لا توجد كتب مجانية متاحة بهذا البحث</h3>
-                                <p>جرّب كلمات بحث أخرى أو استخدم عناوين محددة.</p>
+                                <p>جرّب كلمات بحث أخرى أو استخدم عناوين محددة (مثال: تاريخ، رواية، علم).</p>
                             </div>
                         `;
                     searchStat.textContent = '🌐 لم يتم العثور على كتب';
@@ -1174,7 +1157,7 @@
                         `;
                 }).join('');
 
-                // IA download
+                // IA events
                 resultsContainer.querySelectorAll('.btn-add-internet').forEach(btn => {
                     btn.addEventListener('click', async function() {
                         const iaId = this.dataset.ia;
@@ -1193,7 +1176,7 @@
                     });
                 });
 
-                // Google Books download (direct PDF link)
+                // Google events
                 resultsContainer.querySelectorAll('.btn-add-google').forEach(btn => {
                     btn.addEventListener('click', async function() {
                         const url = this.dataset.url;
@@ -1213,7 +1196,6 @@
                 });
             }
 
-            // ---- DOWNLOAD FROM URL (Google Books) ----
             async function downloadFromUrl(url, title) {
                 loadingIndicator.style.display = 'flex';
                 loadingText.textContent = `⏬ جاري تحميل "${title}"...`;
@@ -1253,13 +1235,12 @@
                 }
             }
 
-            // ---- DOWNLOAD FROM INTERNET ARCHIVE ----
             async function downloadAndAddBook(iaId, title) {
                 const pdfUrl = `https://archive.org/download/${iaId}/${iaId}.pdf`;
                 await downloadFromUrl(pdfUrl, title);
             }
 
-            // ---- RENDER FUNCTIONS (local) ----
+            // ---- LOCAL RENDER ----
             function renderBooks() {
                 if (books.length === 0) {
                     bookGrid.innerHTML = '';
@@ -1387,7 +1368,6 @@
                 filterLarge.textContent = large.length;
             }
 
-            // ---- BOOK MANAGEMENT ----
             function addBook(name, size, text, pages, data) {
                 const id = genId();
                 const book = { id, name: name || 'كتاب بدون عنوان', size: size || 0, pages: pages || 0, text: text || '',
@@ -1424,7 +1404,6 @@
                 showToast('تم مسح المكتبة بالكامل', '🧹');
             }
 
-            // ---- SAVE / LOAD ----
             function saveBooks() {
                 try {
                     const toStore = books.map(b => ({ id: b.id, name: b.name, size: b.size, pages: b.pages, text: b.text,
@@ -1446,7 +1425,6 @@
                 } catch (e) { console.warn('Load error:', e); }
             }
 
-            // ---- PDF VIEWER ----
             async function openPdfViewer(book) {
                 modalTitle.textContent = `📄 ${book.name}`;
                 modalBody.innerHTML =
@@ -1537,7 +1515,6 @@
                 }
             }
 
-            // ---- FILE HANDLING ----
             async function handleFiles(files) {
                 const pdfFiles = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith(
                     '.pdf'));
@@ -1584,7 +1561,6 @@
                 else showToast('لم تتم إضافة أي كتاب، تأكد من صحة الملفات', '⚠️');
             }
 
-            // ---- DO SEARCH ----
             function doSearch() {
                 const q = searchInput.value.trim();
                 if (!q) {
@@ -1598,7 +1574,6 @@
                 else searchInternet(q);
             }
 
-            // ---- EVENTS ----
             searchBtn.addEventListener('click', doSearch);
             searchInput.addEventListener('input', debounce(doSearch, 400));
             searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
@@ -1644,7 +1619,6 @@
             modalClose.addEventListener('click', closeModal);
             modalOverlay.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-            // ---- PWA ----
             function registerPWA() {
                 try {
                     const swCode = `
@@ -1683,7 +1657,6 @@
                 } catch (e) {}
             }
 
-            // ---- INIT ----
             function init() {
                 loadBooks();
                 registerPWA();
@@ -1695,7 +1668,7 @@
                     if (q.length > 2) modeToggle.querySelector('[data-mode="internet"]').click();
                     setTimeout(doSearch, 500);
                 }
-                console.log('🌺 زهرة Zohra جاهزة! (مع بحث إنترنت متعدد المصادر)');
+                console.log('🌺 زهرة Zohra جاهزة! (مع بحث إنترنت متعدد المصادر - غير محدود)');
                 console.log(`📚 ${books.length} كتاب في المكتبة`);
             }
 
