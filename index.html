@@ -998,24 +998,26 @@
                     let score = entry.score;
                     const text = (entry.book.text || '').toLowerCase();
                     const name = entry.book.name.toLowerCase();
-                    // Boost if phrase appears in text
-                    if (text.includes(phrase)) score += 5;
-                    if (name.includes(phrase)) score += 3;
-                    // Boost for exact term matches
+                    // Boost if phrase appears in text (increased from +5 to +8)
+                    if (text.includes(phrase)) score += 8;
+                    // Boost if phrase appears in name (increased from +3 to +5)
+                    if (name.includes(phrase)) score += 5;
+                    // Boost for individual term matches (unchanged)
                     const words = phrase.split(/\s+/);
                     for (let w of words) {
                         if (w.length < 2) continue;
                         if (text.includes(w)) score += 1;
                         if (name.includes(w)) score += 1;
                     }
-                    // Proximity boost: if multiple terms appear close
+                    // Proximity boost: if multiple terms appear close (increased from +3 to +5)
                     if (qKeys.length > 1) {
-                        // Count how many of the query terms appear in the text
                         let found = 0;
                         for (let k of qKeys) {
                             if (text.includes(k)) found++;
                         }
-                        if (found >= qKeys.length * 0.6) score += 3;
+                        if (found >= qKeys.length * 0.6) score += 5;
+                        // Additional boost if ALL terms are found
+                        if (found === qKeys.length) score += 4;
                     }
                     entry.score = score;
                     results.push(entry);
