@@ -17,7 +17,7 @@
     </script>
 
     <style>
-        body { font-family: 'Cairo', sans-serif; }
+        body { font-family: 'Cairo', sans-serif; background: #111827; }
         .cyber-bg { background: radial-gradient(circle at 10% 20%, rgba(16,185,129,0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(14,165,233,0.05) 0%, transparent 40%), #111827; }
         .glass-card { background: rgba(31,41,55,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(75,85,99,0.4); }
         .glass-card:hover { border-color: rgba(16,185,129,0.6); box-shadow: 0 10px 25px -5px rgba(16,185,129,0.2); }
@@ -140,7 +140,7 @@
         </p>
     </section>
 
-    <!-- ===== شريط التصفية بالحروف الأبجدية (حسب لغة الجهاز) ===== -->
+    <!-- ===== شريط التصفية بالحروف الأبجدية ===== -->
     <div class="max-w-4xl mx-auto px-4 mb-6">
         <p class="text-center text-xs text-gray-500 mb-3" data-i18n="alphabetFilterLabel">تصفح الكتب حسب الحرف الأول من العنوان:</p>
         <div id="alphabetContainer" class="flex flex-wrap justify-center gap-1.5 p-3 rounded-2xl bg-gray-800/40 border border-gray-700/50 backdrop-blur-md">
@@ -301,7 +301,7 @@
                 sampleContent: "يشرح هذا الكتاب أساسيات تصميم تجربة المستخدم بطريقة مبسطة، مع التركيز على مبادئ التصميم التي تركز على الإنسان."
             }];
 
-            // ---- ترجمات النصوص ----
+            // ---- ترجمات النصوص (مكتملة) ----
             const translations = {
                 ar: {
                     appTitle: "زهرة Zohra",
@@ -659,19 +659,15 @@
             const supportedLangs = ['ar', 'en', 'fr', 'es', 'de'];
             let currentLang = 'ar';
 
-            // ===== التصحيح: تحديد اللغة من المتصفح أولاً =====
             function getPreferredLanguage() {
-                // 1. استخدام لغة المتصفح كأولوية أولى
                 const browserLangs = navigator.languages || [navigator.language];
                 for (let lang of browserLangs) {
                     const base = lang.split('-')[0];
                     if (supportedLangs.includes(base)) {
-                        // تحديث التخزين المحلي ليتطابق مع لغة المتصفح
                         localStorage.setItem('zohra_lang', base);
                         return base;
                     }
                 }
-                // 2. في حال عدم وجود لغة متصفح مدعومة، نستخدم المخزنة أو العربية
                 const stored = localStorage.getItem('zohra_lang');
                 if (stored && supportedLangs.includes(stored)) return stored;
                 return 'ar';
@@ -710,8 +706,12 @@
             function cleanTitleForLetter(title, lang) {
                 let clean = title.trim();
                 if (lang === 'ar') {
-                    if (clean.startsWith("ال")) clean = clean.substring(2);
-                    if (clean.startsWith("ا")) clean = "أ" + clean.substring(1);
+                    if (clean.startsWith("ال")) {
+                        clean = clean.substring(2);
+                    }
+                    if (clean.startsWith("ا") || clean.startsWith("أ") || clean.startsWith("إ") || clean.startsWith("آ")) {
+                        clean = "ا" + clean.substring(1);
+                    }
                     return clean.charAt(0);
                 } else {
                     const articles = {
@@ -757,7 +757,8 @@
                 generateAlphabetButtons();
                 const allLabel = (lang === 'ar') ? 'الكل' : 'ALL';
                 filterByLetter(allLabel);
-                if (searchMode === 'local') {
+                // تحديث باقي العناصر
+                if (typeof searchMode !== 'undefined' && searchMode === 'local') {
                     if (searchInput.value.trim()) searchLocal(searchInput.value);
                     else renderLocalBooks();
                 } else {
@@ -778,19 +779,19 @@
                 if (label) label.textContent = t('alphabetFilterLabel');
             }
 
-            // ---- توليد أزرار الحروف حسب اللغة الحالية ----
+            // ---- توليد أزرار الحروف ----
             function generateAlphabetButtons() {
                 const container = document.getElementById('alphabetContainer');
                 container.innerHTML = '';
                 const letters = getAlphabetLetters(currentLang);
 
-                const allBtn = document.createElement('button');
                 const allLabel = (currentLang === 'ar') ? 'الكل' : 'ALL';
+                const allBtn = document.createElement('button');
                 allBtn.innerText = (currentLang === 'ar') ? 'الكل' : 'All';
                 allBtn.className =
                     'letter-btn px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-gray-900 shadow-md transition duration-200 active';
                 allBtn.dataset.letter = allLabel;
-                allBtn.onclick = function() { filterByLetter(allLabel); };
+                allBtn.addEventListener('click', function() { filterByLetter(allLabel); });
                 container.appendChild(allBtn);
 
                 letters.forEach(letter => {
@@ -799,7 +800,7 @@
                     btn.className =
                         'letter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-700 hover:text-white transition duration-200';
                     btn.dataset.letter = letter;
-                    btn.onclick = function() { filterByLetter(letter); };
+                    btn.addEventListener('click', function() { filterByLetter(letter); });
                     container.appendChild(btn);
                 });
             }
@@ -830,52 +831,67 @@
                 const allLabel = (lang === 'ar') ? 'الكل' : 'ALL';
 
                 const filtered = storeBooks.filter(book => {
-                    const matchesSearch = book.title.toLowerCase().includes(searchValue) ||
+                    const matchesSearch = searchValue === '' || book.title.toLowerCase().includes(searchValue) ||
                         book.author.toLowerCase().includes(searchValue);
 
                     const firstChar = cleanTitleForLetter(book.title, lang);
-                    const matchesLetter = (currentSelectedLetter === allLabel) ||
-                        (firstChar === currentSelectedLetter);
+                    const matchesLetter = (currentSelectedLetter === allLabel) || (firstChar === currentSelectedLetter);
 
                     return matchesSearch && matchesLetter;
                 });
 
                 renderStore(filtered);
+
+                const statElement = document.getElementById('searchStat');
+                if (statElement) {
+                    statElement.textContent = `🔍 تم العثور على ${filtered.length} كتاب`;
+                }
             }
 
-            // ---- عرض المتجر ----
+            // ========================================================
+            // ===== دالة renderStore الجديدة (بأزرار كبيرة وجذابة) =====
+            // ========================================================
             function renderStore(booksList) {
-                const list = booksList || storeBooks;
                 const storeGrid = document.getElementById('storeGrid');
-                if (list.length === 0) {
+                storeGrid.innerHTML = '';
+                if (booksList.length === 0) {
                     storeGrid.innerHTML =
-                        `<div class="col-span-full text-center py-8 text-gray-400"><i class="fa-regular fa-face-frown text-3xl block mb-2"></i> ${t('storeNoResults')}</div>`;
+                        `<p class="col-span-full text-center text-gray-500 py-8 text-sm">عذراً، لا توجد نتائج مطابقة لبحثك الحروف أو الكلمات.</p>`;
                     return;
                 }
 
-                storeGrid.innerHTML = list.map(book => `
-                        <div class="glass-card rounded-2xl p-4 transition duration-300 flex flex-col justify-between group">
-                            <div class="relative rounded-xl overflow-hidden mb-4 aspect-[4/5] bg-gray-900 flex items-center justify-center">
-                                <img src="${book.cover}" alt="${book.title}" class="book-card-image w-full h-full object-cover" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'">
-                                <span class="absolute top-2 right-2 bg-emerald-500 text-gray-900 font-bold text-[10px] px-2 py-0.5 rounded-md shadow-md">${t('priceTag')}</span>
+                booksList.forEach(book => {
+                    const cardHtml = `
+                        <div class="glass-card rounded-2xl p-5 transition duration-300 flex flex-col justify-between group">
+                            <div class="relative rounded-xl overflow-hidden mb-5 aspect-[4/5] bg-gray-900 flex items-center justify-center shadow-inner">
+                                <img src="${book.cover}" alt="${book.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'">
+                                <span class="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-gray-950 font-extrabold text-sm px-3.5 py-1.5 rounded-xl shadow-lg shadow-emerald-500/20">1.00 €</span>
                             </div>
-                            <div class="space-y-2">
+                            <div class="space-y-4">
                                 <div>
-                                    <h3 class="font-bold text-white text-sm group-hover:text-emerald-400 transition line-clamp-1">${escapeHtml(book.title)}</h3>
-                                    <p class="text-gray-400 text-xs mt-0.5">✍️ ${escapeHtml(book.author)}</p>
+                                    <h3 class="font-bold text-white text-lg group-hover:text-emerald-400 transition duration-200 line-clamp-1">${escapeHtml(book.title)}</h3>
+                                    <p class="text-gray-400 text-xs mt-1">تأليف: ${escapeHtml(book.author)}</p>
                                 </div>
-                                <div class="grid grid-cols-2 gap-1.5 pt-1">
-                                    <button onclick="openStoreReader(${book.id})" class="btn-preview flex items-center justify-center gap-1 text-gray-200 py-1.5 rounded-xl text-[10px] font-semibold transition">
-                                        <i class="fa-regular fa-eye text-sky-400 text-xs"></i> ${t('freePreview')}
+                                <div class="flex items-center gap-1 text-amber-400 text-xs">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                    <span class="text-gray-500 mr-2 text-xs">(موصى به)</span>
+                                </div>
+                                
+                                <div class="flex flex-col sm:flex-row gap-3 pt-3 border-t border-gray-700/50">
+                                    <button onclick="openStoreReader(${book.id})" class="w-full flex-1 flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-200 py-3.5 px-4 rounded-xl text-sm font-bold border border-gray-600/70 hover:border-gray-500 transition-all duration-200 active:scale-95">
+                                        <i class="fa-solid fa-eye text-sky-400 text-base"></i> معاينة مجانية
                                     </button>
-                                    <a href="${book.buyUrl}" target="_blank" class="btn-download flex items-center justify-center gap-1 text-white py-1.5 rounded-xl text-[10px] font-semibold transition shadow-lg shadow-emerald-600/10" title="${t('buyNowTooltip')}">
-                                        <i class="fa-solid fa-cart-shopping text-xs"></i> ${t('buyNow')}
+                                    <a href="${book.buyUrl}" target="_blank" class="w-full flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-gray-950 py-3.5 px-4 rounded-xl text-sm font-extrabold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-400/40 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95">
+                                        <i class="fa-solid fa-cloud-arrow-down text-base"></i> شراء وتحميل
                                     </a>
                                 </div>
                             </div>
                         </div>
-                    `).join('');
+                    `;
+                    storeGrid.innerHTML += cardHtml;
+                });
             }
+            // ========================================================
 
             // ---- دوال معاينة المتجر ----
             window.openStoreReader = function(bookId) {
@@ -900,7 +916,14 @@
                 document.body.style.overflow = 'auto';
             };
 
-            // ---- دوال البحث والعدادات والمكتبة ----
+            // ---- دوال مساعدة ----
+            function escapeHtml(str) {
+                if (!str) return '';
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            }
+
+            // ---- دوال العدادات ----
             function incrementVisits() {
                 let count = parseInt(localStorage.getItem('zohra_visits') || '0', 10);
                 count += 1;
@@ -939,13 +962,7 @@
                 }
             }
 
-            function escapeHtml(str) {
-                if (!str) return '';
-                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-            }
-
-            // ---- دوال المكتبة (مبسطة للغرض) ----
+            // ---- دوال المكتبة (مبسطة) ----
             let books = [];
             let searchMode = 'local';
             const searchInput = document.getElementById('searchInput');
@@ -967,13 +984,12 @@
 
             function registerPWA() {}
 
-            function searchLocal(q) { /* ... */ }
+            function searchLocal(q) {}
 
-            function doSearch() { /* ... */ }
+            function doSearch() {}
 
             // ---- تهيئة التطبيق ----
             function init() {
-                // ===== التصحيح: استخدام لغة المتصفح أولاً =====
                 const preferred = getPreferredLanguage();
                 applyLanguage(preferred);
 
@@ -985,10 +1001,16 @@
                 loadBooks();
                 registerPWA();
                 renderLocalBooks();
+
+                // عرض المتجر مع التصفية الافتراضية (جميع الكتب)
                 renderStore(storeBooks);
+
                 localModeBtn.click();
 
-                // ===== تصحيح النصوص الغريبة من الرابط =====
+                // ربط حدث الإدخال في بحث المتجر
+                document.getElementById('storeSearchInput').addEventListener('input', executeCombinedFilter);
+
+                // معالجة النصوص الغريبة من الرابط
                 const params = new URLSearchParams(location.search);
                 const q = params.get('q');
                 if (q && q.length < 50 && !q.startsWith('expl_') && /^[\u0600-\u06FFa-zA-Z0-9\s\-_,.]+$/.test(q)) {
@@ -998,19 +1020,17 @@
                     }
                     setTimeout(doSearch, 500);
                 }
-                // =============================================
 
                 document.getElementById('storeReaderModal').addEventListener('click', function(e) {
                     if (e.target === this) window.closeStoreReader();
                 });
 
-                console.log('🌺 Zohra ready! (لغة المتصفح تحدد الأحرف تلقائياً)');
+                console.log('🌺 Zohra ready! (واجهة متجر محسنة بأزرار كبيرة وجذابة)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
             else init();
 
-            // تصدير الدوال للاستخدام العالمي
             window.filterByLetter = filterByLetter;
             window.executeCombinedFilter = executeCombinedFilter;
 
