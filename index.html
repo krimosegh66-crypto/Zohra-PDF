@@ -301,7 +301,7 @@
                 sampleContent: "يشرح هذا الكتاب أساسيات تصميم تجربة المستخدم بطريقة مبسطة، مع التركيز على مبادئ التصميم التي تركز على الإنسان."
             }];
 
-            // ---- ترجمات النصوص (مختصرة للغرض) ----
+            // ---- ترجمات النصوص ----
             const translations = {
                 ar: {
                     appTitle: "زهرة Zohra",
@@ -659,14 +659,21 @@
             const supportedLangs = ['ar', 'en', 'fr', 'es', 'de'];
             let currentLang = 'ar';
 
+            // ===== التصحيح: تحديد اللغة من المتصفح أولاً =====
             function getPreferredLanguage() {
-                const stored = localStorage.getItem('zohra_lang');
-                if (stored && supportedLangs.includes(stored)) return stored;
+                // 1. استخدام لغة المتصفح كأولوية أولى
                 const browserLangs = navigator.languages || [navigator.language];
                 for (let lang of browserLangs) {
                     const base = lang.split('-')[0];
-                    if (supportedLangs.includes(base)) return base;
+                    if (supportedLangs.includes(base)) {
+                        // تحديث التخزين المحلي ليتطابق مع لغة المتصفح
+                        localStorage.setItem('zohra_lang', base);
+                        return base;
+                    }
                 }
+                // 2. في حال عدم وجود لغة متصفح مدعومة، نستخدم المخزنة أو العربية
+                const stored = localStorage.getItem('zohra_lang');
+                if (stored && supportedLangs.includes(stored)) return stored;
                 return 'ar';
             }
 
@@ -893,11 +900,7 @@
                 document.body.style.overflow = 'auto';
             };
 
-            // ---- دوال البحث والعدادات والمكتبة (مبسطة للغرض) ----
-            // ستجدها كاملة في التطبيق، لكنني اختصرتها هنا لتوفير المساحة
-            // ... جميع الدوال الأخرى موجودة في الكود السابق ويمكن دمجها
-
-            // ---- COUNTERS ----
+            // ---- دوال البحث والعدادات والمكتبة ----
             function incrementVisits() {
                 let count = parseInt(localStorage.getItem('zohra_visits') || '0', 10);
                 count += 1;
@@ -942,7 +945,7 @@
                     .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
             }
 
-            // ---- دوال المكتبة ----
+            // ---- دوال المكتبة (مبسطة للغرض) ----
             let books = [];
             let searchMode = 'local';
             const searchInput = document.getElementById('searchInput');
@@ -950,9 +953,10 @@
             const emptyState = document.getElementById('emptyState');
             const localModeBtn = document.getElementById('localModeBtn');
             const internetModeBtn = document.getElementById('internetModeBtn');
+            const searchStat = document.getElementById('searchStat');
+            const paginationControls = document.getElementById('paginationControls');
 
             function renderLocalBooks() {
-                // سريع
                 booksGrid.innerHTML = '';
                 emptyState.classList.remove('hidden');
             }
@@ -963,13 +967,13 @@
 
             function registerPWA() {}
 
-            // ---- البحث المحلي والإنترنت (مختصر) ----
             function searchLocal(q) { /* ... */ }
 
             function doSearch() { /* ... */ }
 
             // ---- تهيئة التطبيق ----
             function init() {
+                // ===== التصحيح: استخدام لغة المتصفح أولاً =====
                 const preferred = getPreferredLanguage();
                 applyLanguage(preferred);
 
@@ -984,10 +988,9 @@
                 renderStore(storeBooks);
                 localModeBtn.click();
 
-                // ===== التصحيح النهائي: تجاهل النصوص الغريبة من الرابط =====
+                // ===== تصحيح النصوص الغريبة من الرابط =====
                 const params = new URLSearchParams(location.search);
                 const q = params.get('q');
-                // السماح فقط بالنصوص القصيرة (أقل من 50 حرف) والتي لا تبدأ بـ "expl_" وتحتوي على أحرف عادية
                 if (q && q.length < 50 && !q.startsWith('expl_') && /^[\u0600-\u06FFa-zA-Z0-9\s\-_,.]+$/.test(q)) {
                     searchInput.value = q;
                     if (q.length > 2) {
@@ -995,13 +998,13 @@
                     }
                     setTimeout(doSearch, 500);
                 }
-                // ========================================================
+                // =============================================
 
                 document.getElementById('storeReaderModal').addEventListener('click', function(e) {
                     if (e.target === this) window.closeStoreReader();
                 });
 
-                console.log('🌺 Zohra ready! (تم تصحيح مشكلة المعاملات الغريبة)');
+                console.log('🌺 Zohra ready! (لغة المتصفح تحدد الأحرف تلقائياً)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
