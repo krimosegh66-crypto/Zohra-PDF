@@ -42,7 +42,11 @@
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
         .toast .toast-icon { margin-left: 10px; }
         .btn-action { transition: 0.2s; }
-        .btn-action:hover { transform: scale(1.02); }
+        .btn-action:hover { transform: scale(1.03); }
+        .btn-download { background: #10b981; color: #fff; border: none; }
+        .btn-download:hover { background: #059669; box-shadow: 0 0 20px rgba(16,185,129,0.4); }
+        .btn-preview { background: #374151; color: #d1d5db; border: none; }
+        .btn-preview:hover { background: #4b5563; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #1f2937; }
         ::-webkit-scrollbar-thumb { background: #34d399; border-radius: 8px; }
@@ -58,10 +62,15 @@
         .stats-bar .stat-item { display: flex; align-items: center; gap: 0.4rem; background: #1f2937; padding: 0.2rem 0.8rem; border-radius: 30px; border: 1px solid #374151; }
         .stats-bar .stat-item i { color: #34d399; }
         .stats-bar .flag-img { width: 20px; height: 15px; border-radius: 2px; border: 1px solid #4b5563; }
-        .lang-selector { position: relative; display: inline-block; }
         .lang-selector select { background: #1f2937; color: #f3f4f6; border: 1px solid #4b5563; border-radius: 30px; padding: 0.2rem 0.8rem; font-size: 0.8rem; cursor: pointer; outline: none; }
         .lang-selector select:hover { border-color: #34d399; }
         .lang-selector select option { background: #1f2937; }
+        /* تنسيق العنوان الترحيبي */
+        .hero-section { background: linear-gradient(135deg, #0d1b2a 0%, #1f2937 100%); border-radius: 18px; padding: 2.5rem 2rem; text-align: center; border: 1px solid #374151; margin-bottom: 1.5rem; }
+        .hero-title { font-size: 2.2rem; font-weight: 700; color: #f3f4f6; }
+        .hero-title span { color: #34d399; }
+        .hero-sub { font-size: 1.1rem; color: #9ca3af; max-width: 700px; margin: 0.8rem auto 0; line-height: 1.7; }
+        @media (max-width: 640px) { .hero-title { font-size: 1.6rem; } .hero-sub { font-size: 0.95rem; } }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen">
@@ -73,12 +82,10 @@
                 <span class="text-3xl text-emerald-400"><i class="fa-solid fa-book-open"></i></span>
                 <h1 class="text-2xl font-bold text-emerald-400"><span data-i18n="appTitle">زهرة Zohra</span></h1>
             </div>
-            <!-- شريط البحث -->
             <div class="relative w-full md:w-96">
                 <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="ابحث عن كتاب، مؤلف، موضوع..." class="w-full bg-gray-700 text-white pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 border border-gray-600">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
             </div>
-            <!-- أزرار وضع البحث + اختيار اللغة -->
             <div class="flex items-center gap-2 flex-wrap">
                 <button id="localModeBtn" class="px-4 py-1 rounded-full text-sm bg-emerald-600 text-white hover:bg-emerald-500 transition"><span data-i18n="localBtn">📁 محلي</span></button>
                 <button id="internetModeBtn" class="px-4 py-1 rounded-full text-sm bg-gray-700 text-gray-300 hover:bg-gray-600 transition"><span data-i18n="internetBtn">🌐 إنترنت</span></button>
@@ -93,7 +100,6 @@
                 </div>
             </div>
         </div>
-        <!-- شريط التصفية والإحصائيات -->
         <div class="max-w-6xl mx-auto mt-3 flex flex-wrap items-center gap-3">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="filter-chip active" data-filter="all"><span data-i18n="filterAll">📚 الكل</span> <span class="count" id="filterAll">0</span></span>
@@ -101,21 +107,26 @@
                 <span class="filter-chip" data-filter="large"><span data-i18n="filterLarge">📄 كبيرة</span> <span class="count" id="filterLarge">0</span></span>
             </div>
             <span class="text-sm text-gray-400 mr-auto" id="searchStat" data-i18n="readySearch">🔍 جاهز للبحث</span>
-            
-            <!-- الإحصائيات -->
             <div class="stats-bar">
                 <span class="stat-item"><i class="fa-regular fa-user"></i> <span id="visitorCount">0</span></span>
                 <span class="stat-item"><i class="fa-regular fa-flag"></i> <span id="countryDisplay">🌍 جاري التحميل...</span></span>
                 <span class="stat-item"><i class="fa-regular fa-download"></i> <span id="downloadCount">0</span></span>
             </div>
-            
             <button id="clearLibraryBtn" class="text-sm text-red-400 hover:text-red-300 transition"><i class="fa-regular fa-trash-can"></i> <span data-i18n="clearLibrary">مسح المكتبة</span></button>
             <span class="text-sm text-gray-400" id="bookCount"><span data-i18n="booksCount">0 كتاب</span></span>
         </div>
     </header>
 
-    <!-- منطقة رفع الملفات -->
+    <!-- ===== القسم الترحيبي الجديد ===== -->
     <div class="max-w-6xl mx-auto px-4 mt-4">
+        <div class="hero-section" data-i18n="heroHtml">
+            <h1 class="hero-title"><span data-i18n="heroTitle">مرحباً بك في زهرة Zohra</span></h1>
+            <p class="hero-sub" data-i18n="heroSub">مكتبتك الرقمية الذكية وقارئ الـ PDF الأسرع. تصفح كتبنا الحصرية المتاحة للتحميل الفوري!</p>
+        </div>
+    </div>
+
+    <!-- منطقة رفع الملفات -->
+    <div class="max-w-6xl mx-auto px-4">
         <div id="uploadArea" class="upload-area rounded-xl p-6 text-center">
             <div class="text-4xl text-gray-500 mb-2"><i class="fa-regular fa-file-pdf"></i></div>
             <p class="text-gray-400"><span data-i18n="uploadDrag">اسحب ملف PDF هنا أو</span> <span class="text-emerald-400 font-semibold" data-i18n="uploadClick">انقر للاختيار</span></p>
@@ -172,7 +183,7 @@
         (function() {
             'use strict';
 
-            // ---- ترجمات النصوص ----
+            // ---- ترجمات النصوص (مع إضافة النص الترحيبي) ----
             const translations = {
                 ar: {
                     appTitle: "زهرة Zohra",
@@ -198,14 +209,16 @@
                     viewerTitle: "📄 عرض الكتاب",
                     loadingBook: "جاري تحميل الكتاب...",
                     pageInfoModal: "الصفحة 0 / 0",
-                    // رسائل الحالة الديناميكية
+                    // النص الترحيبي
+                    heroTitle: "مرحباً بك في زهرة Zohra",
+                    heroSub: "مكتبتك الرقمية الذكية وقارئ الـ PDF الأسرع. تصفح كتبنا الحصرية المتاحة للتحميل الفوري!",
+                    // رسائل الحالة
                     searchLocalPrompt: "🔍 اكتب كلمة للبحث في مكتبتك",
                     searchInternetPrompt: "🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)",
                     searchLocalResult: (count) => `🔍 تم العثور على ${count} نتيجة في مكتبتك`,
                     searchInternetResult: (count, total) => `🌐 تم العثور على ${count} نتيجة (إجمالي ~${total})`,
                     noInternetResults: "لا توجد نتائج متاحة بهذا البحث",
                     noBooks: "لا توجد كتب لعرضها",
-                    // رسائل التنبيه
                     toastAdded: (name) => `✅ تمت إضافة "${name}"`,
                     toastDeleted: (name) => `🗑️ تم حذف "${name}"`,
                     toastLibraryCleared: "🧹 تم مسح المكتبة بالكامل",
@@ -220,15 +233,12 @@
                     toastErrorPage: "❌ خطأ في عرض الصفحة",
                     toastLoadError: "⚠️ حدث خطأ",
                     toastAddError: (name) => `❌ خطأ في "${name}": غير معروف`,
-                    // أزرار البطاقات
                     readBtn: "قراءة",
                     downloadBtn: "تحميل",
                     openBtn: "فتح",
-                    // عارض PDF
                     prevPageBtn: "◀ السابق",
                     nextPageBtn: "التالي ▶",
                     pageLabel: "الصفحة",
-                    // رسائل أخرى
                     loadingInternet: "جاري البحث على الإنترنت (جميع اللغات والأنواع)...",
                     clickToSearch: "اكتب كلمة للبحث على الإنترنت",
                     noResultsFound: "لا توجد نتائج",
@@ -257,6 +267,8 @@
                     viewerTitle: "📄 View Book",
                     loadingBook: "Loading book...",
                     pageInfoModal: "Page 0 / 0",
+                    heroTitle: "Welcome to Zohra",
+                    heroSub: "Your smart digital library and the fastest PDF reader. Browse our exclusive books available for instant download!",
                     searchLocalPrompt: "🔍 Type a word to search in your library",
                     searchInternetPrompt: "🌐 Type a word to search online (books, eBooks, magazines)",
                     searchLocalResult: (count) => `🔍 Found ${count} results in your library`,
@@ -311,6 +323,8 @@
                     viewerTitle: "📄 Voir le livre",
                     loadingBook: "Chargement du livre...",
                     pageInfoModal: "Page 0 / 0",
+                    heroTitle: "Bienvenue à Zohra",
+                    heroSub: "Votre bibliothèque numérique intelligente et le lecteur PDF le plus rapide. Parcourez nos livres exclusifs disponibles en téléchargement immédiat!",
                     searchLocalPrompt: "🔍 Tapez un mot pour chercher dans votre bibliothèque",
                     searchInternetPrompt: "🌐 Tapez un mot pour chercher en ligne (livres, eBooks, magazines)",
                     searchLocalResult: (count) => `🔍 ${count} résultats trouvés dans votre bibliothèque`,
@@ -365,6 +379,8 @@
                     viewerTitle: "📄 Ver libro",
                     loadingBook: "Cargando libro...",
                     pageInfoModal: "Página 0 / 0",
+                    heroTitle: "Bienvenido a Zohra",
+                    heroSub: "Tu biblioteca digital inteligente y el lector de PDF más rápido. ¡Explora nuestros libros exclusivos disponibles para descarga inmediata!",
                     searchLocalPrompt: "🔍 Escribe una palabra para buscar en tu biblioteca",
                     searchInternetPrompt: "🌐 Escribe una palabra para buscar en línea (libros, eBooks, revistas)",
                     searchLocalResult: (count) => `🔍 Se encontraron ${count} resultados en tu biblioteca`,
@@ -419,6 +435,8 @@
                     viewerTitle: "📄 Buch anzeigen",
                     loadingBook: "Lade Buch...",
                     pageInfoModal: "Seite 0 / 0",
+                    heroTitle: "Willkommen bei Zohra",
+                    heroSub: "Ihre intelligente digitale Bibliothek und der schnellste PDF-Reader. Stöbern Sie in unseren exklusiven Büchern, die sofort zum Download verfügbar sind!",
                     searchLocalPrompt: "🔍 Geben Sie ein Wort ein, um in Ihrer Bibliothek zu suchen",
                     searchInternetPrompt: "🌐 Geben Sie ein Wort ein, um online zu suchen (Bücher, eBooks, Zeitschriften)",
                     searchLocalResult: (count) => `🔍 ${count} Ergebnisse in Ihrer Bibliothek gefunden`,
@@ -451,28 +469,25 @@
                 }
             };
 
-            // ---- تحديد اللغة المفضلة ----
+            // ---- تحديد اللغة ----
             const supportedLangs = ['ar', 'en', 'fr', 'es', 'de'];
             let currentLang = 'ar';
 
             function getPreferredLanguage() {
-                // 1. من localStorage
                 const stored = localStorage.getItem('zohra_lang');
                 if (stored && supportedLangs.includes(stored)) return stored;
-                // 2. من المتصفح
                 const browserLangs = navigator.languages || [navigator.language];
                 for (let lang of browserLangs) {
                     const base = lang.split('-')[0];
                     if (supportedLangs.includes(base)) return base;
                 }
-                return 'ar'; // افتراضي
+                return 'ar';
             }
 
             // ---- تطبيق اللغة ----
             function applyLanguage(lang) {
                 currentLang = lang;
                 localStorage.setItem('zohra_lang', lang);
-                // تحديث اتجاه الصفحة
                 document.dir = (lang === 'ar') ? 'rtl' : 'ltr';
                 document.documentElement.lang = lang;
                 // تحديث العناصر ذات data-i18n
@@ -486,19 +501,16 @@
                         }
                     }
                 });
-                // تحديث العناصر ذات data-i18n-placeholder
                 document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                     const key = el.dataset.i18nPlaceholder;
                     if (translations[lang] && translations[lang][key] !== undefined) {
                         el.placeholder = translations[lang][key];
                     }
                 });
-                // تحديث select
                 document.getElementById('langSelect').value = lang;
-                // تحديث النصوص الديناميكية (stat, book count, etc.)
+                // تحديث النصوص الديناميكية
                 updateDynamicTexts();
-                // تحديث الرسائل المخزنة مؤقتاً (toast) - سيتم تحديثها عند الاستدعاء
-                // إعادة عرض الكتب لتحديث الأزرار
+                // إعادة عرض الكتب
                 if (searchMode === 'local') {
                     if (searchInput.value.trim()) searchLocal(searchInput.value);
                     else renderLocalBooks();
@@ -510,35 +522,21 @@
                         paginationControls.style.display = 'none';
                     }
                 }
-                // تحديث الإحصائيات
                 updateStats();
-                // تحديث الأزرار (لأنها تحتوي على نصوص مترجمة)
                 updateButtonsText();
             }
 
-            // دالة مساعدة للترجمة
             function t(key, ...args) {
                 let text = translations[currentLang]?.[key] || translations['ar'][key] || key;
-                if (typeof text === 'function') {
-                    return text(...args);
-                }
+                if (typeof text === 'function') return text(...args);
                 return text;
             }
 
-            // تحديث النصوص الديناميكية
-            function updateDynamicTexts() {
-                // searchStat يتم تحديثه في دوال البحث
-                // bookCount يتم تحديثه في renderLocalBooks
-                // filter chips تم تحديثها عبر data-i18n
-                // أزرار التحميل والقراءة سيتم تحديثها عند إعادة رسم البطاقات
-            }
+            function updateDynamicTexts() {}
 
-            // تحديث نصوص الأزرار الثابتة (مثل clearLibrary, mode buttons) - تم عبر data-i18n
-            function updateButtonsText() {
-                // لا حاجة، data-i18n يعتني بها
-            }
+            function updateButtonsText() {}
 
-            // ---- إعدادات التطبيق الأساسية ----
+            // ---- إعدادات التطبيق ----
             const STORAGE_KEY = 'zohra_books';
             const VISITS_KEY = 'zohra_visits';
             const DOWNLOADS_KEY = 'zohra_downloads';
@@ -553,7 +551,6 @@
             // ---- DOM REFS ----
             const $ = (s) => document.querySelector(s);
             const $$ = (s) => document.querySelectorAll(s);
-
             const searchInput = $('#searchInput');
             const booksGrid = $('#booksGrid');
             const emptyState = $('#emptyState');
@@ -584,7 +581,6 @@
             const pageInfo = $('#pageInfo');
             const loadingMore = $('#loadingMore');
 
-            // ---- Internet search state ----
             let internetResults = [];
             let currentPage = 1;
             let resultsPerPage = 10;
@@ -599,7 +595,7 @@
                     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
             }
 
-            // ---- COUNTER FUNCTIONS ----
+            // ---- COUNTERS ----
             function incrementVisits() {
                 let count = parseInt(localStorage.getItem(VISITS_KEY) || '0', 10);
                 count += 1;
@@ -623,11 +619,10 @@
                 downloadCountSpan.textContent = downloads;
             }
 
-            // ---- COUNTRY DETECTION ----
             async function fetchUserCountry() {
                 try {
                     const resp = await fetch('https://ip-api.com/json/', { mode: 'cors' });
-                    if (!resp.ok) throw new Error('Failed to fetch country');
+                    if (!resp.ok) throw new Error('Failed');
                     const data = await resp.json();
                     if (data && data.country) {
                         const country = data.country;
@@ -638,7 +633,6 @@
                         countryDisplaySpan.textContent = '🌍 ' + (t('unknown') || 'Unknown');
                     }
                 } catch (e) {
-                    console.warn('Country fetch error:', e);
                     countryDisplaySpan.textContent = '🌍 ' + (t('unknown') || 'Unknown');
                 }
             }
@@ -653,20 +647,15 @@
             }
 
             function formatDate(ts) {
-                return new Date(ts).toLocaleDateString(
-                    currentLang === 'ar' ? 'ar-EG' :
+                const locale = currentLang === 'ar' ? 'ar-EG' :
                     currentLang === 'fr' ? 'fr-FR' :
                     currentLang === 'es' ? 'es-ES' :
-                    currentLang === 'de' ? 'de-DE' : 'en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    }
-                );
+                    currentLang === 'de' ? 'de-DE' : 'en-US';
+                return new Date(ts).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
             }
 
-            function showToast(msgKey, icon = '✅', ...args) {
-                let msg = t(msgKey, ...args);
+            function showToast(key, icon = '✅', ...args) {
+                const msg = t(key, ...args);
                 toast.innerHTML = `<span class="toast-icon">${icon}</span> ${msg}`;
                 toast.classList.add('show');
                 clearTimeout(toast._timer);
@@ -674,10 +663,10 @@
             }
 
             function debounce(fn, ms = 400) {
-                let t;
+                let timer;
                 return function(...args) {
-                    clearTimeout(t);
-                    t = setTimeout(() => fn.apply(this, args), ms);
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), ms);
                 };
             }
 
@@ -836,7 +825,6 @@
 
                 const limit = 100;
                 const offset = (page - 1) * limit;
-
                 let newResults = [];
                 let hasMore = false;
 
@@ -1027,7 +1015,7 @@
                 booksGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
 
-            // ---- DOWNLOAD WRAPPER ----
+            // ---- DOWNLOAD ----
             async function downloadFromUrl(url, title) {
                 incrementDownloads();
                 loadingIndicator.style.display = 'flex';
@@ -1090,7 +1078,7 @@
                 window.open(url, '_blank');
             };
 
-            // ---- RENDER BOOKS GRID ----
+            // ---- RENDER BOOKS GRID (مع أزرار معاد ترتيبها) ----
             function renderBooksGrid(booksList, isInternet = false) {
                 if (!booksList || booksList.length === 0) {
                     if (searchMode === 'local' && books.length === 0) {
@@ -1137,19 +1125,21 @@
                                         ${book.type ? `<span class="text-xs text-emerald-400">${book.type}</span>` : ''}
                                         ${!isInternet ? `<div class="text-xs text-gray-500 mt-1">${size} ${pages}</div>` : ''}
                                     </div>
-                                    <div class="book-actions mt-4 pt-3 border-t border-gray-700">
-                                        <button onclick="window.openPdfViewerWrapper('${book.id}')" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
-                                            <i class="fa-regular fa-eye"></i> ${t('readBtn')}
-                                        </button>
+                                    <div class="book-actions mt-4 pt-3 border-t border-gray-700 flex flex-col gap-2">
+                                        <!-- زر التحميل (بارز) أولاً -->
                                         ${canDownload ? `
-                                            <button onclick="window.downloadBookLink('${downloadUrl}', '${escapeHtml(title)}')" class="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-gray-200 py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
-                                                <i class="fa-regular fa-download"></i> ${t('downloadBtn')}
+                                            <button onclick="window.downloadBookLink('${downloadUrl}', '${escapeHtml(title)}')" class="btn-download flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition btn-action shadow-lg shadow-emerald-500/20">
+                                                <i class="fa-solid fa-download"></i> ${t('downloadBtn')}
                                             </button>
                                         ` : `
-                                            <button onclick="window.openLink('${downloadUrl}')" class="flex items-center justify-center gap-2 bg-gray-700 hover:bg-gray-600 text-gray-200 py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
+                                            <button onclick="window.openLink('${downloadUrl}')" class="bg-gray-600 hover:bg-gray-500 text-white flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition btn-action">
                                                 <i class="fa-regular fa-link"></i> ${t('openBtn')}
                                             </button>
                                         `}
+                                        <!-- زر المعاينة (رمادي هادئ) ثانياً -->
+                                        <button onclick="window.openPdfViewerWrapper('${book.id}')" class="btn-preview flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition btn-action">
+                                            <i class="fa-regular fa-eye"></i> ${t('readBtn')}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1187,7 +1177,7 @@
                 }
             };
 
-            // ---- PDF VIEWER (from URL) ----
+            // ---- PDF VIEWER ----
             async function openPdfViewerFromUrl(url, title) {
                 modalTitle.textContent = `📄 ${title}`;
                 modalBody.innerHTML =
@@ -1197,7 +1187,7 @@
 
                 try {
                     const resp = await fetch(url, { mode: 'cors', credentials: 'omit' });
-                    if (!resp.ok) throw new Error('Failed to load');
+                    if (!resp.ok) throw new Error('Failed');
                     const blob = await resp.blob();
                     const arrayBuffer = await blob.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -1268,7 +1258,6 @@
                 }
             }
 
-            // ---- PDF VIEWER (local) ----
             async function openPdfViewer(book) {
                 modalTitle.textContent = `📄 ${book.name}`;
                 modalBody.innerHTML =
@@ -1587,7 +1576,6 @@
             modalClose.addEventListener('click', closeModal);
             modalOverlay.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-            // ---- LANGUAGE SELECTOR ----
             document.getElementById('langSelect').addEventListener('change', function() {
                 applyLanguage(this.value);
             });
@@ -1633,7 +1621,6 @@
 
             // ---- INIT ----
             function init() {
-                // تحديد اللغة المفضلة
                 const preferred = getPreferredLanguage();
                 applyLanguage(preferred);
 
@@ -1648,9 +1635,8 @@
                 } else {
                     renderLocalBooks();
                 }
-                // تفعيل الوضع المحلي افتراضياً
                 localModeBtn.click();
-                console.log('🌺 Zohra ready! (multi-language)');
+                console.log('🌺 Zohra ready! (hero section added)');
                 console.log(`📚 ${books.length} books in library`);
             }
 
