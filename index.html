@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
     <meta name="theme-color" content="#0d1b2a" />
-    <meta name="description" content="زهرة - منصة بحث ذكية عن الكتب الرقمية بصيغة PDF" />
+    <meta name="description" content="زهرة - منصة بحث ذكية عن الكتب الرقمية والكتب الإلكترونية والمجلات بصيغة PDF" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -14,7 +14,7 @@
     </script>
 
     <style>
-        /* جميع التنسيقات السابقة مع إضافة تنسيقات التحكم في الصفحات */
+        /* (جميع التنسيقات السابقة كما هي، تم حذفها لتوفير المساحة ولكنها موجودة في الكود الكامل أدناه) */
         *,
         *::before,
         *::after {
@@ -432,33 +432,23 @@
             font-size: 1rem;
             margin-bottom: 4px;
         }
-        .result-item .result-snippet {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            line-height: 1.7;
-        }
-        .result-item .result-snippet mark {
-            background: rgba(201, 168, 76, 0.3);
-            color: var(--text-gold);
-            padding: 0 4px;
-            border-radius: 4px;
-        }
         .result-item .result-meta {
             display: flex;
             gap: 16px;
-            margin-top: 8px;
-            font-size: 0.7rem;
+            margin-top: 4px;
+            font-size: 0.75rem;
             color: var(--text-muted);
             flex-wrap: wrap;
             align-items: center;
         }
-        .result-item .result-meta .score {
-            color: var(--primary);
-        }
-        .result-item .result-meta .book-ref {
-            color: var(--text-gold);
-            cursor: pointer;
-            text-decoration: underline dotted;
+        .result-item .result-cover {
+            float: left;
+            width: 50px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 12px;
+            background: var(--bg-input);
         }
         .result-item .result-actions {
             margin-top: 10px;
@@ -485,16 +475,15 @@
             opacity: 0.4;
             cursor: not-allowed;
         }
-        .result-item .result-cover {
-            float: left;
-            width: 50px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 12px;
-            background: var(--bg-input);
+        .result-item .result-actions .btn-open {
+            background: rgba(100, 149, 237, 0.2);
+            border-color: rgba(100, 149, 237, 0.3);
+            color: #a0c4ff;
         }
-        /* تم إزالة .result-source */
+        .result-item .result-actions .btn-open:hover {
+            background: #4a7bd6;
+            color: #fff;
+        }
         @keyframes fadeSlide {
             from {
                 opacity: 0;
@@ -657,8 +646,6 @@
         .toast .toast-icon {
             margin-left: 10px;
         }
-
-        /* تنسيقات التحكم في الصفحات */
         .pagination {
             display: flex;
             justify-content: center;
@@ -691,7 +678,13 @@
             color: var(--text-muted);
             font-size: 0.85rem;
         }
-
+        .pagination .loading-more {
+            color: var(--text-gold);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         @media (max-width: 700px) {
             .brand h1 {
                 font-size: 1.4rem;
@@ -795,7 +788,7 @@
 
         <section class="search-section">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="ابحث عن أي موضوع في كتبك أو على الإنترنت..." autocomplete="off" />
+                <input type="text" id="searchInput" placeholder="ابحث عن أي موضوع (كتب، كتب إلكترونية، مجلات)..." autocomplete="off" />
                 <button class="btn-search" id="searchBtn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8" />
@@ -833,17 +826,19 @@
 
         <div id="resultsContainer" class="results-container"></div>
 
-        <!-- عنصر التحكم في الصفحات -->
         <div id="paginationControls" class="pagination" style="display:none;">
             <button id="prevPageBtn">◀ السابق</button>
             <span class="page-info" id="pageInfo">الصفحة 1</span>
             <button id="nextPageBtn">التالي ▶</button>
+            <span class="loading-more" id="loadingMore" style="display:none;">
+                <span class="spinner" style="width:18px;height:18px;"></span> جاري تحميل المزيد...
+            </span>
         </div>
 
         <div id="emptyState" class="empty-state">
             <div class="big-icon">📕</div>
             <h3>لم تُضف أي كتب بعد</h3>
-            <p>قم برفع ملفات PDF لتتمكن من البحث فيها، أو استخدم "بحث إنترنت" للعثور على كتب جديدة مجانية.</p>
+            <p>قم برفع ملفات PDF لتتمكن من البحث فيها، أو استخدم "بحث إنترنت" للعثور على كتب ومجلات جديدة مجانية بجميع اللغات.</p>
         </div>
 
         <div id="loadingIndicator" style="display:none;" class="loading-bar">
@@ -886,14 +881,16 @@
             let currentResults = [];
             let searchMode = 'local';
 
-            // متغيرات خاصة بالبحث على الإنترنت مع الترقيم
-            let internetResults = []; // كل النتائج المجلوبة
+            // Internet search state
+            let internetResults = [];
             let currentPage = 1;
-            let resultsPerPage = 10; // عدد النتائج في كل صفحة
-            let totalResults = 0; // العدد الإجمالي المتوقع (من API)
+            let resultsPerPage = 10;
+            let totalResults = 0;
             let isLoadingMore = false;
             let hasMoreResults = true;
             let lastQuery = '';
+            let totalFetched = 0;
+            let isFetchingAll = false;
 
             const $ = (s) => document.querySelector(s);
             const $$ = (s) => document.querySelectorAll(s);
@@ -922,11 +919,11 @@
             const modalBody = $('#modalBody');
             const modalPageInfo = $('#modalPageInfo');
 
-            // عناصر التحكم في الصفحات
             const paginationControls = $('#paginationControls');
             const prevPageBtn = $('#prevPageBtn');
             const nextPageBtn = $('#nextPageBtn');
             const pageInfo = $('#pageInfo');
+            const loadingMore = $('#loadingMore');
 
             let pdfjsLib = window.pdfjsLib;
             if (pdfjsLib) {
@@ -950,7 +947,7 @@
                 toast.innerHTML = `<span class="toast-icon">${icon}</span> ${msg}`;
                 toast.classList.add('show');
                 clearTimeout(toast._timer);
-                toast._timer = setTimeout(() => toast.classList.remove('show'), 4000);
+                toast._timer = setTimeout(() => toast.classList.remove('show'), 5000);
             }
 
             function debounce(fn, ms = 400) {
@@ -971,6 +968,7 @@
                 return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             }
 
+            // ---- Text processing ----
             function tokenizeArabic(text) {
                 if (!text) return [];
                 let t = text.replace(/[\u0622\u0623\u0625]/g, '\u0627').replace(/\u0640/g, '')
@@ -1010,6 +1008,7 @@
                 return result;
             }
 
+            // ---- Local search ----
             function buildIndex() {
                 searchIndex = {};
                 for (let book of books) {
@@ -1033,7 +1032,7 @@
             function searchLocal(query) {
                 if (!query.trim()) {
                     currentResults = [];
-                    renderResults([]);
+                    renderLocalResults([]);
                     searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
                     return;
                 }
@@ -1041,7 +1040,7 @@
                 const qKeys = qTerms.map(t => t.key);
                 if (qKeys.length === 0) {
                     currentResults = [];
-                    renderResults([]);
+                    renderLocalResults([]);
                     searchStat.textContent = '🔍 لا توجد كلمات صالحة للبحث';
                     return;
                 }
@@ -1079,352 +1078,12 @@
                 }
                 results.sort((a, b) => b.score - a.score);
                 currentResults = results.map(r => ({ book: r.book, score: r.score, matches: r.matches }));
-                renderResults(currentResults);
+                renderLocalResults(currentResults);
                 searchStat.textContent = `🔍 تم العثور على ${currentResults.length} نتيجة في مكتبتك`;
-                // إخفاء عناصر الترقيم في الوضع المحلي
                 paginationControls.style.display = 'none';
             }
 
-            // ========== INTERNET SEARCH WITH PAGINATION (UNLIMITED) ==========
-            async function searchInternet(query, page = 1) {
-                if (!query.trim()) {
-                    resultsContainer.innerHTML = '';
-                    searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت';
-                    paginationControls.style.display = 'none';
-                    return;
-                }
-
-                // إذا كان البحث جديداً (صفحة 1) نعيد تعيين الحالة
-                if (page === 1) {
-                    internetResults = [];
-                    currentPage = 1;
-                    totalResults = 0;
-                    hasMoreResults = true;
-                    lastQuery = query;
-                    resultsContainer.innerHTML =
-                        `<div class="loading-bar"><span class="spinner"></span><span>جاري البحث على الإنترنت...</span></div>`;
-                    searchStat.textContent = '🌐 جاري البحث...';
-                    paginationControls.style.display = 'none';
-                }
-
-                if (isLoadingMore) return;
-                isLoadingMore = true;
-
-                const limit = 100; // عدد النتائج من Open Library لكل طلب
-                const offset = (page - 1) * limit;
-
-                let newResults = [];
-
-                // 1. Open Library (مع offset)
-                try {
-                    const olUrl =
-                        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`;
-                    const resp = await fetch(olUrl);
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        const docs = data.docs || [];
-                        const withIa = docs.filter(d => d.ia && d.ia.length > 0);
-                        // تحديث العدد الإجمالي من أول صفحة فقط
-                        if (page === 1) totalResults = data.numFound || 0;
-                        for (let doc of withIa) {
-                            const iaId = doc.ia[0];
-                            const coverId = doc.cover_i || doc.cover_edition_key;
-                            const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` :
-                                'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E';
-                            newResults.push({
-                                id: iaId,
-                                title: doc.title || 'بدون عنوان',
-                                author: doc.author_name ? doc.author_name.join('، ') : 'مؤلف غير معروف',
-                                year: doc.first_publish_year || doc.publish_year?.[0] || '',
-                                cover: coverUrl,
-                                iaId: iaId,
-                                directPdf: `https://archive.org/download/${iaId}/${iaId}.pdf`
-                            });
-                        }
-                    }
-                } catch (e) { console.warn('Open Library error:', e); }
-
-                // 2. Google Books (نستخدم startIndex)
-                try {
-                    const gbLimit = 40;
-                    const startIndex = (page - 1) * gbLimit;
-                    const gbUrl =
-                        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${gbLimit}&startIndex=${startIndex}&filter=free-ebooks`;
-                    const resp = await fetch(gbUrl);
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        const items = data.items || [];
-                        if (page === 1) totalResults = Math.max(totalResults, data.totalItems || 0);
-                        for (let item of items) {
-                            const info = item.volumeInfo;
-                            let pdfLink = null;
-                            if (item.accessInfo && item.accessInfo.pdf && item.accessInfo.pdf.isAvailable) {
-                                pdfLink = item.accessInfo.pdf.acsTokenLink || item.accessInfo.pdf.downloadLink;
-                            }
-                            if (!pdfLink && item.accessInfo && item.accessInfo.webReaderLink) {
-                                pdfLink = item.accessInfo.webReaderLink;
-                            }
-                            if (!pdfLink) continue;
-
-                            const id = item.id;
-                            const title = info.title || 'بدون عنوان';
-                            const authors = info.authors ? info.authors.join('، ') : 'مؤلف غير معروف';
-                            const year = info.publishedDate ? info.publishedDate.substring(0, 4) : '';
-                            const cover = info.imageLinks ? info.imageLinks.thumbnail : null;
-                            newResults.push({
-                                id: id,
-                                title: title,
-                                author: authors,
-                                year: year,
-                                cover: cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E',
-                                iaId: null,
-                                directPdf: pdfLink
-                            });
-                        }
-                    }
-                } catch (e) { console.warn('Google Books error:', e); }
-
-                // إزالة التكرارات بناءً على العنوان
-                const existingTitles = new Set(internetResults.map(r => r.title.toLowerCase().trim()));
-                for (let r of newResults) {
-                    const key = r.title.toLowerCase().trim();
-                    if (!existingTitles.has(key)) {
-                        internetResults.push(r);
-                        existingTitles.add(key);
-                    }
-                }
-
-                isLoadingMore = false;
-
-                // إذا لم يتم العثور على أي نتائج
-                if (internetResults.length === 0) {
-                    resultsContainer.innerHTML =
-                        `<div class="empty-state" style="padding:20px;"><div class="big-icon">🔍</div><h3>لا توجد كتب مجانية متاحة بهذا البحث</h3><p>جرّب كلمات بحث أخرى أو استخدم عناوين محددة.</p></div>`;
-                    searchStat.textContent = '🌐 لم يتم العثور على كتب';
-                    paginationControls.style.display = 'none';
-                    return;
-                }
-
-                // تحديث العدد الإجمالي للنتائج (تقريبي)
-                const totalAvailable = Math.max(totalResults, internetResults.length);
-                const maxPages = Math.ceil(totalAvailable / resultsPerPage) || 1;
-
-                // عرض الصفحة الحالية
-                renderInternetPage(currentPage);
-                paginationControls.style.display = 'flex';
-                updatePaginationButtons(currentPage, maxPages);
-
-                searchStat.textContent = `🌐 تم العثور على ${internetResults.length} كتاب (إجمالي ~${totalAvailable})`;
-            }
-
-            function renderInternetPage(page) {
-                const start = (page - 1) * resultsPerPage;
-                const end = start + resultsPerPage;
-                const pageResults = internetResults.slice(start, end);
-
-                if (pageResults.length === 0 && page > 1) {
-                    // قد نكون في صفحة فارغة، ننتقل للصفحة السابقة
-                    currentPage = page - 1;
-                    renderInternetPage(currentPage);
-                    return;
-                }
-
-                resultsContainer.innerHTML = pageResults.map(r => {
-                    return `
-                            <div class="result-item" data-id="${r.id}">
-                                <img class="result-cover" src="${r.cover}" alt="غلاف" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'" />
-                                <div class="result-title">📚 ${escapeHtml(r.title)}</div>
-                                <div style="font-size:0.85rem;color:var(--text-muted);">✍️ ${escapeHtml(r.author)}</div>
-                                ${r.year ? `<div style="font-size:0.75rem;color:var(--text-muted);">📅 ${r.year}</div>` : ''}
-                                <div class="result-actions">
-                                    ${r.iaId ? `
-                                        <button class="btn-add-internet" data-ia="${r.iaId}" data-title="${escapeHtml(r.title)}">⬇️ تحميل + إضافة</button>
-                                        <button class="btn-preview-internet" data-ia="${r.iaId}" data-title="${escapeHtml(r.title)}">👁️ معاينة</button>
-                                    ` : `
-                                        <button class="btn-add-google" data-url="${escapeHtml(r.directPdf)}" data-title="${escapeHtml(r.title)}">⬇️ تحميل + إضافة</button>
-                                        <button class="btn-preview-google" data-url="${escapeHtml(r.directPdf)}" data-title="${escapeHtml(r.title)}">👁️ معاينة</button>
-                                    `}
-                                </div>
-                            </div>
-                        `;
-                }).join('');
-
-                // ربط الأحداث
-                resultsContainer.querySelectorAll('.btn-add-internet').forEach(btn => {
-                    btn.addEventListener('click', async function() {
-                        const iaId = this.dataset.ia;
-                        const title = this.dataset.title;
-                        this.disabled = true;
-                        this.textContent = '⏳ جاري التحميل...';
-                        await downloadAndAddBook(iaId, title);
-                        this.textContent = '✅ تمت الإضافة';
-                        setTimeout(() => { this.textContent = '⬇️ تحميل + إضافة';
-                            this.disabled = false; }, 2000);
-                    });
-                });
-                resultsContainer.querySelectorAll('.btn-preview-internet').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        window.open(`https://archive.org/details/${this.dataset.ia}`, '_blank');
-                    });
-                });
-                resultsContainer.querySelectorAll('.btn-add-google').forEach(btn => {
-                    btn.addEventListener('click', async function() {
-                        const url = this.dataset.url;
-                        const title = this.dataset.title;
-                        this.disabled = true;
-                        this.textContent = '⏳ جاري التحميل...';
-                        await downloadFromUrl(url, title);
-                        this.textContent = '✅ تمت الإضافة';
-                        setTimeout(() => { this.textContent = '⬇️ تحميل + إضافة';
-                            this.disabled = false; }, 2000);
-                    });
-                });
-                resultsContainer.querySelectorAll('.btn-preview-google').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        window.open(this.dataset.url, '_blank');
-                    });
-                });
-            }
-
-            function updatePaginationButtons(page, maxPages) {
-                pageInfo.textContent = `الصفحة ${page} من ${maxPages}`;
-                prevPageBtn.disabled = page <= 1;
-                nextPageBtn.disabled = page >= maxPages;
-            }
-
-            // دالة للتنقل بين الصفحات
-            async function goToPage(page) {
-                if (page < 1) return;
-                // إذا كانت الصفحة المطلوبة تتطلب جلب المزيد من البيانات
-                const maxPossiblePages = Math.ceil(internetResults.length / resultsPerPage);
-                if (page > maxPossiblePages) {
-                    // نحتاج لجلب المزيد من النتائج
-                    if (hasMoreResults) {
-                        // نجلب الصفحة التالية من API
-                        const nextApiPage = Math.ceil(internetResults.length / 100) + 1;
-                        await searchInternet(lastQuery, nextApiPage);
-                        // بعد الجلب، قد زاد عدد النتائج، نعيد محاولة الانتقال
-                        const newMaxPages = Math.ceil(internetResults.length / resultsPerPage);
-                        if (page <= newMaxPages) {
-                            currentPage = page;
-                            renderInternetPage(currentPage);
-                            updatePaginationButtons(currentPage, newMaxPages);
-                        } else {
-                            showToast('لا توجد نتائج إضافية', '⚠️');
-                        }
-                        return;
-                    } else {
-                        showToast('لا توجد نتائج إضافية', '⚠️');
-                        return;
-                    }
-                }
-                currentPage = page;
-                renderInternetPage(currentPage);
-                const maxPages = Math.ceil(internetResults.length / resultsPerPage) || 1;
-                updatePaginationButtons(currentPage, maxPages);
-                // التمرير إلى الأعلى
-                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-
-            // ---- DOWNLOAD FUNCTIONS (نفس السابق) ----
-            async function downloadFromUrl(url, title) {
-                loadingIndicator.style.display = 'flex';
-                loadingText.textContent = `⏬ جاري تحميل "${title}"...`;
-                try {
-                    const resp = await fetch(url);
-                    if (!resp.ok) throw new Error('تعذر تحميل الملف');
-                    const blob = await resp.blob();
-                    const size = blob.size;
-                    if (size < 1000) throw new Error('الملف فارغ أو غير صالح');
-
-                    loadingText.textContent = `📄 جاري فهرسة "${title}"...`;
-                    const arrayBuffer = await blob.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    const pages = pdf.numPages;
-                    const maxPages = Math.min(pages, 80);
-                    let fullText = '';
-                    for (let i = 1; i <= maxPages; i++) {
-                        try {
-                            const page = await pdf.getPage(i);
-                            const content = await page.getTextContent();
-                            const strings = content.items.map(item => item.str);
-                            fullText += strings.join(' ') + ' ';
-                        } catch (e) {}
-                        if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
-                    }
-                    const reader = new FileReader();
-                    const dataUrl = await new Promise((resolve) => {
-                        reader.onload = () => resolve(reader.result);
-                        reader.readAsDataURL(blob);
-                    });
-                    addBook(title, size, fullText, pages, dataUrl);
-                    loadingIndicator.style.display = 'none';
-                    showToast(`✅ تمت إضافة "${title}" إلى المكتبة`, '📚');
-                } catch (err) {
-                    loadingIndicator.style.display = 'none';
-                    showToast(`❌ فشل تحميل "${title}": ${err.message || 'خطأ'}`, '⚠️');
-                }
-            }
-
-            async function downloadAndAddBook(iaId, title) {
-                const pdfUrl = `https://archive.org/download/${iaId}/${iaId}.pdf`;
-                await downloadFromUrl(pdfUrl, title);
-            }
-
-            // ---- LOCAL RENDER ----
-            function renderBooks() {
-                if (books.length === 0) {
-                    bookGrid.innerHTML = '';
-                    emptyState.style.display = 'block';
-                    bookCount.textContent = '0 كتاب';
-                    updateStats();
-                    return;
-                }
-                emptyState.style.display = 'none';
-                bookCount.textContent = `${books.length} كتاب`;
-
-                let filtered = [...books];
-                if (currentFilter === 'recent') {
-                    filtered.sort((a, b) => b.uploaded - a.uploaded);
-                    filtered = filtered.slice(0, 8);
-                } else if (currentFilter === 'large') {
-                    filtered = filtered.filter(b => b.size > 1024 * 1024);
-                }
-
-                bookGrid.innerHTML = filtered.map(book => `
-                        <div class="book-card" data-id="${book.id}">
-                            <div class="pdf-icon">📄</div>
-                            <div class="title">${escapeHtml(book.name)}</div>
-                            <div class="meta">
-                                <span>${formatSize(book.size)}</span>
-                                <span class="badge-pdf">${book.pages || '?'} صفحة</span>
-                            </div>
-                            <div class="meta" style="margin-top:2px;font-size:0.65rem;">
-                                <span>📅 ${formatDate(book.uploaded)}</span>
-                            </div>
-                            <button class="remove-btn" data-id="${book.id}" title="حذف">✕</button>
-                        </div>
-                    `).join('');
-
-                document.querySelectorAll('.book-card').forEach(el => {
-                    el.addEventListener('click', function(e) {
-                        if (e.target.closest('.remove-btn')) return;
-                        const id = this.dataset.id;
-                        const book = books.find(b => b.id === id);
-                        if (book) openPdfViewer(book);
-                    });
-                });
-                document.querySelectorAll('.book-card .remove-btn').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const id = this.dataset.id;
-                        removeBook(id);
-                    });
-                });
-                updateStats();
-            }
-
-            function renderResults(results) {
+            function renderLocalResults(results) {
                 if (!results || results.length === 0) {
                     resultsContainer.innerHTML = '';
                     return;
@@ -1491,14 +1150,338 @@
                 return snippet;
             }
 
-            function updateStats() {
-                filterAll.textContent = books.length;
-                const recent = books.filter(b => (Date.now() - b.uploaded) < 7 * 24 * 3600 * 1000);
-                filterRecent.textContent = recent.length;
-                const large = books.filter(b => b.size > 1024 * 1024);
-                filterLarge.textContent = large.length;
+            // ---- Internet search (ALL content: books, eBooks, magazines) ----
+            async function searchInternet(query, page = 1) {
+                if (!query.trim()) {
+                    resultsContainer.innerHTML = '';
+                    searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)';
+                    paginationControls.style.display = 'none';
+                    return;
+                }
+
+                if (page === 1) {
+                    internetResults = [];
+                    currentPage = 1;
+                    totalResults = 0;
+                    hasMoreResults = true;
+                    lastQuery = query;
+                    totalFetched = 0;
+                    isFetchingAll = false;
+                    resultsContainer.innerHTML =
+                        `<div class="loading-bar"><span class="spinner"></span><span>جاري البحث على الإنترنت (جميع اللغات والأنواع)...</span></div>`;
+                    searchStat.textContent = '🌐 جاري البحث...';
+                    paginationControls.style.display = 'none';
+                }
+
+                if (isLoadingMore) return;
+                isLoadingMore = true;
+
+                const limit = 100;
+                const offset = (page - 1) * limit;
+
+                let newResults = [];
+                let hasMore = false;
+
+                // Open Library (all content: books, magazines, eBooks)
+                try {
+                    const olUrl =
+                        `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`;
+                    const resp = await fetch(olUrl);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const docs = data.docs || [];
+                        if (page === 1) totalResults = data.numFound || 0;
+                        const withIa = docs.filter(d => d.ia && d.ia.length > 0);
+                        for (let doc of withIa) {
+                            const iaId = doc.ia[0];
+                            const coverId = doc.cover_i || doc.cover_edition_key;
+                            const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` :
+                                'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E';
+                            // محاولة استخراج النوع من الموضوعات
+                            let type = 'كتاب';
+                            if (doc.subject) {
+                                const subjects = doc.subject.map(s => s.toLowerCase());
+                                if (subjects.some(s => s.includes('magazine') || s.includes('مجلة'))) type = 'مجلة';
+                                else if (subjects.some(s => s.includes('ebook') || s.includes('electronic') || s.includes(
+                                    'digital'))) type = 'كتاب إلكتروني';
+                            }
+                            newResults.push({
+                                id: iaId,
+                                title: doc.title || 'بدون عنوان',
+                                author: doc.author_name ? doc.author_name.join('، ') : 'مؤلف غير معروف',
+                                year: doc.first_publish_year || doc.publish_year?.[0] || '',
+                                cover: coverUrl,
+                                iaId: iaId,
+                                directPdf: `https://archive.org/download/${iaId}/${iaId}.pdf`,
+                                type: type
+                            });
+                        }
+                        if (docs.length < limit) hasMore = false;
+                        else hasMore = true;
+                    }
+                } catch (e) { console.warn('Open Library error:', e); }
+
+                // Google Books (all content)
+                try {
+                    const gbLimit = 40;
+                    const startIndex = (page - 1) * gbLimit;
+                    const gbUrl =
+                        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=${gbLimit}&startIndex=${startIndex}&filter=free-ebooks`;
+                    const resp = await fetch(gbUrl);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const items = data.items || [];
+                        if (page === 1) totalResults = Math.max(totalResults, data.totalItems || 0);
+                        for (let item of items) {
+                            const info = item.volumeInfo;
+                            let pdfLink = null;
+                            if (item.accessInfo && item.accessInfo.pdf && item.accessInfo.pdf.isAvailable) {
+                                pdfLink = item.accessInfo.pdf.acsTokenLink || item.accessInfo.pdf.downloadLink;
+                            }
+                            if (!pdfLink && item.accessInfo && item.accessInfo.webReaderLink) {
+                                pdfLink = item.accessInfo.webReaderLink;
+                            }
+                            if (!pdfLink) continue;
+
+                            const id = item.id;
+                            const title = info.title || 'بدون عنوان';
+                            const authors = info.authors ? info.authors.join('، ') : 'مؤلف غير معروف';
+                            const year = info.publishedDate ? info.publishedDate.substring(0, 4) : '';
+                            const cover = info.imageLinks ? info.imageLinks.thumbnail : null;
+                            // محاولة استخراج النوع من التصنيفات
+                            let type = 'كتاب';
+                            if (info.categories) {
+                                const cats = info.categories.map(c => c.toLowerCase());
+                                if (cats.some(c => c.includes('magazine') || c.includes('periodical'))) type = 'مجلة';
+                                else if (cats.some(c => c.includes('ebook') || c.includes('electronic'))) type =
+                                    'كتاب إلكتروني';
+                            }
+                            newResults.push({
+                                id: id,
+                                title: title,
+                                author: authors,
+                                year: year,
+                                cover: cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E',
+                                iaId: null,
+                                directPdf: pdfLink,
+                                type: type
+                            });
+                        }
+                        if (items.length < gbLimit && hasMore !== false) hasMore = false;
+                    }
+                } catch (e) { console.warn('Google Books error:', e); }
+
+                // Remove duplicates
+                const existingTitles = new Set(internetResults.map(r => r.title.toLowerCase().trim()));
+                for (let r of newResults) {
+                    const key = r.title.toLowerCase().trim();
+                    if (!existingTitles.has(key)) {
+                        internetResults.push(r);
+                        existingTitles.add(key);
+                    }
+                }
+
+                totalFetched = internetResults.length;
+                isLoadingMore = false;
+
+                if (internetResults.length === 0) {
+                    resultsContainer.innerHTML =
+                        `<div class="empty-state" style="padding:20px;"><div class="big-icon">🔍</div><h3>لا توجد نتائج متاحة بهذا البحث</h3><p>جرّب كلمات بحث أخرى (كتب، مجلات، مواضيع علمية، إلخ).</p></div>`;
+                    searchStat.textContent = '🌐 لم يتم العثور على نتائج';
+                    paginationControls.style.display = 'none';
+                    return;
+                }
+
+                const totalAvailable = Math.max(totalResults, internetResults.length);
+                const maxPages = Math.ceil(totalAvailable / resultsPerPage) || 1;
+
+                renderInternetPage(currentPage);
+                paginationControls.style.display = 'flex';
+                updatePaginationButtons(currentPage, maxPages, hasMore);
+
+                searchStat.textContent = `🌐 تم العثور على ${internetResults.length} نتيجة (إجمالي ~${totalAvailable})`;
+
+                if (hasMore && internetResults.length < currentPage * resultsPerPage) {
+                    const nextApiPage = Math.ceil(internetResults.length / limit) + 1;
+                    loadingMore.style.display = 'flex';
+                    await searchInternet(lastQuery, nextApiPage);
+                    loadingMore.style.display = 'none';
+                }
             }
 
+            function renderInternetPage(page) {
+                const start = (page - 1) * resultsPerPage;
+                const end = start + resultsPerPage;
+                const pageResults = internetResults.slice(start, end);
+
+                if (pageResults.length === 0 && page > 1) {
+                    currentPage = page - 1;
+                    renderInternetPage(currentPage);
+                    return;
+                }
+
+                resultsContainer.innerHTML = pageResults.map(r => {
+                    const typeIcon = r.type === 'مجلة' ? '📰' : (r.type === 'كتاب إلكتروني' ? '📱' : '📚');
+                    return `
+                            <div class="result-item" data-id="${r.id}">
+                                <img class="result-cover" src="${r.cover}" alt="غلاف" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'" />
+                                <div class="result-title">${typeIcon} ${escapeHtml(r.title)}</div>
+                                <div style="font-size:0.85rem;color:var(--text-muted);">✍️ ${escapeHtml(r.author)}</div>
+                                ${r.year ? `<div style="font-size:0.75rem;color:var(--text-muted);">📅 ${r.year}</div>` : ''}
+                                <div style="font-size:0.7rem;color:var(--text-gold);">${r.type}</div>
+                                <div class="result-actions">
+                                    ${r.iaId ? `
+                                        <button class="btn-add-internet" data-ia="${r.iaId}" data-title="${escapeHtml(r.title)}">⬇️ تحميل + إضافة</button>
+                                        <button class="btn-preview-internet" data-ia="${r.iaId}" data-title="${escapeHtml(r.title)}">👁️ معاينة</button>
+                                    ` : `
+                                        <button class="btn-add-google" data-url="${escapeHtml(r.directPdf)}" data-title="${escapeHtml(r.title)}">⬇️ تحميل + إضافة</button>
+                                        <button class="btn-preview-google" data-url="${escapeHtml(r.directPdf)}" data-title="${escapeHtml(r.title)}">👁️ معاينة</button>
+                                    `}
+                                    <button class="btn-open-link" data-url="${r.directPdf || `https://archive.org/details/${r.iaId}`}" data-title="${escapeHtml(r.title)}" style="background:rgba(100,149,237,0.2);border-color:rgba(100,149,237,0.3);color:#a0c4ff;">🔗 فتح الرابط</button>
+                                </div>
+                            </div>
+                        `;
+                }).join('');
+
+                // ربط الأحداث
+                resultsContainer.querySelectorAll('.btn-add-internet').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const iaId = this.dataset.ia;
+                        const title = this.dataset.title;
+                        this.disabled = true;
+                        this.textContent = '⏳ جاري التحميل...';
+                        await downloadAndAddBook(iaId, title);
+                        this.textContent = '✅ تمت الإضافة';
+                        setTimeout(() => { this.textContent = '⬇️ تحميل + إضافة';
+                            this.disabled = false; }, 2000);
+                    });
+                });
+                resultsContainer.querySelectorAll('.btn-preview-internet').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        window.open(`https://archive.org/details/${this.dataset.ia}`, '_blank');
+                    });
+                });
+                resultsContainer.querySelectorAll('.btn-add-google').forEach(btn => {
+                    btn.addEventListener('click', async function() {
+                        const url = this.dataset.url;
+                        const title = this.dataset.title;
+                        this.disabled = true;
+                        this.textContent = '⏳ جاري التحميل...';
+                        await downloadFromUrl(url, title);
+                        this.textContent = '✅ تمت الإضافة';
+                        setTimeout(() => { this.textContent = '⬇️ تحميل + إضافة';
+                            this.disabled = false; }, 2000);
+                    });
+                });
+                resultsContainer.querySelectorAll('.btn-preview-google').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        window.open(this.dataset.url, '_blank');
+                    });
+                });
+                resultsContainer.querySelectorAll('.btn-open-link').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        window.open(this.dataset.url, '_blank');
+                    });
+                });
+            }
+
+            function updatePaginationButtons(page, maxPages, hasMore) {
+                pageInfo.textContent = `الصفحة ${page} من ${maxPages}`;
+                prevPageBtn.disabled = page <= 1;
+                nextPageBtn.disabled = page >= maxPages && !hasMore;
+            }
+
+            async function goToPage(page) {
+                if (page < 1) return;
+                const maxPages = Math.ceil(internetResults.length / resultsPerPage) || 1;
+                if (page > maxPages) {
+                    if (hasMoreResults) {
+                        const nextApiPage = Math.ceil(internetResults.length / 100) + 1;
+                        loadingMore.style.display = 'flex';
+                        await searchInternet(lastQuery, nextApiPage);
+                        loadingMore.style.display = 'none';
+                        const newMaxPages = Math.ceil(internetResults.length / resultsPerPage) || 1;
+                        if (page <= newMaxPages) {
+                            currentPage = page;
+                            renderInternetPage(currentPage);
+                            updatePaginationButtons(currentPage, newMaxPages, hasMoreResults);
+                        } else {
+                            showToast('لا توجد نتائج إضافية', '⚠️');
+                        }
+                        return;
+                    } else {
+                        showToast('لا توجد نتائج إضافية', '⚠️');
+                        return;
+                    }
+                }
+                currentPage = page;
+                renderInternetPage(currentPage);
+                const maxPages2 = Math.ceil(internetResults.length / resultsPerPage) || 1;
+                updatePaginationButtons(currentPage, maxPages2, hasMoreResults);
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // ---- DOWNLOAD FUNCTIONS ----
+            async function downloadFromUrl(url, title) {
+                loadingIndicator.style.display = 'flex';
+                loadingText.textContent = `⏬ جاري تحميل "${title}"...`;
+                try {
+                    const resp = await fetch(url, {
+                        mode: 'cors',
+                        credentials: 'omit',
+                        headers: { 'Accept': 'application/pdf' }
+                    });
+                    if (!resp.ok) {
+                        showToast(`تعذر تحميل "${title}"، سيتم فتح الرابط.`, 'ℹ️');
+                        window.open(url, '_blank');
+                        loadingIndicator.style.display = 'none';
+                        return;
+                    }
+                    const blob = await resp.blob();
+                    const size = blob.size;
+                    if (size < 1000) {
+                        showToast(`الملف "${title}" فارغ أو غير صالح.`, '⚠️');
+                        window.open(url, '_blank');
+                        loadingIndicator.style.display = 'none';
+                        return;
+                    }
+
+                    loadingText.textContent = `📄 جاري فهرسة "${title}"...`;
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    const pages = pdf.numPages;
+                    const maxPages = Math.min(pages, 80);
+                    let fullText = '';
+                    for (let i = 1; i <= maxPages; i++) {
+                        try {
+                            const page = await pdf.getPage(i);
+                            const content = await page.getTextContent();
+                            const strings = content.items.map(item => item.str);
+                            fullText += strings.join(' ') + ' ';
+                        } catch (e) {}
+                        if (i % 10 === 0) await new Promise(r => setTimeout(r, 0));
+                    }
+                    const reader = new FileReader();
+                    const dataUrl = await new Promise((resolve) => {
+                        reader.onload = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                    addBook(title, size, fullText, pages, dataUrl);
+                    loadingIndicator.style.display = 'none';
+                    showToast(`✅ تمت إضافة "${title}" إلى المكتبة`, '📚');
+                } catch (err) {
+                    loadingIndicator.style.display = 'none';
+                    showToast(`فشل تحميل "${title}"، سيتم فتح الرابط.`, 'ℹ️');
+                    window.open(url, '_blank');
+                }
+            }
+
+            async function downloadAndAddBook(iaId, title) {
+                const pdfUrl = `https://archive.org/download/${iaId}/${iaId}.pdf`;
+                await downloadFromUrl(pdfUrl, title);
+            }
+
+            // ---- BOOK MANAGEMENT ----
             function addBook(name, size, text, pages, data) {
                 const id = genId();
                 const book = { id, name: name || 'كتاب بدون عنوان', size: size || 0, pages: pages || 0, text: text || '',
@@ -1556,6 +1539,67 @@
                 } catch (e) { console.warn('Load error:', e); }
             }
 
+            function renderBooks() {
+                if (books.length === 0) {
+                    bookGrid.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    bookCount.textContent = '0 كتاب';
+                    updateStats();
+                    return;
+                }
+                emptyState.style.display = 'none';
+                bookCount.textContent = `${books.length} كتاب`;
+
+                let filtered = [...books];
+                if (currentFilter === 'recent') {
+                    filtered.sort((a, b) => b.uploaded - a.uploaded);
+                    filtered = filtered.slice(0, 8);
+                } else if (currentFilter === 'large') {
+                    filtered = filtered.filter(b => b.size > 1024 * 1024);
+                }
+
+                bookGrid.innerHTML = filtered.map(book => `
+                        <div class="book-card" data-id="${book.id}">
+                            <div class="pdf-icon">📄</div>
+                            <div class="title">${escapeHtml(book.name)}</div>
+                            <div class="meta">
+                                <span>${formatSize(book.size)}</span>
+                                <span class="badge-pdf">${book.pages || '?'} صفحة</span>
+                            </div>
+                            <div class="meta" style="margin-top:2px;font-size:0.65rem;">
+                                <span>📅 ${formatDate(book.uploaded)}</span>
+                            </div>
+                            <button class="remove-btn" data-id="${book.id}" title="حذف">✕</button>
+                        </div>
+                    `).join('');
+
+                document.querySelectorAll('.book-card').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        if (e.target.closest('.remove-btn')) return;
+                        const id = this.dataset.id;
+                        const book = books.find(b => b.id === id);
+                        if (book) openPdfViewer(book);
+                    });
+                });
+                document.querySelectorAll('.book-card .remove-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = this.dataset.id;
+                        removeBook(id);
+                    });
+                });
+                updateStats();
+            }
+
+            function updateStats() {
+                filterAll.textContent = books.length;
+                const recent = books.filter(b => (Date.now() - b.uploaded) < 7 * 24 * 3600 * 1000);
+                filterRecent.textContent = recent.length;
+                const large = books.filter(b => b.size > 1024 * 1024);
+                filterLarge.textContent = large.length;
+            }
+
+            // ---- PDF Viewer ----
             async function openPdfViewer(book) {
                 modalTitle.textContent = `📄 ${book.name}`;
                 modalBody.innerHTML =
@@ -1646,6 +1690,7 @@
                 }
             }
 
+            // ---- FILE HANDLING ----
             async function handleFiles(files) {
                 const pdfFiles = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith(
                     '.pdf'));
@@ -1692,12 +1737,13 @@
                 else showToast('لم تتم إضافة أي كتاب، تأكد من صحة الملفات', '⚠️');
             }
 
+            // ---- DO SEARCH ----
             function doSearch() {
                 const q = searchInput.value.trim();
                 if (!q) {
                     resultsContainer.innerHTML = '';
                     if (searchMode === 'local') searchStat.textContent = '🔍 اكتب كلمة للبحث في مكتبتك';
-                    else searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت';
+                    else searchStat.textContent = '🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)';
                     currentResults = [];
                     paginationControls.style.display = 'none';
                     return;
@@ -1706,17 +1752,18 @@
                     searchLocal(q);
                     paginationControls.style.display = 'none';
                 } else {
-                    // إعادة تعيين الحالة والبحث من الصفحة 1
                     internetResults = [];
                     currentPage = 1;
                     totalResults = 0;
                     hasMoreResults = true;
                     lastQuery = q;
+                    totalFetched = 0;
+                    isFetchingAll = false;
                     searchInternet(q, 1);
                 }
             }
 
-            // ---- EVENT BINDING ----
+            // ---- EVENTS ----
             searchBtn.addEventListener('click', doSearch);
             searchInput.addEventListener('input', debounce(doSearch, 400));
             searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
@@ -1730,13 +1777,12 @@
                     else {
                         resultsContainer.innerHTML = '';
                         if (searchMode === 'local') searchStat.textContent = '🔍 جاهز للبحث في مكتبتك';
-                        else searchStat.textContent = '🌐 جاهز للبحث على الإنترنت';
+                        else searchStat.textContent = '🌐 جاهز للبحث على الإنترنت (جميع الأنواع)';
                         paginationControls.style.display = 'none';
                     }
                 });
             });
 
-            // أزرار التنقل بين الصفحات
             prevPageBtn.addEventListener('click', () => {
                 if (currentPage > 1) goToPage(currentPage - 1);
             });
@@ -1771,6 +1817,7 @@
             modalClose.addEventListener('click', closeModal);
             modalOverlay.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
+            // ---- PWA ----
             function registerPWA() {
                 try {
                     const swCode = `
@@ -1790,7 +1837,7 @@
                     const manifest = {
                         name: 'زهرة Zohra',
                         short_name: 'زهرة',
-                        description: 'منصة بحث ذكية عن الكتب الرقمية',
+                        description: 'منصة بحث ذكية عن الكتب الرقمية والكتب الإلكترونية والمجلات',
                         start_url: location.href.split('?')[0],
                         display: 'standalone',
                         background_color: '#0d1b2a',
@@ -1817,10 +1864,10 @@
                 const q = params.get('q');
                 if (q) {
                     searchInput.value = q;
-                    if (q.length > 2) modeToggle.querySelector('[data-mode="internet"]').click();
+                    if (q.length > 1) modeToggle.querySelector('[data-mode="internet"]').click();
                     setTimeout(doSearch, 500);
                 }
-                console.log('🌺 زهرة Zohra جاهزة! (مع ترقيم صفحات غير محدود)');
+                console.log('🌺 زهرة Zohra جاهزة! (بحث متعدد اللغات والأنواع: كتب، كتب إلكترونية، مجلات)');
                 console.log(`📚 ${books.length} كتاب في المكتبة`);
             }
 
