@@ -313,7 +313,6 @@
                 window.open(searchUrl, '_blank');
             }
 
-            // ربط Enter بالبحث العالمي
             document.addEventListener('DOMContentLoaded', function() {
                 const globalInput = document.getElementById('globalSearchInput');
                 if (globalInput) {
@@ -326,59 +325,95 @@
             window.triggerGlobalSearch = triggerGlobalSearch;
 
             // ============================================================
-            // بقية دوال التطبيق
+            // ===== بيانات المتجر (كتب عربية حقيقية) =====
             // ============================================================
-
-            // ---- بيانات المتجر ----
             const storeBooks = [{
                 id: 1,
-                title: "مقدمة شاملة في الذكاء الاصطناعي لعام 2026",
-                author: "د. أحمد خالد",
-                cover: "https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=300&h=400&fit=crop&crop=center",
-                buyUrl: "https://gumroad.com/l/ai-2026",
-                sampleContent: "مرحباً بك في الفصل التجريبي الأول من كتاب الذكاء الاصطناعي..."
+                title: "رواية أرض زيكولا",
+                author: "عمرو عبد الحميد",
+                cover: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&h=400&fit=crop&crop=center",
+                buyUrl: "https://gumroad.com/l/zikola",
+                sampleContent: "رواية أرض زيكولا هي رواية خيالية تأخذنا إلى عالم موازٍ حيث تختلف قوانين الفيزياء... تدور أحداثها حول شاب يكتشف بوابة إلى عالم آخر مليء بالأسرار والمغامرات."
             }, {
                 id: 2,
-                title: "دليل حماية وأمن المعلومات السيبرانية",
-                author: "م. سارة الجابري",
-                cover: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=300&h=400&fit=crop&crop=center",
-                buyUrl: "https://payhip.com/b/cyber2026",
-                sampleContent: "تستعرض هذه العينة المجانية أهم الخطوات الأمنية..."
+                title: "مقدمة ابن خلدون",
+                author: "ابن خلدون",
+                cover: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=300&h=400&fit=crop&crop=center",
+                buyUrl: "https://payhip.com/b/ibnkhaldun",
+                sampleContent: "كتاب العبر وديوان المبتدأ والخبر في أيام العرب والعجم والبربر ومن عاصرهم من ذوي السلطان الأكبر، المعروف بـ 'مقدمة ابن خلدون'، وهو موسوعة تاريخية اجتماعية فريدة."
             }, {
                 id: 3,
-                title: "مجلة التقنية والبرمجة الرقمية - العدد 12",
-                author: "مؤسسة زهرة للنشر",
-                cover: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=400&fit=crop&crop=center",
-                buyUrl: "https://etsy.com/listing/tech-mag-12",
-                sampleContent: "محتويات العدد 12 من المجلة: مقالات برمجية حصرية..."
+                title: "لأنك الله",
+                author: "علي بن جابر الفيفي",
+                cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop&crop=center",
+                buyUrl: "https://etsy.com/listing/laannaka-allah",
+                sampleContent: "كتاب 'لأنك الله' يقدم رحلة إيمانية عميقة تتأمل في أسماء الله الحسنى وصفاته، بأسلوب أدبي شيق يجمع بين العلم والروحانية."
             }, {
                 id: 4,
-                title: "تطوير تطبيقات الهواتف الذكية",
-                author: "أ. خالد العتيبي",
-                cover: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=300&h=400&fit=crop&crop=center",
-                buyUrl: "https://gumroad.com/l/mobile-dev",
-                sampleContent: "يقدم هذا الكتاب دليلاً شاملاً لتطوير تطبيقات الهواتف الذكية..."
+                title: "البيان والتبيين",
+                author: "الجاحظ",
+                cover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=400&fit=crop&crop=center",
+                buyUrl: "https://gumroad.com/l/bayan",
+                sampleContent: "كتاب البيان والتبيين للجاحظ من أشهر كتب الأدب العربي، يتناول فنون البلاغة والبيان، بأسلوب نقدي ساخر وفكاهي."
             }, {
                 id: 5,
-                title: "تحليل البيانات الضخمة باستخدام بايثون",
-                author: "د. هناء الشمري",
-                cover: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=400&fit=crop&crop=center",
-                buyUrl: "https://payhip.com/b/bigdata-py",
-                sampleContent: "يتناول هذا الكتاب تحليل البيانات الضخمة باستخدام مكتبات بايثون..."
+                title: "الأيام",
+                author: "طه حسين",
+                cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop&crop=center",
+                buyUrl: "https://payhip.com/b/ayam",
+                sampleContent: "سيرة ذاتية للأديب المصري طه حسين، يحكي فيها رحلته من القرية المصرية إلى قمة الثقافة العربية، مع معاناته مع العمى وصعوده إلى المنابر العلمية."
             }, {
                 id: 6,
-                title: "تصميم تجربة المستخدم (UX) للمبتدئين",
-                author: "أ. نورة العتيبي",
-                cover: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=400&fit=crop&crop=center",
-                buyUrl: "https://etsy.com/listing/ux-design",
-                sampleContent: "يشرح هذا الكتاب أساسيات تصميم تجربة المستخدم..."
+                title: "موسوعة الفلسفة الحديثة",
+                author: "جماعة من الباحثين",
+                cover: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=300&h=400&fit=crop&crop=center",
+                buyUrl: "https://etsy.com/listing/philosophy-encyclopedia",
+                sampleContent: "هذه الموسوعة تغطي أهم المدارس الفلسفية من العصر الحديث، بدءاً من ديكارت وكانط وصولاً إلى الفلسفة الوجودية والتفكيكية."
             }];
+
+            // ============================================================
+            // ===== دوال تنظيف النصوص العربية (ذكية) =====
+            // ============================================================
+            function cleanArabicText(text) {
+                if (!text) return "";
+                return text.toString().toLowerCase().trim()
+                    .replace(/[أإآأ]/g, 'ا')
+                    .replace(/ة/g, 'ه')
+                    .replace(/ى/g, 'ي')
+                    .replace(/^ال/, '');
+            }
+
+            // ============================================================
+            // ===== دالة الفلترة المشتركة (المطورة) =====
+            // ============================================================
+            function executeCombinedFilter() {
+                const searchValue = cleanArabicText(storeSearchInput.value);
+
+                const filtered = storeBooks.filter(book => {
+                    const cleanTitle = cleanArabicText(book.title);
+                    const cleanAuthor = cleanArabicText(book.author);
+
+                    const matchesSearch = cleanTitle.includes(searchValue) || cleanAuthor.includes(searchValue);
+
+                    const bookFirstLetter = cleanTitle.charAt(0);
+                    const matchesLetter = (currentSelectedLetter === 'الكل') || (bookFirstLetter ===
+                    cleanArabicText(currentSelectedLetter));
+
+                    return matchesSearch && matchesLetter;
+                });
+
+                renderStore(filtered);
+            }
+
+            // ============================================================
+            // بقية دوال التطبيق
+            // ============================================================
 
             // ---- المتغيرات العامة ----
             let books = [];
             let searchIndex = {};
             let currentFilter = 'all';
-            let searchMode = 'local'; // 'local' or 'internet'
+            let searchMode = 'local';
             let currentSelectedLetter = 'الكل';
             let currentLang = 'ar';
             let internetResults = [];
@@ -611,12 +646,6 @@
 
             function updateUIStrings() {
                 searchStat.textContent = t('readySearch') || '🔍 جاهز للبحث';
-                document.querySelectorAll('[data-i18n]').forEach(el => {
-                    const key = el.dataset.i18n;
-                    if (translations[currentLang] && translations[currentLang][key] !== undefined) {
-                        el.textContent = translations[currentLang][key];
-                    }
-                });
             }
 
             // ---- العدادات ----
@@ -809,7 +838,7 @@
                 paginationControls.style.display = 'none';
             }
 
-            // ---- البحث على الإنترنت (المحسّن) ----
+            // ---- البحث على الإنترنت ----
             async function searchInternet(query, page = 1) {
                 booksGrid.innerHTML = '';
                 if (!query.trim()) {
@@ -840,7 +869,6 @@
                 let newResults = [];
                 let hasMore = false;
 
-                // 1. Open Library
                 try {
                     const olUrl =
                         `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`;
@@ -875,14 +903,9 @@
                         }
                         if (docs.length < limit) hasMore = false;
                         else hasMore = true;
-                    } else {
-                        console.warn('Open Library response not OK:', resp.status);
                     }
-                } catch (e) {
-                    console.warn('Open Library error:', e);
-                }
+                } catch (e) { console.warn('Open Library error:', e); }
 
-                // 2. Google Books
                 try {
                     const gbLimit = 40;
                     const startIndex = (page - 1) * gbLimit;
@@ -928,14 +951,9 @@
                             });
                         }
                         if (items.length < gbLimit && hasMore !== false) hasMore = false;
-                    } else {
-                        console.warn('Google Books response not OK:', resp.status);
                     }
-                } catch (e) {
-                    console.warn('Google Books error:', e);
-                }
+                } catch (e) { console.warn('Google Books error:', e); }
 
-                // إزالة التكرارات
                 const existingTitles = new Set(internetResults.map(r => r.title.toLowerCase().trim()));
                 for (let r of newResults) {
                     const key = r.title.toLowerCase().trim();
@@ -1616,29 +1634,6 @@
                 executeCombinedFilter();
             }
 
-            function executeCombinedFilter() {
-                const searchValue = storeSearchInput.value.toLowerCase().trim();
-                const lang = currentLang;
-                const allLabel = (lang === 'ar') ? 'الكل' : 'ALL';
-
-                const filtered = storeBooks.filter(book => {
-                    const matchesSearch = searchValue === '' || book.title.toLowerCase().includes(searchValue) ||
-                        book.author.toLowerCase().includes(searchValue);
-
-                    const firstChar = cleanTitleForLetter(book.title, lang);
-                    const matchesLetter = (currentSelectedLetter === allLabel) || (firstChar === currentSelectedLetter);
-
-                    return matchesSearch && matchesLetter;
-                });
-
-                renderStore(filtered);
-
-                const statElement = document.getElementById('searchStat');
-                if (statElement) {
-                    statElement.textContent = `🔍 تم العثور على ${filtered.length} كتاب`;
-                }
-            }
-
             // ---- دالة عرض المتجر ----
             function renderStore(booksList) {
                 storeGrid.innerHTML = '';
@@ -1698,7 +1693,6 @@
                 if (searchMode === 'local') {
                     searchLocal(q);
                 } else {
-                    // وضع الإنترنت: إعادة تعيين النتائج والبحث
                     internetResults = [];
                     currentPage = 1;
                     totalResults = 0;
@@ -1710,22 +1704,15 @@
 
             // ---- تهيئة التطبيق ----
             function init() {
-                // اللغة
                 const preferred = getPreferredLanguage();
                 applyLanguage(preferred);
 
-                // العدادات
                 loadCounters();
                 incrementVisits();
                 fetchUserCountry();
 
-                // توليد أزرار الحروف
                 generateAlphabetButtons();
-
-                // تحميل الكتب
                 loadBooks();
-
-                // عرض المتجر
                 renderStore(storeBooks);
 
                 // ربط الأحداث
@@ -1739,12 +1726,10 @@
                     searchStat.textContent = t('searchLocalPrompt');
                 });
 
-                // ===== إصلاح زر الإنترنت =====
                 internetModeBtn.addEventListener('click', function() {
                     searchMode = 'internet';
                     this.className = 'px-3 py-1 rounded-lg text-xs font-semibold mode-btn-active transition';
                     localModeBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold mode-btn-inactive transition';
-                    // تنفيذ البحث فوراً إذا كان هناك نص في خانة البحث
                     if (searchInput.value.trim()) {
                         doSearch();
                     } else {
@@ -1755,7 +1740,6 @@
                     }
                 });
 
-                // ربط البحث الداخلي
                 searchInput.addEventListener('input', debounce(doSearch, 400));
                 searchInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
@@ -1764,7 +1748,6 @@
                     }
                 });
 
-                // رفع الملفات
                 fileInput.addEventListener('change', function() {
                     if (this.files.length > 0) { handleFiles(this.files);
                         this.value = ''; }
@@ -1779,7 +1762,6 @@
                     if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
                 });
 
-                // التصفية
                 document.querySelectorAll('.filter-chip').forEach(chip => {
                     chip.addEventListener('click', function() {
                         document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
@@ -1790,31 +1772,23 @@
                     });
                 });
 
-                // ترحيل الإنترنت
                 prevPageBtn.addEventListener('click', () => { if (currentPage > 1) goToPage(currentPage - 1); });
                 nextPageBtn.addEventListener('click', () => { goToPage(currentPage + 1); });
 
-                // مسح المكتبة
                 clearLibraryBtn.addEventListener('click', clearLibrary);
-
-                // إغلاق المودال
                 modalClose.addEventListener('click', closeModal);
                 modalOverlay.addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 
-                // بحث المتجر
                 storeSearchInput.addEventListener('input', debounce(executeCombinedFilter, 300));
 
-                // اختيار اللغة
                 document.getElementById('langSelect').addEventListener('change', function() {
                     applyLanguage(this.value);
                 });
 
-                // مودال معاينة المتجر
                 storeReaderModal.addEventListener('click', function(e) {
                     if (e.target === this) window.closeStoreReader();
                 });
 
-                // معالجة النصوص الغريبة من الرابط
                 const params = new URLSearchParams(location.search);
                 const q = params.get('q');
                 if (q && q.length < 50 && !q.startsWith('expl_') && /^[\u0600-\u06FFa-zA-Z0-9\s\-_,.]+$/.test(q)) {
@@ -1825,13 +1799,12 @@
                     setTimeout(doSearch, 500);
                 }
 
-                console.log('🌺 زهرة Zohra جاهزة! (تم إصلاح زر الإنترنت)');
+                console.log('🌺 زهرة Zohra جاهزة! (مع تصفية ذكية وكتب عربية حقيقية)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
             else init();
 
-            // تصدير الدوال للاستخدام العالمي
             window.openStoreReader = openStoreReader;
             window.closeStoreReader = closeStoreReader;
             window.openPdfViewerWrapper = openPdfViewerWrapper;
