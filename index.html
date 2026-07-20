@@ -16,6 +16,7 @@
     </script>
 
     <style>
+        /* جميع التنسيقات السابقة مع إضافة تنسيقات جديدة */
         body { font-family: 'Cairo', sans-serif; background: #111827; }
         .cyber-bg { background: radial-gradient(circle at 10% 20%, rgba(16,185,129,0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(14,165,233,0.05) 0%, transparent 40%), #111827; min-height: 100vh; }
         .glass-card { background: rgba(31,41,55,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(75,85,99,0.4); }
@@ -87,11 +88,26 @@
         .author-card:hover { transform: translateY(-4px); border-color: #0284c7; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .author-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; border: 2px solid #475569; overflow: hidden; }
         .author-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        /* تنسيق أزرار البحث الخارجي */
-        .external-search-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; justify-content: center; }
-        .external-search-btn { padding: 4px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; transition: 0.25s; border: 1px solid #374151; background: #1f2937; color: #9ca3af; cursor: pointer; }
-        .external-search-btn:hover { background: #059669; color: #fff; border-color: #059669; transform: scale(1.05); }
-        .external-search-btn i { margin-left: 4px; }
+        /* تنسيق نتائج البحث الخارجي */
+        .external-results-section { margin-top: 1.5rem; margin-bottom: 1.5rem; }
+        .external-results-title { display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.75rem; margin-bottom: 1rem; }
+        .external-results-title h2 { font-size: 1.1rem; font-weight: 700; color: #f3f4f6; }
+        .external-results-title h2 span { color: #34d399; }
+        .external-results-title i { color: #60a5fa; font-size: 1.2rem; }
+        .external-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; }
+        .external-card { background: rgba(31,41,55,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(75,85,99,0.4); border-radius: 16px; padding: 1rem; transition: 0.3s; display: flex; flex-direction: column; }
+        .external-card:hover { border-color: rgba(96,165,250,0.6); transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(96,165,250,0.15); }
+        .external-card .cover { width: 100%; aspect-ratio: 4/5; object-fit: cover; border-radius: 8px; background: #1f2937; margin-bottom: 0.75rem; }
+        .external-card .title { font-weight: 600; color: #f3f4f6; font-size: 0.9rem; line-clamp: 2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .external-card .author { color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem; }
+        .external-card .year { color: #6b7280; font-size: 0.65rem; }
+        .external-card .actions { margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .external-card .actions button { flex: 1; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.65rem; font-weight: 600; transition: 0.2s; cursor: pointer; border: none; min-width: 60px; }
+        .external-card .actions .btn-download-ext { background: #059669; color: #fff; }
+        .external-card .actions .btn-download-ext:hover { background: #047857; }
+        .external-card .actions .btn-preview-ext { background: #374151; color: #9ca3af; }
+        .external-card .actions .btn-preview-ext:hover { background: #4b5563; color: #f3f4f6; }
+        @media (max-width: 640px) { .external-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
     </style>
 </head>
 <body class="cyber-bg text-gray-100 min-h-screen antialiased">
@@ -179,18 +195,33 @@
         </p>
     </section>
 
-    <!-- ===== شريط التصفية بالحروف (للكتب) - مع البحث الخارجي ===== -->
-    <div class="max-w-4xl mx-auto px-4 mb-6">
+    <!-- ===== شريط التصفية بالحروف (للكتب) ===== -->
+    <div class="max-w-4xl mx-auto px-4 mb-2">
         <p class="text-center text-xs text-gray-500 mb-3">تصفح الكتب حسب الحرف الأول من العنوان:</p>
         <div id="alphabetContainer" class="flex flex-wrap justify-center gap-1.5 p-3 rounded-2xl bg-gray-800/40 border border-gray-700/50 backdrop-blur-md">
             <!-- يتم توليد الأزرار بواسطة الجافاسكريبت -->
         </div>
-        <!-- أزرار البحث الخارجي -->
-        <div class="external-search-buttons">
-            <button onclick="searchExternally('google')" class="external-search-btn"><i class="fa-brands fa-google text-red-400"></i> جوجل PDF</button>
-            <button onclick="searchExternally('archive')" class="external-search-btn"><i class="fa-solid fa-landmark text-amber-400"></i> أرشيف</button>
-            <button onclick="searchExternally('scholar')" class="external-search-btn"><i class="fa-solid fa-graduation-cap text-blue-400"></i> سكولار</button>
-            <button onclick="searchExternally('ddg')" class="external-search-btn"><i class="fa-solid fa-duck text-orange-400"></i> DuckDuckGo</button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== 🌐 قسم نتائج البحث الخارجي (جديد) ===== -->
+    <!-- ============================================================ -->
+    <div id="externalResultsSection" class="max-w-6xl mx-auto px-4 external-results-section hidden">
+        <div class="external-results-title">
+            <i class="fa-solid fa-globe"></i>
+            <h2>🌐 نتائج البحث عن الكتب التي تبدأ بحرف <span id="externalLetterDisplay">أ</span></h2>
+            <span class="text-xs text-gray-400 mr-auto" id="externalResultCount">0 كتاب</span>
+        </div>
+        <div id="externalResultsGrid" class="external-grid">
+            <!-- سيتم توليد البطاقات بواسطة الجافاسكريبت -->
+        </div>
+        <div id="externalLoading" class="flex items-center justify-center gap-3 text-gray-400 py-8 hidden">
+            <span class="loading-spinner"></span>
+            <span>جاري البحث عن الكتب في المحركات العالمية...</span>
+        </div>
+        <div id="externalError" class="text-center text-gray-500 py-8 hidden">
+            <i class="fa-regular fa-face-frown text-3xl block mb-2"></i>
+            <p>حدث خطأ أثناء جلب النتائج، يرجى المحاولة لاحقاً.</p>
         </div>
     </div>
 
@@ -338,7 +369,7 @@
             'use strict';
 
             // ============================================================
-            // دوال البحث العالمي
+            // دوال البحث العالمي (للشريط العلوي)
             // ============================================================
             function triggerGlobalSearch(engine) {
                 const query = document.getElementById('globalSearchInput').value.trim();
@@ -379,35 +410,137 @@
             window.triggerGlobalSearch = triggerGlobalSearch;
 
             // ============================================================
-            // ===== البحث الخارجي حسب الحرف =====
+            // ===== البحث الخارجي حسب الحرف (جلب وعرض في الصفحة) =====
             // ============================================================
-            let currentSelectedLetterForExternal = '';
+            let currentExternalLetter = 'أ';
 
-            function searchExternally(engine) {
-                const letter = currentSelectedLetterForExternal || 'أ';
-                const query = `كتب تبدأ بحرف ${letter} ${letter} books`;
-                let searchUrl = '';
-                switch (engine) {
-                    case 'google':
-                        searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}+filetype:pdf`;
-                        break;
-                    case 'archive':
-                        searchUrl =
-                            `https://archive.org/search.php?query=${encodeURIComponent(query)}&and[]=mediatype%3A%22texts%22`;
-                        break;
-                    case 'scholar':
-                        searchUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`;
-                        break;
-                    case 'ddg':
-                        searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
-                        break;
-                    default:
-                        return;
+            async function searchExternalBooks(letter) {
+                // تحديث الحرف الحالي
+                currentExternalLetter = letter;
+                const section = document.getElementById('externalResultsSection');
+                const grid = document.getElementById('externalResultsGrid');
+                const loading = document.getElementById('externalLoading');
+                const error = document.getElementById('externalError');
+                const letterDisplay = document.getElementById('externalLetterDisplay');
+                const countDisplay = document.getElementById('externalResultCount');
+
+                // إظهار القسم وتحديث العنوان
+                section.classList.remove('hidden');
+                letterDisplay.textContent = letter;
+                loading.classList.remove('hidden');
+                error.classList.add('hidden');
+                grid.innerHTML = '';
+                countDisplay.textContent = 'جاري البحث...';
+
+                // جمع النتائج من مصادر متعددة
+                let allResults = [];
+
+                // 1. Open Library (بحث بالحرف)
+                try {
+                    const olUrl =
+                        `https://openlibrary.org/search.json?q=title:${encodeURIComponent(letter)}*&limit=30`;
+                    const resp = await fetch(olUrl);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const docs = data.docs || [];
+                        for (let doc of docs) {
+                            // نفحص إذا كان العنوان يبدأ بالحرف المطلوب
+                            const title = doc.title || '';
+                            const cleanTitle = cleanArabicText(title);
+                            if (!cleanTitle.startsWith(letter.toLowerCase()) && !cleanTitle.startsWith(letter)) continue;
+                            const coverId = doc.cover_i || doc.cover_edition_key;
+                            const coverUrl = coverId ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg` :
+                                'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E';
+                            const iaId = doc.ia && doc.ia.length > 0 ? doc.ia[0] : null;
+                            allResults.push({
+                                title: title,
+                                author: doc.author_name ? doc.author_name.join('، ') : 'مؤلف غير معروف',
+                                year: doc.first_publish_year || doc.publish_year?.[0] || '',
+                                cover: coverUrl,
+                                iaId: iaId,
+                                directPdf: iaId ? `https://archive.org/download/${iaId}/${iaId}.pdf` : null,
+                                source: 'Open Library'
+                            });
+                        }
+                    }
+                } catch (e) { console.warn('Open Library error:', e); }
+
+                // 2. Google Books (بحث بالحرف)
+                try {
+                    const gbUrl =
+                        `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(letter)}&maxResults=20&filter=free-ebooks`;
+                    const resp = await fetch(gbUrl);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        const items = data.items || [];
+                        for (let item of items) {
+                            const info = item.volumeInfo;
+                            const title = info.title || '';
+                            const cleanTitle = cleanArabicText(title);
+                            if (!cleanTitle.startsWith(letter.toLowerCase()) && !cleanTitle.startsWith(letter)) continue;
+                            let pdfLink = null;
+                            if (item.accessInfo && item.accessInfo.pdf && item.accessInfo.pdf.isAvailable) {
+                                pdfLink = item.accessInfo.pdf.acsTokenLink || item.accessInfo.pdf.downloadLink;
+                            }
+                            if (!pdfLink && item.accessInfo && item.accessInfo.webReaderLink) {
+                                pdfLink = item.accessInfo.webReaderLink;
+                            }
+                            const cover = info.imageLinks ? info.imageLinks.thumbnail : null;
+                            allResults.push({
+                                title: title,
+                                author: info.authors ? info.authors.join('، ') : 'مؤلف غير معروف',
+                                year: info.publishedDate ? info.publishedDate.substring(0, 4) : '',
+                                cover: cover || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140"%3E%3Crect width="100" height="140" fill="%231b2d45"/%3E%3Ctext x="50" y="75" text-anchor="middle" fill="%23c9a84c" font-size="40"%3E📄%3C/text%3E%3C/svg%3E',
+                                iaId: null,
+                                directPdf: pdfLink,
+                                source: 'Google Books'
+                            });
+                        }
+                    }
+                } catch (e) { console.warn('Google Books error:', e); }
+
+                // إزالة التكرارات
+                const seen = new Set();
+                const unique = allResults.filter(r => {
+                    const key = r.title.toLowerCase().trim();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+
+                loading.classList.add('hidden');
+
+                if (unique.length === 0) {
+                    grid.innerHTML =
+                        `<div class="col-span-full text-center py-8 text-gray-400"><i class="fa-regular fa-face-frown text-3xl block mb-2"></i> لا توجد كتب تبدأ بحرف "${letter}" في المصادر المتاحة</div>`;
+                    countDisplay.textContent = '0 كتاب';
+                    return;
                 }
-                window.open(searchUrl, '_blank');
+
+                // عرض النتائج
+                countDisplay.textContent = `${unique.length} كتاب`;
+                renderExternalResults(unique);
             }
 
-            window.searchExternally = searchExternally;
+            function renderExternalResults(results) {
+                const grid = document.getElementById('externalResultsGrid');
+                grid.innerHTML = results.map(book => `
+                        <div class="external-card">
+                            <img src="${book.cover}" alt="${book.title}" class="cover" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 140%22%3E%3Crect width=%22100%22 height=%22140%22 fill=%22%231b2d45%22/%3E%3Ctext x=%2250%22 y=%2275%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2240%22%3E📄%3C/text%3E%3C/svg%3E'" />
+                            <div class="title">${escapeHtml(book.title)}</div>
+                            <div class="author">✍️ ${escapeHtml(book.author)}</div>
+                            ${book.year ? `<div class="year">📅 ${book.year}</div>` : ''}
+                            <div class="actions">
+                                ${book.directPdf ? `
+                                    <button class="btn-download-ext" onclick="window.open('${book.directPdf}', '_blank')"><i class="fa-solid fa-download"></i> تحميل</button>
+                                ` : `
+                                    <button class="btn-download-ext" disabled style="opacity:0.4;cursor:not-allowed;"><i class="fa-solid fa-download"></i> غير متاح</button>
+                                `}
+                                <button class="btn-preview-ext" onclick="window.open('${book.directPdf || `https://www.google.com/search?q=${encodeURIComponent(book.title)}+filetype:pdf`}', '_blank')"><i class="fa-regular fa-eye"></i> معاينة</button>
+                            </div>
+                        </div>
+                    `).join('');
+            }
 
             // ============================================================
             // ===== بيانات المتجر =====
@@ -522,7 +655,7 @@
             }
 
             // ============================================================
-            // ===== دوال الكتب (شريط الحروف) - مربوط بالمكتبة الشخصية مع بحث خارجي =====
+            // ===== دوال الكتب (شريط الحروف) =====
             // ============================================================
             let currentSelectedLetter = 'الكل';
 
@@ -574,9 +707,10 @@
                         'letter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-700 hover:text-white transition duration-200';
                     btn.dataset.letter = letter;
                     btn.addEventListener('click', function() {
-                        // تحديث الحرف المختار للبحث الخارجي
-                        currentSelectedLetterForExternal = letter;
+                        // عند النقر على حرف، نقوم بالبحث الخارجي وعرض النتائج
                         filterLocalBooks(letter);
+                        // البحث الخارجي وعرض النتائج في القسم المخصص
+                        searchExternalBooks(letter);
                     });
                     container.appendChild(btn);
                 });
@@ -586,11 +720,8 @@
             // ===== دالة تصفية الكتب المحلية حسب الحرف =====
             // ============================================================
             function filterLocalBooks(letter) {
-                // تحديث المتغير العام
                 currentSelectedLetter = letter;
-                currentSelectedLetterForExternal = letter;
 
-                // تحديث المظهر البصري للأزرار
                 document.querySelectorAll('.letter-btn').forEach(btn => {
                     if (btn.dataset.letter === letter) {
                         btn.className =
@@ -601,7 +732,6 @@
                     }
                 });
 
-                // تصفية الكتب المحلية
                 const allLabel = (currentLang === 'ar') ? 'الكل' : 'ALL';
                 let filtered = [];
                 if (letter === allLabel) {
@@ -614,9 +744,7 @@
                     });
                 }
 
-                // عرض الكتب المفلترة
                 renderBooksGrid(filtered);
-                // تحديث عداد النتائج
                 searchStat.textContent = `🔍 تم العثور على ${filtered.length} كتاب في مكتبتك`;
             }
 
@@ -889,6 +1017,8 @@
             const modalBookTitle = $('#modalBookTitle');
             const storeViewerContent = $('#storeViewerContent');
             const alphabetContainer = $('#alphabetContainer');
+            // إضافة عناصر القسم الخارجي
+            const externalResultsSection = $('#externalResultsSection');
 
             let pdfjsLib = window.pdfjsLib;
             if (pdfjsLib) {
@@ -2081,7 +2211,12 @@
                     setTimeout(doSearch, 500);
                 }
 
-                console.log('🌺 زهرة Zohra جاهزة! (شريط الحروف يبحث خارجياً في المحركات العالمية)');
+                // عند التحميل الأول، نقوم بالبحث عن الحرف "أ" لعرض النتائج الخارجية بشكل افتراضي
+                setTimeout(() => {
+                    searchExternalBooks('أ');
+                }, 600);
+
+                console.log('🌺 زهرة Zohra جاهزة! (بحث خارجي حسب الحرف وعرض في الصفحة)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -2099,7 +2234,7 @@
             window.closeAuthorModal = closeAuthorModal;
             window.triggerGlobalSearch = triggerGlobalSearch;
             window.executeCombinedFilter = executeCombinedFilter;
-            window.searchExternally = searchExternally;
+            window.searchExternalBooks = searchExternalBooks;
 
         })();
     </script>
