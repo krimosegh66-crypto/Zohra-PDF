@@ -87,6 +87,11 @@
         .author-card:hover { transform: translateY(-4px); border-color: #0284c7; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .author-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; border: 2px solid #475569; overflow: hidden; }
         .author-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        /* تنسيق أزرار البحث الخارجي */
+        .external-search-buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; justify-content: center; }
+        .external-search-btn { padding: 4px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; transition: 0.25s; border: 1px solid #374151; background: #1f2937; color: #9ca3af; cursor: pointer; }
+        .external-search-btn:hover { background: #059669; color: #fff; border-color: #059669; transform: scale(1.05); }
+        .external-search-btn i { margin-left: 4px; }
     </style>
 </head>
 <body class="cyber-bg text-gray-100 min-h-screen antialiased">
@@ -174,11 +179,18 @@
         </p>
     </section>
 
-    <!-- ===== شريط التصفية بالحروف (للكتب) - مربوط بالمكتبة الشخصية ===== -->
+    <!-- ===== شريط التصفية بالحروف (للكتب) - مع البحث الخارجي ===== -->
     <div class="max-w-4xl mx-auto px-4 mb-6">
         <p class="text-center text-xs text-gray-500 mb-3">تصفح الكتب حسب الحرف الأول من العنوان:</p>
         <div id="alphabetContainer" class="flex flex-wrap justify-center gap-1.5 p-3 rounded-2xl bg-gray-800/40 border border-gray-700/50 backdrop-blur-md">
             <!-- يتم توليد الأزرار بواسطة الجافاسكريبت -->
+        </div>
+        <!-- أزرار البحث الخارجي -->
+        <div class="external-search-buttons">
+            <button onclick="searchExternally('google')" class="external-search-btn"><i class="fa-brands fa-google text-red-400"></i> جوجل PDF</button>
+            <button onclick="searchExternally('archive')" class="external-search-btn"><i class="fa-solid fa-landmark text-amber-400"></i> أرشيف</button>
+            <button onclick="searchExternally('scholar')" class="external-search-btn"><i class="fa-solid fa-graduation-cap text-blue-400"></i> سكولار</button>
+            <button onclick="searchExternally('ddg')" class="external-search-btn"><i class="fa-solid fa-duck text-orange-400"></i> DuckDuckGo</button>
         </div>
     </div>
 
@@ -367,6 +379,37 @@
             window.triggerGlobalSearch = triggerGlobalSearch;
 
             // ============================================================
+            // ===== البحث الخارجي حسب الحرف =====
+            // ============================================================
+            let currentSelectedLetterForExternal = '';
+
+            function searchExternally(engine) {
+                const letter = currentSelectedLetterForExternal || 'أ';
+                const query = `كتب تبدأ بحرف ${letter} ${letter} books`;
+                let searchUrl = '';
+                switch (engine) {
+                    case 'google':
+                        searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}+filetype:pdf`;
+                        break;
+                    case 'archive':
+                        searchUrl =
+                            `https://archive.org/search.php?query=${encodeURIComponent(query)}&and[]=mediatype%3A%22texts%22`;
+                        break;
+                    case 'scholar':
+                        searchUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`;
+                        break;
+                    case 'ddg':
+                        searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(query)}`;
+                        break;
+                    default:
+                        return;
+                }
+                window.open(searchUrl, '_blank');
+            }
+
+            window.searchExternally = searchExternally;
+
+            // ============================================================
             // ===== بيانات المتجر =====
             // ============================================================
             const storeBooks = [{
@@ -479,7 +522,7 @@
             }
 
             // ============================================================
-            // ===== دوال الكتب (شريط الحروف) - مربوط بالمكتبة الشخصية =====
+            // ===== دوال الكتب (شريط الحروف) - مربوط بالمكتبة الشخصية مع بحث خارجي =====
             // ============================================================
             let currentSelectedLetter = 'الكل';
 
@@ -531,6 +574,8 @@
                         'letter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-700 hover:text-white transition duration-200';
                     btn.dataset.letter = letter;
                     btn.addEventListener('click', function() {
+                        // تحديث الحرف المختار للبحث الخارجي
+                        currentSelectedLetterForExternal = letter;
                         filterLocalBooks(letter);
                     });
                     container.appendChild(btn);
@@ -541,8 +586,9 @@
             // ===== دالة تصفية الكتب المحلية حسب الحرف =====
             // ============================================================
             function filterLocalBooks(letter) {
-                // تحديث المتغير العام للحفاظ على الحالة
+                // تحديث المتغير العام
                 currentSelectedLetter = letter;
+                currentSelectedLetterForExternal = letter;
 
                 // تحديث المظهر البصري للأزرار
                 document.querySelectorAll('.letter-btn').forEach(btn => {
@@ -570,7 +616,7 @@
 
                 // عرض الكتب المفلترة
                 renderBooksGrid(filtered);
-                // تحديث عداد النتائج في شريط الحالة
+                // تحديث عداد النتائج
                 searchStat.textContent = `🔍 تم العثور على ${filtered.length} كتاب في مكتبتك`;
             }
 
@@ -714,7 +760,6 @@
                     const cleanTitle = cleanArabicText(book.title);
                     const cleanAuthor = cleanArabicText(book.author);
                     const matchesSearch = cleanTitle.includes(searchValue) || cleanAuthor.includes(searchValue);
-                    // لا نطبق تصفية بالحروف هنا، لأن شريط الحروف للكتب مربوط بالمكتبة الشخصية وليس المتجر
                     return matchesSearch;
                 });
 
@@ -2036,7 +2081,7 @@
                     setTimeout(doSearch, 500);
                 }
 
-                console.log('🌺 زهرة Zohra جاهزة! (شريط الحروف مربوط بالمكتبة الشخصية)');
+                console.log('🌺 زهرة Zohra جاهزة! (شريط الحروف يبحث خارجياً في المحركات العالمية)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -2054,6 +2099,7 @@
             window.closeAuthorModal = closeAuthorModal;
             window.triggerGlobalSearch = triggerGlobalSearch;
             window.executeCombinedFilter = executeCombinedFilter;
+            window.searchExternally = searchExternally;
 
         })();
     </script>
