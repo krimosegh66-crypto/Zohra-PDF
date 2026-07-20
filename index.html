@@ -69,6 +69,9 @@
         .letter-btn { transition: 0.2s; font-family: 'Cairo', sans-serif; }
         .letter-btn.active { background: #059669; color: #111827; font-weight: 700; box-shadow: 0 0 15px rgba(5,150,105,0.3); }
         .letter-btn:not(.active):hover { background: #1f2937; color: #f3f4f6; }
+        .author-letter-btn { transition: 0.2s; font-family: 'Cairo', sans-serif; }
+        .author-letter-btn.active { background: #0284c7; color: #ffffff; font-weight: 700; box-shadow: 0 0 15px rgba(2,132,199,0.3); }
+        .author-letter-btn:not(.active):hover { background: #1f2937; color: #f3f4f6; }
         .reader-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
         .reader-modal.active { display: flex; }
         .reader-content { background: #1f2937; border-radius: 18px; max-width: 900px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; border: 1px solid #374151; overflow: hidden; }
@@ -80,6 +83,9 @@
         .reader-body p { margin-bottom: 1rem; }
         .animate-spin-slow { animation: spinSlow 6s linear infinite; }
         @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .author-card { transition: 0.3s; cursor: pointer; }
+        .author-card:hover { transform: translateY(-4px); border-color: #0284c7; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .author-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; border: 2px solid #475569; }
     </style>
 </head>
 <body class="cyber-bg text-gray-100 min-h-screen antialiased">
@@ -167,7 +173,7 @@
         </p>
     </section>
 
-    <!-- ===== شريط التصفية بالحروف ===== -->
+    <!-- ===== شريط التصفية بالحروف (للكتب) ===== -->
     <div class="max-w-4xl mx-auto px-4 mb-6">
         <p class="text-center text-xs text-gray-500 mb-3">تصفح الكتب حسب الحرف الأول من العنوان:</p>
         <div id="alphabetContainer" class="flex flex-wrap justify-center gap-1.5 p-3 rounded-2xl bg-gray-800/40 border border-gray-700/50 backdrop-blur-md">
@@ -175,8 +181,49 @@
         </div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- ===== 📖 قسم دليل الكتّاب والمؤلفين العرب (جديد) ===== -->
+    <!-- ============================================================ -->
+    <div class="max-w-6xl mx-auto px-4 my-8 space-y-6">
+        <div class="flex items-center gap-2 border-b border-gray-800 pb-4">
+            <i class="fa-solid fa-pen-nib text-sky-400 text-xl"></i>
+            <h2 class="text-xl font-bold text-white">دليل الكُتّاب والمؤلفين العرب</h2>
+        </div>
+
+        <p class="text-xs text-gray-500 mb-2">اختر الحرف الأول من اسم الكاتب لعرض سيرته وأعماله:</p>
+        <!-- شريط الحروف الخاص بالمؤلفين -->
+        <div id="authorAlphabetContainer" class="flex flex-wrap gap-1.5 p-3 rounded-2xl bg-gray-800/20 border border-gray-700/50 backdrop-blur-md">
+            <button onclick="filterAuthorsByLetter('الكل')" class="author-letter-btn px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-gray-950 shadow-md transition duration-200">الكل</button>
+        </div>
+
+        <!-- شبكة عرض بطاقات المؤلفين -->
+        <div id="authorsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4">
+            <!-- يتم توليد بطاقات المؤلفين هنا ديناميكياً -->
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ===== 👤 نافذة سيرة الكاتب (Author Modal) ===== -->
+    <!-- ============================================================ -->
+    <div id="authorModal" class="fixed inset-0 bg-black/90 z-50 hidden flex justify-center items-center p-4 backdrop-blur-sm">
+        <div class="bg-gray-800 w-full max-w-2xl max-h-[85vh] rounded-2xl flex flex-col shadow-2xl border border-gray-700 overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-gray-700 bg-gray-900/40">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie text-sky-400"></i>
+                    <h3 id="modalAuthorName" class="text-base font-bold text-white">ملف الكاتب</h3>
+                </div>
+                <button onclick="closeAuthorModal()" class="text-gray-400 hover:text-white text-xl p-1 bg-gray-700/50 hover:bg-gray-700 rounded-lg transition h-8 w-8 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="flex-1 p-6 overflow-y-auto bg-gray-900/30 space-y-6 text-sm text-gray-300 leading-relaxed" id="authorModalContent">
+                <!-- يتم حقن البيانات هنا -->
+            </div>
+        </div>
+    </div>
+
     <!-- ===== صندوق رفع الملفات ===== -->
-    <div class="max-w-2xl mx-auto px-4">
+    <div class="max-w-2xl mx-auto px-4 mt-4">
         <div id="uploadArea" class="upload-zone rounded-2xl p-6 text-center transition group relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition duration-300"></div>
             <div class="relative z-10 space-y-3">
@@ -372,6 +419,47 @@
             }];
 
             // ============================================================
+            // ===== بيانات المؤلفين العرب =====
+            // ============================================================
+            const authorsData = [{
+                id: 1,
+                name: "عمرو عبد الحميد",
+                bio: "كاتب وروائي مصري شاب، اشتهر برواياته الخيالية والعلمية التي تمزج بين الواقع والخيال. حصل على عدة جوائز أدبية عن روايته الأولى 'أرض زيكولا' التي حققت مبيعات قياسية في العالم العربي.",
+                works: ["أرض زيكولا", "أرض زيكولا 2", "شيفرة بابل"],
+                image: "https://ui-avatars.com/api/?name=عمرو+عبد+الحميد&size=80&background=1e293b&color=94a3b8"
+            }, {
+                id: 2,
+                name: "ابن خلدون",
+                bio: "عبد الرحمن بن محمد بن خلدون (1332-1406)، مؤرخ وفيلسوف عربي مسلم، يُعتبر مؤسس علم الاجتماع الحديث. ولد في تونس وعاش في المغرب ومصر. أشهر أعماله كتاب 'العبر وديوان المبتدأ والخبر' المعروف بـ 'مقدمة ابن خلدون'.",
+                works: ["مقدمة ابن خلدون", "العبر وديوان المبتدأ والخبر"],
+                image: "https://ui-avatars.com/api/?name=ابن+خلدون&size=80&background=1e293b&color=94a3b8"
+            }, {
+                id: 3,
+                name: "الجاحظ",
+                bio: "أبو عثمان عمرو بن بحر الكناني (776-868)، أديب عربي كبير من روّاد الأدب العربي في العصر العباسي. اشتهر بكتاباته النقدية والبلاغية والفكاهية. من أشهر كتبه 'البيان والتبيين' و'البخلاء'.",
+                works: ["البيان والتبيين", "البخلاء", "كتاب الحيوان"],
+                image: "https://ui-avatars.com/api/?name=الجاحظ&size=80&background=1e293b&color=94a3b8"
+            }, {
+                id: 4,
+                name: "طه حسين",
+                bio: "طه حسين (1889-1973)، أديب ومفكر مصري، عميد الأدب العربي الحديث. فقد بصره في طفولته لكنه صعد إلى قمة الثقافة العربية. شغل منصب وزير المعارف في مصر. من أشهر كتبه 'الأيام' و'في الشعر الجاهلي'.",
+                works: ["الأيام", "في الشعر الجاهلي", "المعذبون في الأرض"],
+                image: "https://ui-avatars.com/api/?name=طه+حسين&size=80&background=1e293b&color=94a3b8"
+            }, {
+                id: 5,
+                name: "علي بن جابر الفيفي",
+                bio: "كاتب وداعية سعودي، اشتهر بكتاباته الدينية والروحانية. كتابه 'لأنك الله' حقق انتشاراً واسعاً في العالم العربي، حيث يتناول أسماء الله الحسنى بأسلوب أدبي عميق ومؤثر.",
+                works: ["لأنك الله", "خطاب الأبوة", "أحلام القصيم"],
+                image: "https://ui-avatars.com/api/?name=علي+بن+جابر&size=80&background=1e293b&color=94a3b8"
+            }, {
+                id: 6,
+                name: "نجيب محفوظ",
+                bio: "نجيب محفوظ (1911-2006)، روائي مصري، أول أديب عربي يحصل على جائزة نوبل في الأدب عام 1988. اشتهر بثلاثيته الشهيرة 'بين القصرين، قصر الشوق، السكرية'. كتب أكثر من 30 رواية وعدداً من المجموعات القصصية.",
+                works: ["الثلاثية (بين القصرين، قصر الشوق، السكرية)", "أولاد حارتنا", "اللص والكلاب"],
+                image: "https://ui-avatars.com/api/?name=نجيب+محفوظ&size=80&background=1e293b&color=94a3b8"
+            }];
+
+            // ============================================================
             // ===== دوال تنظيف النصوص العربية (ذكية) =====
             // ============================================================
             function cleanArabicText(text) {
@@ -383,11 +471,142 @@
                     .replace(/^ال/, '');
             }
 
+            function cleanNameForLetter(name) {
+                let clean = name.trim();
+                if (clean.startsWith("ال")) {
+                    clean = clean.substring(2);
+                }
+                if (clean.startsWith("ا") || clean.startsWith("أ") || clean.startsWith("إ") || clean.startsWith("آ")) {
+                    clean = "ا" + clean.substring(1);
+                }
+                return clean.charAt(0);
+            }
+
             // ============================================================
-            // ===== دالة الفلترة المشتركة (المطورة) =====
+            // ===== دوال المؤلفين (شريط الحروف + الشبكة + المودال) =====
+            // ============================================================
+            let currentAuthorLetter = 'الكل';
+
+            function generateAuthorAlphabetButtons() {
+                const container = document.getElementById('authorAlphabetContainer');
+                container.innerHTML = '';
+                const letters = getAlphabetLetters(currentLang);
+                const allLabel = (currentLang === 'ar') ? 'الكل' : 'ALL';
+
+                const allBtn = document.createElement('button');
+                allBtn.innerText = (currentLang === 'ar') ? 'الكل' : 'All';
+                allBtn.className =
+                    'author-letter-btn px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-gray-950 shadow-md transition duration-200 active';
+                allBtn.dataset.letter = allLabel;
+                allBtn.addEventListener('click', function() { filterAuthorsByLetter(allLabel); });
+                container.appendChild(allBtn);
+
+                letters.forEach(letter => {
+                    const btn = document.createElement('button');
+                    btn.innerText = letter;
+                    btn.className =
+                        'author-letter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-700 hover:text-white transition duration-200';
+                    btn.dataset.letter = letter;
+                    btn.addEventListener('click', function() { filterAuthorsByLetter(letter); });
+                    container.appendChild(btn);
+                });
+            }
+
+            function filterAuthorsByLetter(letter) {
+                currentAuthorLetter = letter;
+
+                document.querySelectorAll('.author-letter-btn').forEach(btn => {
+                    if (btn.dataset.letter === letter) {
+                        btn.className =
+                            'author-letter-btn px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-gray-950 shadow-md transition duration-200 active';
+                    } else {
+                        btn.className =
+                            'author-letter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-700 hover:text-white transition duration-200';
+                    }
+                });
+
+                renderAuthors();
+            }
+
+            function renderAuthors() {
+                const grid = document.getElementById('authorsGrid');
+                const allLabel = (currentLang === 'ar') ? 'الكل' : 'ALL';
+
+                const filtered = authorsData.filter(author => {
+                    const firstChar = cleanNameForLetter(author.name);
+                    return (currentAuthorLetter === allLabel) || (firstChar === cleanArabicText(currentAuthorLetter));
+                });
+
+                if (filtered.length === 0) {
+                    grid.innerHTML =
+                        `<div class="col-span-full text-center py-8 text-gray-400"><i class="fa-regular fa-face-frown text-3xl block mb-2"></i> لا توجد سير ذاتية مطابقة لهذا الحرف</div>`;
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(author => `
+                        <div class="author-card glass-card rounded-2xl p-4 transition duration-300 flex items-center gap-4">
+                            <div class="author-avatar flex-shrink-0">
+                                <img src="${author.image}" alt="${author.name}" class="w-16 h-16 rounded-full object-cover border-2 border-sky-500/30">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-white text-base truncate">${escapeHtml(author.name)}</h3>
+                                <p class="text-gray-400 text-xs line-clamp-2 mt-1">${escapeHtml(author.bio.substring(0, 80))}...</p>
+                                <button onclick="openAuthorModal(${author.id})" class="mt-2 text-sky-400 hover:text-sky-300 text-xs font-semibold transition flex items-center gap-1">
+                                    <i class="fa-regular fa-circle-user"></i> عرض السيرة والأعمال
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+            }
+
+            function openAuthorModal(authorId) {
+                const author = authorsData.find(a => a.id === authorId);
+                if (!author) return;
+
+                document.getElementById('modalAuthorName').textContent = author.name;
+                document.getElementById('authorModalContent').innerHTML = `
+                        <div class="flex items-center gap-4 pb-4 border-b border-gray-700/50">
+                            <img src="${author.image}" alt="${author.name}" class="w-20 h-20 rounded-full object-cover border-2 border-sky-500/30">
+                            <div>
+                                <h3 class="text-xl font-bold text-white">${escapeHtml(author.name)}</h3>
+                                <p class="text-gray-400 text-sm">📚 ${author.works.length} عمل منشور</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-sky-400 font-semibold text-sm mb-2"><i class="fa-regular fa-pen-to-square ml-2"></i> السيرة الذاتية</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">${escapeHtml(author.bio)}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sky-400 font-semibold text-sm mb-2"><i class="fa-regular fa-book ml-2"></i> أبرز الأعمال</h4>
+                            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${author.works.map(work => `
+                                    <li class="bg-gray-700/30 px-3 py-1.5 rounded-lg text-sm text-gray-300 flex items-center gap-2">
+                                        <i class="fa-solid fa-book text-sky-400 text-xs"></i>
+                                        ${escapeHtml(work)}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <div class="pt-2 border-t border-gray-700/50 text-xs text-gray-500">
+                            <i class="fa-regular fa-clock ml-1"></i> آخر تحديث: ${new Date().toLocaleDateString('ar-EG')}
+                        </div>
+                    `;
+
+                document.getElementById('authorModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeAuthorModal() {
+                document.getElementById('authorModal').classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+
+            // ============================================================
+            // ===== دالة الفلترة المشتركة (للمتجر) =====
             // ============================================================
             function executeCombinedFilter() {
                 const searchValue = cleanArabicText(storeSearchInput.value);
+                const allLabel = (currentLang === 'ar') ? 'الكل' : 'ALL';
 
                 const filtered = storeBooks.filter(book => {
                     const cleanTitle = cleanArabicText(book.title);
@@ -396,7 +615,7 @@
                     const matchesSearch = cleanTitle.includes(searchValue) || cleanAuthor.includes(searchValue);
 
                     const bookFirstLetter = cleanTitle.charAt(0);
-                    const matchesLetter = (currentSelectedLetter === 'الكل') || (bookFirstLetter ===
+                    const matchesLetter = (currentSelectedLetter === allLabel) || (bookFirstLetter ===
                     cleanArabicText(currentSelectedLetter));
 
                     return matchesSearch && matchesLetter;
@@ -406,7 +625,7 @@
             }
 
             // ============================================================
-            // بقية دوال التطبيق
+            // بقية دوال التطبيق (المكتبة، البحث، الإحصائيات، إلخ)
             // ============================================================
 
             // ---- المتغيرات العامة ----
@@ -622,8 +841,10 @@
                 document.documentElement.lang = lang;
                 document.getElementById('langSelect').value = lang;
                 generateAlphabetButtons();
+                generateAuthorAlphabetButtons();
                 const allLabel = (lang === 'ar') ? 'الكل' : 'ALL';
                 filterByLetter(allLabel);
+                filterAuthorsByLetter(allLabel);
                 updateUIStrings();
                 if (searchMode === 'local') {
                     if (searchInput.value.trim()) searchLocal(searchInput.value);
@@ -640,8 +861,6 @@
                 executeCombinedFilter();
                 const storeInput = document.getElementById('storeSearchInput');
                 if (storeInput) storeInput.placeholder = t('storeSearchPlaceholder') || 'ابحث في المتجر...';
-                const label = document.querySelector('.text-xs.text-gray-500.mb-3');
-                if (label) label.textContent = 'تصفح الكتب حسب الحرف الأول من العنوان:';
             }
 
             function updateUIStrings() {
@@ -838,7 +1057,7 @@
                 paginationControls.style.display = 'none';
             }
 
-            // ---- البحث على الإنترنت ----
+            // ---- البحث على الإنترنت (مختصر للغرض) ----
             async function searchInternet(query, page = 1) {
                 booksGrid.innerHTML = '';
                 if (!query.trim()) {
@@ -1543,7 +1762,7 @@
                 else showToast('toastNoBooksAdded', '⚠️');
             }
 
-            // ---- دوال المتجر والتصفية بالحروف ----
+            // ---- دوال الكتب (شريط الحروف) ----
             function getAlphabetLetters(lang) {
                 const letters = {
                     ar: ["أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف",
@@ -1564,34 +1783,6 @@
                     ]
                 };
                 return letters[lang] || letters['en'];
-            }
-
-            function cleanTitleForLetter(title, lang) {
-                let clean = title.trim();
-                if (lang === 'ar') {
-                    if (clean.startsWith("ال")) {
-                        clean = clean.substring(2);
-                    }
-                    if (clean.startsWith("ا") || clean.startsWith("أ") || clean.startsWith("إ") || clean.startsWith("آ")) {
-                        clean = "ا" + clean.substring(1);
-                    }
-                    return clean.charAt(0);
-                } else {
-                    const articles = {
-                        en: ['The ', 'A ', 'An '],
-                        fr: ['Le ', 'La ', 'Les ', 'Un ', 'Une ', 'Des '],
-                        es: ['El ', 'La ', 'Los ', 'Las ', 'Un ', 'Una ', 'Unos ', 'Unas '],
-                        de: ['Der ', 'Die ', 'Das ', 'Ein ', 'Eine ', 'Einem ', 'Einen ']
-                    };
-                    const langArticles = articles[lang] || [];
-                    for (let art of langArticles) {
-                        if (clean.toLowerCase().startsWith(art.toLowerCase())) {
-                            clean = clean.substring(art.length);
-                            break;
-                        }
-                    }
-                    return clean.charAt(0).toUpperCase();
-                }
             }
 
             function generateAlphabetButtons() {
@@ -1712,8 +1903,10 @@
                 fetchUserCountry();
 
                 generateAlphabetButtons();
+                generateAuthorAlphabetButtons();
                 loadBooks();
                 renderStore(storeBooks);
+                renderAuthors();
 
                 // ربط الأحداث
                 localModeBtn.addEventListener('click', function() {
@@ -1799,12 +1992,13 @@
                     setTimeout(doSearch, 500);
                 }
 
-                console.log('🌺 زهرة Zohra جاهزة! (مع تصفية ذكية وكتب عربية حقيقية)');
+                console.log('🌺 زهرة Zohra جاهزة! (مع دليل المؤلفين العرب)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
             else init();
 
+            // تصدير الدوال للاستخدام العالمي
             window.openStoreReader = openStoreReader;
             window.closeStoreReader = closeStoreReader;
             window.openPdfViewerWrapper = openPdfViewerWrapper;
@@ -1813,6 +2007,9 @@
             window.filterByLetter = filterByLetter;
             window.executeCombinedFilter = executeCombinedFilter;
             window.triggerGlobalSearch = triggerGlobalSearch;
+            window.filterAuthorsByLetter = filterAuthorsByLetter;
+            window.openAuthorModal = openAuthorModal;
+            window.closeAuthorModal = closeAuthorModal;
 
         })();
     </script>
