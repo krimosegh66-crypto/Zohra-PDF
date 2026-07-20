@@ -85,7 +85,8 @@
         @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .author-card { transition: 0.3s; cursor: pointer; }
         .author-card:hover { transform: translateY(-4px); border-color: #0284c7; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        .author-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; border: 2px solid #475569; }
+        .author-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; border: 2px solid #475569; overflow: hidden; }
+        .author-avatar img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body class="cyber-bg text-gray-100 min-h-screen antialiased">
@@ -114,7 +115,7 @@
             </div>
         </div>
 
-        <!-- ===== شريط البحث الداخلي (محلي/إنترنت) ===== -->
+        <!-- ===== شريط البحث الداخلي ===== -->
         <div class="max-w-6xl mx-auto px-4 pb-2 flex flex-wrap items-center gap-2 text-xs">
             <div class="flex-1 min-w-[200px] relative">
                 <input type="text" id="searchInput" placeholder="ابحث في مكتبتك الشخصية..." class="search-input w-full text-white pl-9 pr-3 py-1.5 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 border border-gray-600">
@@ -136,7 +137,7 @@
         </div>
     </header>
 
-    <!-- ===== القسم الترحيبي (مع شريط البحث العالمي) ===== -->
+    <!-- ===== القسم الترحيبي ===== -->
     <section class="max-w-4xl mx-auto text-center px-4 pt-8 pb-4 hero-section">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium mb-4 animate-bounce">
             <i class="fa-solid fa-sparkles"></i> القارئ الذكي والمكتبة المتكاملة في مكان واحد
@@ -182,7 +183,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- ===== 📖 قسم دليل الكتّاب والمؤلفين العرب (جديد) ===== -->
+    <!-- ===== 📖 قسم دليل الكتّاب والمؤلفين العرب ===== -->
     <!-- ============================================================ -->
     <div class="max-w-6xl mx-auto px-4 my-8 space-y-6">
         <div class="flex items-center gap-2 border-b border-gray-800 pb-4">
@@ -193,7 +194,7 @@
         <p class="text-xs text-gray-500 mb-2">اختر الحرف الأول من اسم الكاتب لعرض سيرته وأعماله:</p>
         <!-- شريط الحروف الخاص بالمؤلفين -->
         <div id="authorAlphabetContainer" class="flex flex-wrap gap-1.5 p-3 rounded-2xl bg-gray-800/20 border border-gray-700/50 backdrop-blur-md">
-            <button onclick="filterAuthorsByLetter('الكل')" class="author-letter-btn px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-gray-950 shadow-md transition duration-200">الكل</button>
+            <!-- يتم توليد الأزرار بواسطة الجافاسكريبت -->
         </div>
 
         <!-- شبكة عرض بطاقات المؤلفين -->
@@ -203,7 +204,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- ===== 👤 نافذة سيرة الكاتب (Author Modal) ===== -->
+    <!-- ===== 👤 نافذة سيرة الكاتب ===== -->
     <!-- ============================================================ -->
     <div id="authorModal" class="fixed inset-0 bg-black/90 z-50 hidden flex justify-center items-center p-4 backdrop-blur-sm">
         <div class="bg-gray-800 w-full max-w-2xl max-h-[85vh] rounded-2xl flex flex-col shadow-2xl border border-gray-700 overflow-hidden">
@@ -372,7 +373,7 @@
             window.triggerGlobalSearch = triggerGlobalSearch;
 
             // ============================================================
-            // ===== بيانات المتجر (كتب عربية حقيقية) =====
+            // ===== بيانات المتجر =====
             // ============================================================
             const storeBooks = [{
                 id: 1,
@@ -380,42 +381,42 @@
                 author: "عمرو عبد الحميد",
                 cover: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://gumroad.com/l/zikola",
-                sampleContent: "رواية أرض زيكولا هي رواية خيالية تأخذنا إلى عالم موازٍ حيث تختلف قوانين الفيزياء... تدور أحداثها حول شاب يكتشف بوابة إلى عالم آخر مليء بالأسرار والمغامرات."
+                sampleContent: "رواية أرض زيكولا هي رواية خيالية تأخذنا إلى عالم موازٍ حيث تختلف قوانين الفيزياء..."
             }, {
                 id: 2,
                 title: "مقدمة ابن خلدون",
                 author: "ابن خلدون",
                 cover: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://payhip.com/b/ibnkhaldun",
-                sampleContent: "كتاب العبر وديوان المبتدأ والخبر في أيام العرب والعجم والبربر ومن عاصرهم من ذوي السلطان الأكبر، المعروف بـ 'مقدمة ابن خلدون'، وهو موسوعة تاريخية اجتماعية فريدة."
+                sampleContent: "كتاب العبر وديوان المبتدأ والخبر في أيام العرب والعجم والبربر..."
             }, {
                 id: 3,
                 title: "لأنك الله",
                 author: "علي بن جابر الفيفي",
                 cover: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://etsy.com/listing/laannaka-allah",
-                sampleContent: "كتاب 'لأنك الله' يقدم رحلة إيمانية عميقة تتأمل في أسماء الله الحسنى وصفاته، بأسلوب أدبي شيق يجمع بين العلم والروحانية."
+                sampleContent: "كتاب 'لأنك الله' يقدم رحلة إيمانية عميقة تتأمل في أسماء الله الحسنى..."
             }, {
                 id: 4,
                 title: "البيان والتبيين",
                 author: "الجاحظ",
                 cover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://gumroad.com/l/bayan",
-                sampleContent: "كتاب البيان والتبيين للجاحظ من أشهر كتب الأدب العربي، يتناول فنون البلاغة والبيان، بأسلوب نقدي ساخر وفكاهي."
+                sampleContent: "كتاب البيان والتبيين للجاحظ من أشهر كتب الأدب العربي..."
             }, {
                 id: 5,
                 title: "الأيام",
                 author: "طه حسين",
                 cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://payhip.com/b/ayam",
-                sampleContent: "سيرة ذاتية للأديب المصري طه حسين، يحكي فيها رحلته من القرية المصرية إلى قمة الثقافة العربية، مع معاناته مع العمى وصعوده إلى المنابر العلمية."
+                sampleContent: "سيرة ذاتية للأديب المصري طه حسين، يحكي فيها رحلته من القرية المصرية..."
             }, {
                 id: 6,
                 title: "موسوعة الفلسفة الحديثة",
                 author: "جماعة من الباحثين",
                 cover: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?w=300&h=400&fit=crop&crop=center",
                 buyUrl: "https://etsy.com/listing/philosophy-encyclopedia",
-                sampleContent: "هذه الموسوعة تغطي أهم المدارس الفلسفية من العصر الحديث، بدءاً من ديكارت وكانط وصولاً إلى الفلسفة الوجودية والتفكيكية."
+                sampleContent: "هذه الموسوعة تغطي أهم المدارس الفلسفية من العصر الحديث..."
             }];
 
             // ============================================================
@@ -454,13 +455,13 @@
             }, {
                 id: 6,
                 name: "نجيب محفوظ",
-                bio: "نجيب محفوظ (1911-2006)، روائي مصري، أول أديب عربي يحصل على جائزة نوبل في الأدب عام 1988. اشتهر بثلاثيته الشهيرة 'بين القصرين، قصر الشوق، السكرية'. كتب أكثر من 30 رواية وعدداً من المجموعات القصصية.",
+                bio: "نجيب محفوظ (1911-2006)، روائي مصري، أول أديب عربي يحصل على جائزة نوبل في الأدب عام 1988. اشتهر بثلاثيته الشهيرة 'بين القصرين، قصر الشوق، السكرية'.",
                 works: ["الثلاثية (بين القصرين، قصر الشوق، السكرية)", "أولاد حارتنا", "اللص والكلاب"],
                 image: "https://ui-avatars.com/api/?name=نجيب+محفوظ&size=80&background=1e293b&color=94a3b8"
             }];
 
             // ============================================================
-            // ===== دوال تنظيف النصوص العربية (ذكية) =====
+            // ===== دوال تنظيف النصوص العربية =====
             // ============================================================
             function cleanArabicText(text) {
                 if (!text) return "";
@@ -472,6 +473,7 @@
             }
 
             function cleanNameForLetter(name) {
+                if (!name) return '';
                 let clean = name.trim();
                 if (clean.startsWith("ال")) {
                     clean = clean.substring(2);
@@ -483,12 +485,13 @@
             }
 
             // ============================================================
-            // ===== دوال المؤلفين (شريط الحروف + الشبكة + المودال) =====
+            // ===== دوال المؤلفين =====
             // ============================================================
             let currentAuthorLetter = 'الكل';
 
             function generateAuthorAlphabetButtons() {
                 const container = document.getElementById('authorAlphabetContainer');
+                if (!container) return;
                 container.innerHTML = '';
                 const letters = getAlphabetLetters(currentLang);
                 const allLabel = (currentLang === 'ar') ? 'الكل' : 'ALL';
@@ -498,7 +501,9 @@
                 allBtn.className =
                     'author-letter-btn px-3 py-1 rounded-lg text-xs font-bold bg-sky-600 text-gray-950 shadow-md transition duration-200 active';
                 allBtn.dataset.letter = allLabel;
-                allBtn.addEventListener('click', function() { filterAuthorsByLetter(allLabel); });
+                allBtn.addEventListener('click', function() {
+                    filterAuthorsByLetter(allLabel);
+                });
                 container.appendChild(allBtn);
 
                 letters.forEach(letter => {
@@ -507,7 +512,9 @@
                     btn.className =
                         'author-letter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-700 hover:text-white transition duration-200';
                     btn.dataset.letter = letter;
-                    btn.addEventListener('click', function() { filterAuthorsByLetter(letter); });
+                    btn.addEventListener('click', function() {
+                        filterAuthorsByLetter(letter);
+                    });
                     container.appendChild(btn);
                 });
             }
@@ -530,11 +537,13 @@
 
             function renderAuthors() {
                 const grid = document.getElementById('authorsGrid');
+                if (!grid) return;
                 const allLabel = (currentLang === 'ar') ? 'الكل' : 'ALL';
 
                 const filtered = authorsData.filter(author => {
                     const firstChar = cleanNameForLetter(author.name);
-                    return (currentAuthorLetter === allLabel) || (firstChar === cleanArabicText(currentAuthorLetter));
+                    if (currentAuthorLetter === allLabel) return true;
+                    return firstChar === currentAuthorLetter;
                 });
 
                 if (filtered.length === 0) {
@@ -616,7 +625,7 @@
 
                     const bookFirstLetter = cleanTitle.charAt(0);
                     const matchesLetter = (currentSelectedLetter === allLabel) || (bookFirstLetter ===
-                    cleanArabicText(currentSelectedLetter));
+                    currentSelectedLetter);
 
                     return matchesSearch && matchesLetter;
                 });
@@ -625,7 +634,7 @@
             }
 
             // ============================================================
-            // بقية دوال التطبيق (المكتبة، البحث، الإحصائيات، إلخ)
+            // ===== دوال التطبيق الأساسية (مختصرة) =====
             // ============================================================
 
             // ---- المتغيرات العامة ----
@@ -691,10 +700,10 @@
             const translations = {
                 ar: {
                     searchLocalPrompt: "🔍 اكتب كلمة للبحث في مكتبتك",
-                    searchInternetPrompt: "🌐 اكتب كلمة للبحث على الإنترنت (كتب، كتب إلكترونية، مجلات)",
+                    searchInternetPrompt: "🌐 اكتب كلمة للبحث على الإنترنت",
                     searchLocalResult: (c) => `🔍 تم العثور على ${c} نتيجة في مكتبتك`,
                     searchInternetResult: (c, t) => `🌐 تم العثور على ${c} نتيجة (إجمالي ~${t})`,
-                    noInternetResults: "🌐 لا توجد نتائج متاحة لهذا البحث، حاول بكلمات أخرى.",
+                    noInternetResults: "🌐 لا توجد نتائج متاحة لهذا البحث",
                     noBooks: "لا توجد كتب لعرضها",
                     toastNoPDF: "⚠️ يرجى اختيار ملفات PDF فقط",
                     toastBookNotFound: "⚠️ الكتاب غير موجود في المكتبة",
@@ -702,7 +711,7 @@
                     toastDownloadFailed: (t) => `تعذر تحميل "${t}"، سيتم فتح الرابط.`,
                     toastFileEmpty: (t) => `⚠️ الملف "${t}" فارغ أو غير صالح.`,
                     toastAddedSuccess: (c) => `🎉 تمت إضافة ${c} كتاب بنجاح`,
-                    toastNoBooksAdded: "⚠️ لم تتم إضافة أي كتاب، تأكد من صحة الملفات",
+                    toastNoBooksAdded: "⚠️ لم تتم إضافة أي كتاب",
                     toastAddError: (n) => `❌ خطأ في "${n}": غير معروف`,
                     freePreview: "معاينة مجانية",
                     buyNow: "شراء وتحميل",
@@ -715,10 +724,10 @@
                 },
                 en: {
                     searchLocalPrompt: "🔍 Type a word to search in your library",
-                    searchInternetPrompt: "🌐 Type a word to search online (books, eBooks, magazines)",
+                    searchInternetPrompt: "🌐 Type a word to search online",
                     searchLocalResult: (c) => `🔍 Found ${c} results in your library`,
                     searchInternetResult: (c, t) => `🌐 Found ${c} results (total ~${t})`,
-                    noInternetResults: "🌐 No results available for this search, try other keywords.",
+                    noInternetResults: "🌐 No results available for this search",
                     noBooks: "No books to display",
                     toastNoPDF: "⚠️ Please select PDF files only",
                     toastBookNotFound: "⚠️ Book not found in library",
@@ -726,7 +735,7 @@
                     toastDownloadFailed: (t) => `Failed to download "${t}", will open link.`,
                     toastFileEmpty: (t) => `⚠️ File "${t}" is empty or invalid.`,
                     toastAddedSuccess: (c) => `🎉 Successfully added ${c} books`,
-                    toastNoBooksAdded: "⚠️ No books added, check file validity",
+                    toastNoBooksAdded: "⚠️ No books added",
                     toastAddError: (n) => `❌ Error in "${n}": unknown`,
                     freePreview: "Free Preview",
                     buyNow: "Buy & Download",
@@ -739,10 +748,10 @@
                 },
                 fr: {
                     searchLocalPrompt: "🔍 Tapez un mot pour chercher dans votre bibliothèque",
-                    searchInternetPrompt: "🌐 Tapez un mot pour chercher en ligne (livres, eBooks, magazines)",
+                    searchInternetPrompt: "🌐 Tapez un mot pour chercher en ligne",
                     searchLocalResult: (c) => `🔍 ${c} résultats trouvés dans votre bibliothèque`,
                     searchInternetResult: (c, t) => `🌐 ${c} résultats trouvés (total ~${t})`,
-                    noInternetResults: "🌐 Aucun résultat disponible pour cette recherche, essayez d'autres mots.",
+                    noInternetResults: "🌐 Aucun résultat disponible",
                     noBooks: "Aucun livre à afficher",
                     toastNoPDF: "⚠️ Veuillez sélectionner uniquement des fichiers PDF",
                     toastBookNotFound: "⚠️ Livre introuvable dans la bibliothèque",
@@ -750,11 +759,11 @@
                     toastDownloadFailed: (t) => `Échec du téléchargement de "${t}", ouverture du lien.`,
                     toastFileEmpty: (t) => `⚠️ Le fichier "${t}" est vide ou invalide.`,
                     toastAddedSuccess: (c) => `🎉 ${c} livres ajoutés avec succès`,
-                    toastNoBooksAdded: "⚠️ Aucun livre ajouté, vérifiez la validité des fichiers",
+                    toastNoBooksAdded: "⚠️ Aucun livre ajouté",
                     toastAddError: (n) => `❌ Erreur dans "${n}": inconnu`,
                     freePreview: "Aperçu gratuit",
                     buyNow: "Acheter et télécharger",
-                    sampleTitle: "Aperçu gratuit de l'échantillon",
+                    sampleTitle: "Aperçu gratuit",
                     buyNowTooltip: "Achetez le livre pour seulement 1 €",
                     clickToSearch: "Tapez un mot pour chercher en ligne",
                     loadingInternet: "Recherche en ligne...",
@@ -763,10 +772,10 @@
                 },
                 es: {
                     searchLocalPrompt: "🔍 Escribe una palabra para buscar en tu biblioteca",
-                    searchInternetPrompt: "🌐 Escribe una palabra para buscar en línea (libros, eBooks, revistas)",
+                    searchInternetPrompt: "🌐 Escribe una palabra para buscar en línea",
                     searchLocalResult: (c) => `🔍 Se encontraron ${c} resultados en tu biblioteca`,
                     searchInternetResult: (c, t) => `🌐 Se encontraron ${c} resultados (total ~${t})`,
-                    noInternetResults: "🌐 No hay resultados disponibles para esta búsqueda, prueba con otras palabras.",
+                    noInternetResults: "🌐 No hay resultados disponibles",
                     noBooks: "No hay libros para mostrar",
                     toastNoPDF: "⚠️ Selecciona solo archivos PDF",
                     toastBookNotFound: "⚠️ Libro no encontrado en la biblioteca",
@@ -774,11 +783,11 @@
                     toastDownloadFailed: (t) => `Fallo al descargar "${t}", se abrirá el enlace.`,
                     toastFileEmpty: (t) => `⚠️ El archivo "${t}" está vacío o es inválido.`,
                     toastAddedSuccess: (c) => `🎉 Se agregaron ${c} libros correctamente`,
-                    toastNoBooksAdded: "⚠️ No se agregaron libros, verifica la validez de los archivos",
+                    toastNoBooksAdded: "⚠️ No se agregaron libros",
                     toastAddError: (n) => `❌ Error en "${n}": desconocido`,
                     freePreview: "Vista previa gratuita",
                     buyNow: "Comprar y descargar",
-                    sampleTitle: "Vista previa de muestra gratuita",
+                    sampleTitle: "Vista previa gratuita",
                     buyNowTooltip: "Compre el libro por solo 1 €",
                     clickToSearch: "Escribe una palabra para buscar en línea",
                     loadingInternet: "Buscando en línea...",
@@ -787,10 +796,10 @@
                 },
                 de: {
                     searchLocalPrompt: "🔍 Geben Sie ein Wort ein, um in Ihrer Bibliothek zu suchen",
-                    searchInternetPrompt: "🌐 Geben Sie ein Wort ein, um online zu suchen (Bücher, eBooks, Zeitschriften)",
+                    searchInternetPrompt: "🌐 Geben Sie ein Wort ein, um online zu suchen",
                     searchLocalResult: (c) => `🔍 ${c} Ergebnisse in Ihrer Bibliothek gefunden`,
                     searchInternetResult: (c, t) => `🌐 ${c} Ergebnisse gefunden (gesamt ~${t})`,
-                    noInternetResults: "🌐 Keine Ergebnisse für diese Suche verfügbar, versuchen Sie andere Wörter.",
+                    noInternetResults: "🌐 Keine Ergebnisse für diese Suche verfügbar",
                     noBooks: "Keine Bücher zum Anzeigen",
                     toastNoPDF: "⚠️ Bitte wählen Sie nur PDF-Dateien aus",
                     toastBookNotFound: "⚠️ Buch nicht in der Bibliothek gefunden",
@@ -798,11 +807,11 @@
                     toastDownloadFailed: (t) => `Fehler beim Herunterladen von "${t}", Link wird geöffnet.`,
                     toastFileEmpty: (t) => `⚠️ Die Datei "${t}" ist leer oder ungültig.`,
                     toastAddedSuccess: (c) => `🎉 ${c} Bücher erfolgreich hinzugefügt`,
-                    toastNoBooksAdded: "⚠️ Keine Bücher hinzugefügt, überprüfen Sie die Gültigkeit der Dateien",
+                    toastNoBooksAdded: "⚠️ Keine Bücher hinzugefügt",
                     toastAddError: (n) => `❌ Fehler in "${n}": unbekannt`,
                     freePreview: "Kostenlose Vorschau",
                     buyNow: "Kaufen und herunterladen",
-                    sampleTitle: "Kostenlose Muster-Vorschau",
+                    sampleTitle: "Kostenlose Vorschau",
                     buyNowTooltip: "Kaufen Sie das Buch für nur 1 €",
                     clickToSearch: "Geben Sie ein Wort ein, um online zu suchen",
                     loadingInternet: "Suche online...",
@@ -840,12 +849,16 @@
                 document.dir = (lang === 'ar') ? 'rtl' : 'ltr';
                 document.documentElement.lang = lang;
                 document.getElementById('langSelect').value = lang;
+
                 generateAlphabetButtons();
                 generateAuthorAlphabetButtons();
+
                 const allLabel = (lang === 'ar') ? 'الكل' : 'ALL';
                 filterByLetter(allLabel);
                 filterAuthorsByLetter(allLabel);
+
                 updateUIStrings();
+
                 if (searchMode === 'local') {
                     if (searchInput.value.trim()) searchLocal(searchInput.value);
                     else renderLocalBooks();
@@ -859,6 +872,8 @@
                     }
                 }
                 executeCombinedFilter();
+                renderAuthors();
+
                 const storeInput = document.getElementById('storeSearchInput');
                 if (storeInput) storeInput.placeholder = t('storeSearchPlaceholder') || 'ابحث في المتجر...';
             }
@@ -1057,7 +1072,7 @@
                 paginationControls.style.display = 'none';
             }
 
-            // ---- البحث على الإنترنت (مختصر للغرض) ----
+            // ---- البحث على الإنترنت ----
             async function searchInternet(query, page = 1) {
                 booksGrid.innerHTML = '';
                 if (!query.trim()) {
@@ -1893,7 +1908,9 @@
                 }
             }
 
-            // ---- تهيئة التطبيق ----
+            // ============================================================
+            // ===== تهيئة التطبيق =====
+            // ============================================================
             function init() {
                 const preferred = getPreferredLanguage();
                 applyLanguage(preferred);
@@ -1982,6 +1999,7 @@
                     if (e.target === this) window.closeStoreReader();
                 });
 
+                // معالجة النصوص الغريبة من الرابط
                 const params = new URLSearchParams(location.search);
                 const q = params.get('q');
                 if (q && q.length < 50 && !q.startsWith('expl_') && /^[\u0600-\u06FFa-zA-Z0-9\s\-_,.]+$/.test(q)) {
@@ -1992,7 +2010,7 @@
                     setTimeout(doSearch, 500);
                 }
 
-                console.log('🌺 زهرة Zohra جاهزة! (مع دليل المؤلفين العرب)');
+                console.log('🌺 زهرة Zohra جاهزة! (تم إصلاح تصفية المؤلفين والكتب)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
