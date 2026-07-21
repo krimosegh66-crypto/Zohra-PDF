@@ -16,12 +16,175 @@
     </script>
 
     <style>
-        /* جميع التنسيقات السابقة، تم حذفها لتوفير المساحة ولكنها موجودة في الكود الكامل أدناه */
         body { font-family: 'Cairo', sans-serif; background: #111827; }
         .cyber-bg { background: radial-gradient(circle at 10% 20%, rgba(16,185,129,0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(14,165,233,0.05) 0%, transparent 40%), #111827; min-height: 100vh; }
         .glass-card { background: rgba(31,41,55,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(75,85,99,0.4); }
         .glass-card:hover { border-color: rgba(16,185,129,0.6); box-shadow: 0 10px 25px -5px rgba(16,185,129,0.2); }
-        /* ... باقي التنسيقات ... */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #1f2937; border-radius: 18px; max-width: 900px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; border: 1px solid #374151; overflow: hidden; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #374151; flex-shrink: 0; }
+        .modal-header h3 { font-weight: 400; color: #34d399; font-size: 1.1rem; }
+        .modal-header .close-modal { background: none; border: none; color: #9ca3af; font-size: 1.6rem; cursor: pointer; padding: 0 8px; transition: 0.2s; }
+        .modal-header .close-modal:hover { color: #f87171; transform: rotate(90deg); }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px 24px; background: #111827; }
+        .modal-body canvas { width: 100% !important; height: auto !important; border-radius: 4px; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+        .modal-footer { padding: 12px 24px; border-top: 1px solid #374151; display: flex; justify-content: space-between; color: #9ca3af; font-size: 0.8rem; flex-shrink: 0; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1f2937; border: 1px solid #374151; border-radius: 12px; padding: 14px 28px; color: #f3f4f6; font-size: 0.9rem; box-shadow: 0 8px 30px rgba(0,0,0,0.6); z-index: 2000; opacity: 0; transition: all 0.4s ease; pointer-events: none; max-width: 90%; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        .toast .toast-icon { margin-left: 10px; }
+        .loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(52,211,153,0.15); border-top-color: #34d399; border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .stats-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; font-size: 0.8rem; }
+        .stats-bar .stat-item { display: flex; align-items: center; gap: 0.3rem; background: rgba(31,41,55,0.6); padding: 0.15rem 0.7rem; border-radius: 30px; border: 1px solid #374151; }
+        .stats-bar .stat-item i { color: #34d399; }
+        .stats-bar .flag-img { width: 18px; height: 12px; border-radius: 2px; border: 1px solid #4b5563; }
+        .filter-chip { background: #1f2937; border: 1px solid #374151; color: #9ca3af; padding: 3px 14px; border-radius: 30px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+        .filter-chip:hover, .filter-chip.active { background: rgba(52,211,153,0.15); border-color: #34d399; color: #34d399; }
+        .filter-chip .count { background: rgba(52,211,153,0.2); border-radius: 20px; padding: 0 6px; font-size: 0.65rem; color: #34d399; }
+        .lang-selector select { background: #1f2937; color: #f3f4f6; border: 1px solid #4b5563; border-radius: 30px; padding: 0.15rem 0.7rem; font-size: 0.75rem; cursor: pointer; outline: none; }
+        .lang-selector select:hover { border-color: #34d399; }
+        .lang-selector select option { background: #1f2937; }
+        .upload-zone { border: 2px dashed #4b5563; transition: 0.3s; cursor: pointer; background: rgba(31,41,55,0.3); }
+        .upload-zone:hover { border-color: #34d399; background: rgba(52,211,153,0.05); }
+        .upload-zone.dragover { border-color: #34d399; background: rgba(52,211,153,0.1); }
+        .book-card-image { transition: transform 0.5s ease; }
+        .group:hover .book-card-image { transform: scale(1.05); }
+        .btn-download { background: linear-gradient(135deg, #059669, #0d9488); transition: 0.25s; }
+        .btn-download:hover { background: linear-gradient(135deg, #047857, #0f766e); box-shadow: 0 0 25px rgba(16,185,129,0.35); transform: translateY(-1px); }
+        .btn-preview { background: #374151; transition: 0.25s; }
+        .btn-preview:hover { background: #4b5563; }
+        .pagination button { transition: 0.2s; }
+        .pagination button:hover:not(:disabled) { background: #34d399; color: #111827; }
+        .pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .search-input { background: #1f2937; color: #f3f4f6; border: 1px solid #4b5563; }
+        .search-input:focus { outline: none; ring: 2px solid #34d399; border-color: #34d399; }
+        .hero-section { padding: 2rem 1rem 1.5rem; }
+        @media (max-width: 640px) { .hero-title { font-size: 1.8rem; } .hero-sub { font-size: 0.95rem; } }
+        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem; }
+        @media (max-width: 640px) { .book-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; } }
+        .mode-btn-active { background: #059669; color: #fff; }
+        .mode-btn-inactive { background: #374151; color: #9ca3af; }
+        .mode-btn-inactive:hover { background: #4b5563; color: #f3f4f6; }
+        .letter-btn { transition: 0.2s; font-family: 'Cairo', sans-serif; }
+        .letter-btn.active { background: #059669; color: #111827; font-weight: 700; box-shadow: 0 0 15px rgba(5,150,105,0.3); }
+        .letter-btn:not(.active):hover { background: #1f2937; color: #f3f4f6; }
+        .author-letter-btn { transition: 0.2s; font-family: 'Cairo', sans-serif; }
+        .author-letter-btn.active { background: #0284c7; color: #ffffff; font-weight: 700; box-shadow: 0 0 15px rgba(2,132,199,0.3); }
+        .author-letter-btn:not(.active):hover { background: #1f2937; color: #f3f4f6; }
+        .reader-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+        .reader-modal.active { display: flex; }
+        .reader-content { background: #1f2937; border-radius: 18px; max-width: 900px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; border: 1px solid #374151; overflow: hidden; }
+        .reader-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-bottom: 1px solid #374151; flex-shrink: 0; background: rgba(17,24,39,0.4); }
+        .reader-header h3 { font-weight: 600; color: #34d399; font-size: 1rem; line-clamp: 1; }
+        .reader-header .close-reader { background: none; border: none; color: #9ca3af; font-size: 1.4rem; cursor: pointer; padding: 0 8px; transition: 0.2s; background: rgba(55,65,81,0.5); border-radius: 10px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        .reader-header .close-reader:hover { color: #f87171; background: rgba(55,65,81,0.8); }
+        .reader-body { flex: 1; overflow-y: auto; padding: 24px; background: #ffffff; color: #1f2937; line-height: 1.8; }
+        .reader-body p { margin-bottom: 1rem; }
+        .animate-spin-slow { animation: spinSlow 6s linear infinite; }
+        @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .author-card { transition: 0.3s; cursor: pointer; }
+        .author-card:hover { transform: translateY(-4px); border-color: #0284c7; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .author-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; border: 2px solid #475569; overflow: hidden; }
+        .author-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ===== تنسيقات البحث متعدد المحركات (المدمج) ===== */
+        .multi-engine-section {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 1.2rem 1.2rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .multi-engine-section .engine-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px 14px;
+            padding: 10px 12px;
+            background: rgba(30,41,59,0.3);
+            border-radius: 14px;
+            border: 1px solid #1e293b;
+            margin-bottom: 12px;
+        }
+        .multi-engine-section .engine-grid label {
+            color: #cbd5e1;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .multi-engine-section .engine-grid label:hover { color: #f1f5f9; }
+        .multi-engine-section .engine-grid input[type="checkbox"] {
+            accent-color: #10b981;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+        .multi-engine-section .multi-status {
+            background: rgba(30,41,59,0.5);
+            border-radius: 12px;
+            padding: 10px 14px;
+            min-height: 44px;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            text-align: center;
+            line-height: 1.6;
+            transition: all 0.3s;
+        }
+        .multi-engine-section .multi-status .en { display: block; font-size: 0.7rem; color: #64748b; }
+        .multi-engine-section .multi-status.loading { border-color: #f59e0b; background: rgba(245,158,11,0.08); color: #fcd34d; }
+        .multi-engine-section .multi-footer {
+            margin-top: 10px;
+            font-size: 0.65rem;
+            color: #475569;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .multi-engine-section .multi-footer .en { display: block; color: #334155; }
+        .multi-engine-section .multi-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #f0f4f8;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .multi-engine-section .multi-title .sub-ar {
+            display: block;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .multi-engine-section .multi-desc {
+            text-align: center;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            line-height: 1.5;
+            font-size: 0.8rem;
+        }
+        .multi-engine-section .multi-desc .en { display: block; color: #64748b; font-size: 0.7rem; }
+        @media (max-width: 480px) {
+            .multi-engine-section { padding: 0.8rem 0.6rem; }
+            .multi-engine-section .engine-grid { gap: 4px 8px; padding: 6px 8px; }
+            .multi-engine-section .engine-grid label { font-size: 0.7rem; }
+        }
+
+        /* تنسيق النتائج الخارجية (Open Library + Google Books) */
+        .external-results-section { margin-top: 1.5rem; margin-bottom: 1.5rem; }
+        .external-results-title { display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.75rem; margin-bottom: 1rem; }
+        .external-results-title h2 { font-size: 1.1rem; font-weight: 700; color: #f3f4f6; }
+        .external-results-title h2 span { color: #34d399; }
+        .external-results-title i { color: #60a5fa; font-size: 1.2rem; }
         .external-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem; }
         .external-card { background: rgba(31,41,55,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(75,85,99,0.4); border-radius: 16px; padding: 1rem; transition: 0.3s; display: flex; flex-direction: column; }
         .external-card:hover { border-color: rgba(96,165,250,0.6); transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(96,165,250,0.15); }
@@ -35,11 +198,6 @@
         .external-card .actions .btn-download-ext:hover { background: #047857; }
         .external-card .actions .btn-preview-ext { background: #374151; color: #9ca3af; }
         .external-card .actions .btn-preview-ext:hover { background: #4b5563; color: #f3f4f6; }
-        .external-results-section { margin-top: 1.5rem; margin-bottom: 1.5rem; }
-        .external-results-title { display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.75rem; margin-bottom: 1rem; }
-        .external-results-title h2 { font-size: 1.1rem; font-weight: 700; color: #f3f4f6; }
-        .external-results-title h2 span { color: #34d399; }
-        .external-results-title i { color: #60a5fa; font-size: 1.2rem; }
         @media (max-width: 640px) { .external-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
     </style>
 </head>
@@ -137,7 +295,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- ===== 🌐 قسم نتائج البحث الخارجي ===== -->
+    <!-- ===== 🌐 قسم نتائج البحث الخارجي (مع نافذة المحركات المتعددة) ===== -->
     <!-- ============================================================ -->
     <div id="externalResultsSection" class="max-w-6xl mx-auto px-4 external-results-section hidden">
         <div class="external-results-title">
@@ -145,6 +303,35 @@
             <h2>🌐 نتائج البحث عن الكتب التي تبدأ بحرف <span id="externalLetterDisplay">أ</span></h2>
             <span class="text-xs text-gray-400 mr-auto" id="externalResultCount">0 كتاب</span>
         </div>
+
+        <!-- ===== نافذة البحث متعدد المحركات (المدمجة) ===== -->
+        <div class="multi-engine-section">
+            <div class="multi-title">
+                🔍 البحث العالمي في كتب الوقف
+                <span class="sub-ar">Multi‑Engine Waqf Book Search</span>
+            </div>
+            <div class="multi-desc">
+                اختر محركات البحث ثم اضغط على حرف لفتحها كلها دفعة واحدة.
+                <span class="en">Select engines, then click a letter to search all of them simultaneously.</span>
+            </div>
+
+            <!-- Engine selection (checkboxes) -->
+            <div class="engine-grid" id="engineGrid"></div>
+
+            <!-- Status -->
+            <div id="multiStatus" class="multi-status">
+                👆 اختر المحركات ثم اضغط على حرف.
+                <span class="en">Select engines, then click a letter.</span>
+            </div>
+
+            <div class="multi-footer">
+                🌐 يبحث في: waqfeya.com, al-mostafa.com, shamela.ws, library.islamweb.net,
+                islamic-books.com, awqaf.gov.ae, waqf.org.kw, archive.org
+                <span class="en">Searches across major international Waqf digital libraries</span>
+            </div>
+        </div>
+
+        <!-- ===== نتائج Open Library + Google Books ===== -->
         <div id="externalResultsGrid" class="external-grid">
             <!-- سيتم توليد البطاقات بواسطة الجافاسكريبت -->
         </div>
@@ -343,12 +530,163 @@
             window.triggerGlobalSearch = triggerGlobalSearch;
 
             // ============================================================
-            // ===== البحث الخارجي حسب الحرف (جلب وعرض في الصفحة) =====
+            // ===== بيانات محركات البحث للوقف (المدمجة) =====
+            // ============================================================
+            const WAQF_SITES = [
+                'waqfeya.com',
+                'al-mostafa.com',
+                'shamela.ws',
+                'library.islamweb.net',
+                'islamic-books.com',
+                'awqaf.gov.ae',
+                'waqf.org.kw',
+                'archive.org'
+            ];
+
+            const ENGINES = [
+                { name: 'Google', url: 'https://www.google.com/search', param: 'q' },
+                { name: 'Bing', url: 'https://www.bing.com/search', param: 'q' },
+                { name: 'Yandex', url: 'https://yandex.com/search', param: 'text' },
+                { name: 'Baidu', url: 'https://www.baidu.com/s', param: 'wd' },
+                { name: 'Yahoo', url: 'https://search.yahoo.com/search', param: 'p' },
+                { name: 'DuckDuckGo', url: 'https://duckduckgo.com', param: 'q' },
+                { name: 'Ecosia', url: 'https://www.ecosia.org/search', param: 'q' },
+                { name: 'Brave Search', url: 'https://search.brave.com/search', param: 'q' },
+                { name: 'Startpage', url: 'https://www.startpage.com/sp/search', param: 'query' },
+                { name: 'Qwant', url: 'https://www.qwant.com', param: 'q' },
+                { name: 'Naver', url: 'https://search.naver.com/search.naver', param: 'query' },
+                { name: 'Seznam', url: 'https://search.seznam.cz', param: 'q' },
+                { name: 'ASK', url: 'https://www.ask.com/web', param: 'q' },
+                { name: 'AOL', url: 'https://search.aol.com/aol/search', param: 'q' },
+                { name: 'Wolfram Alpha', url: 'https://www.wolframalpha.com/input', param: 'i' }
+            ];
+
+            // ============================================================
+            // ===== دوال نافذة البحث متعدد المحركات =====
+            // ============================================================
+            const EN_TO_AR = {
+                'A': 'أ|آ|إ|ا', 'B': 'ب', 'C': 'س|ك', 'D': 'د|ض',
+                'E': 'ع', 'F': 'ف', 'G': 'غ|گ', 'H': 'ه|ح',
+                'I': 'ي|ى', 'J': 'ج', 'K': 'ك', 'L': 'ل',
+                'M': 'م', 'N': 'ن', 'O': 'و', 'P': 'ب',
+                'Q': 'ق', 'R': 'ر', 'S': 'س|ص', 'T': 'ت|ط',
+                'U': 'و', 'V': 'ف', 'W': 'و', 'X': 'س|خ',
+                'Y': 'ي', 'Z': 'ز|ظ'
+            };
+            const AR_TO_EN = {
+                'أ': 'A', 'ا': 'A', 'آ': 'A', 'إ': 'A',
+                'ب': 'B', 'ت': 'T', 'ث': 'TH', 'ج': 'J',
+                'ح': 'H', 'خ': 'KH', 'د': 'D', 'ذ': 'Z',
+                'ر': 'R', 'ز': 'Z', 'س': 'S', 'ش': 'SH',
+                'ص': 'S', 'ض': 'D', 'ط': 'T', 'ظ': 'Z',
+                'ع': 'E', 'غ': 'G', 'ف': 'F', 'ق': 'Q',
+                'ك': 'K', 'ل': 'L', 'م': 'M', 'ن': 'N',
+                'ه': 'H', 'و': 'W', 'ي': 'Y'
+            };
+            const ARABIC_LETTERS = ['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ',
+                'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي'
+            ];
+
+            const lang = navigator.language || navigator.languages[0] || 'en';
+            const isArabicScript = ['ar', 'fa', 'ur', 'ku', 'ps', 'sd'].some(l => lang.startsWith(l));
+
+            let letterData = [];
+            if (isArabicScript) {
+                letterData = ARABIC_LETTERS.map(ar => ({ display: ar, search: ar, counterpart: AR_TO_EN[ar] || ar }));
+            } else {
+                const english = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+                letterData = english.map(en => ({ display: en, search: en, counterpart: EN_TO_AR[en] || en }));
+            }
+
+            // ============================================================
+            // ===== دوال البحث متعدد المحركات =====
+            // ============================================================
+            function buildSearchQuery(letterObj) {
+                const primary = letterObj.search;
+                const secondary = letterObj.counterpart;
+                let titleCondition = `intitle:"${primary}"`;
+                if (secondary && secondary !== primary) {
+                    const variants = secondary.split('|');
+                    if (variants.length > 1) {
+                        const variantConditions = variants.map(v => `intitle:"${v}"`).join(' OR ');
+                        titleCondition = `(${titleCondition} OR ${variantConditions})`;
+                    } else {
+                        titleCondition = `(${titleCondition} OR intitle:"${secondary}")`;
+                    }
+                }
+                const contextTerms = '(كتاب OR book OR وقف OR endowment OR مخطوطة OR manuscript)';
+                const siteRestriction = WAQF_SITES.map(s => `site:${s}`).join(' OR ');
+                return `${titleCondition} ${contextTerms} ${siteRestriction}`;
+            }
+
+            function getSearchUrl(query, engineName) {
+                const engine = ENGINES.find(e => e.name === engineName);
+                if (!engine) return null;
+                const url = new URL(engine.url);
+                url.searchParams.set(engine.param, query);
+                return url.toString();
+            }
+
+            function performMultiSearch(letterObj) {
+                if (!letterObj) return;
+                const checkboxes = document.querySelectorAll('#engineGrid input[type="checkbox"]:checked');
+                const selectedEngines = Array.from(checkboxes).map(cb => cb.value);
+
+                const statusEl = document.getElementById('multiStatus');
+                if (selectedEngines.length === 0) {
+                    statusEl.className = 'multi-status';
+                    statusEl.innerHTML =
+                        `⚠️ الرجاء اختيار محرك بحث واحد على الأقل. <span class="en">Please select at least one engine.</span>`;
+                    return;
+                }
+
+                const displayLetter = letterObj.display;
+                const query = buildSearchQuery(letterObj);
+
+                statusEl.className = 'multi-status loading';
+                statusEl.innerHTML =
+                    `🔎 جاري فتح ${selectedEngines.length} محرك بحث لحرف "${displayLetter}" ... <span class="en">Opening ${selectedEngines.length} search engines for "${displayLetter}" ...</span>`;
+
+                let opened = 0;
+                selectedEngines.forEach(engineName => {
+                    const url = getSearchUrl(query, engineName);
+                    if (url) {
+                        window.open(url, '_blank');
+                        opened++;
+                    }
+                });
+
+                setTimeout(() => {
+                    statusEl.className = 'multi-status';
+                    statusEl.innerHTML =
+                        `✅ تم فتح ${opened} محرك بحث لحرف "${displayLetter}". <span class="en">Opened ${opened} search engines for "${displayLetter}".</span>`;
+                }, 2000);
+            }
+
+            // ============================================================
+            // ===== توليد خانات المحركات =====
+            // ============================================================
+            function generateEngineCheckboxes() {
+                const grid = document.getElementById('engineGrid');
+                grid.innerHTML = '';
+                ENGINES.forEach((engine, index) => {
+                    const label = document.createElement('label');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = engine.name;
+                    checkbox.checked = index < 5;
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(engine.name));
+                    grid.appendChild(label);
+                });
+            }
+
+            // ============================================================
+            // ===== البحث الخارجي حسب الحرف (Open Library + Google Books) =====
             // ============================================================
             let currentExternalLetter = 'أ';
 
             async function searchExternalBooks(letter) {
-                // تنظيف الحرف للمقارنة
                 const cleanLetter = cleanArabicText(letter);
                 currentExternalLetter = letter;
 
@@ -359,7 +697,6 @@
                 const letterDisplay = document.getElementById('externalLetterDisplay');
                 const countDisplay = document.getElementById('externalResultCount');
 
-                // إظهار القسم وتحديث العنوان
                 section.classList.remove('hidden');
                 letterDisplay.textContent = letter;
                 loading.classList.remove('hidden');
@@ -369,7 +706,7 @@
 
                 let allResults = [];
 
-                // 1. Open Library (بحث بالحرف)
+                // 1. Open Library
                 try {
                     const olUrl =
                         `https://openlibrary.org/search.json?q=title:${encodeURIComponent(cleanLetter)}*&limit=40`;
@@ -395,14 +732,10 @@
                                 source: 'Open Library'
                             });
                         }
-                    } else {
-                        console.warn('Open Library responded with status:', resp.status);
                     }
-                } catch (e) {
-                    console.warn('Open Library error:', e);
-                }
+                } catch (e) { console.warn('Open Library error:', e); }
 
-                // 2. Google Books (بحث بالحرف)
+                // 2. Google Books
                 try {
                     const gbUrl =
                         `https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(cleanLetter)}&maxResults=30&filter=free-ebooks`;
@@ -433,12 +766,8 @@
                                 source: 'Google Books'
                             });
                         }
-                    } else {
-                        console.warn('Google Books responded with status:', resp.status);
                     }
-                } catch (e) {
-                    console.warn('Google Books error:', e);
-                }
+                } catch (e) { console.warn('Google Books error:', e); }
 
                 // إزالة التكرارات
                 const seen = new Set();
@@ -463,7 +792,6 @@
                     return;
                 }
 
-                // عرض النتائج
                 countDisplay.textContent = `${unique.length} كتاب`;
                 renderExternalResults(unique);
             }
@@ -489,7 +817,7 @@
             }
 
             // ============================================================
-            // ===== بيانات المتجر والمؤلفين (كما هي) =====
+            // ===== بيانات المتجر والمؤلفين =====
             // ============================================================
             const storeBooks = [{
                 id: 1,
@@ -639,6 +967,7 @@
                 allBtn.dataset.letter = allLabel;
                 allBtn.addEventListener('click', function() {
                     filterLocalBooks(allLabel);
+                    // لا نقوم بالبحث الخارجي لزر الكل
                 });
                 container.appendChild(allBtn);
 
@@ -650,8 +979,19 @@
                         'letter-btn px-2.5 py-1 rounded-lg text-xs font-medium text-gray-400 hover:bg-gray-700 hover:text-white transition duration-200';
                     btn.dataset.letter = letter;
                     btn.addEventListener('click', function() {
+                        // 1. تصفية الكتب المحلية
                         filterLocalBooks(letter);
+                        // 2. البحث الخارجي (Open Library + Google Books)
                         searchExternalBooks(letter);
+                        // 3. البحث متعدد المحركات (الوقف)
+                        const letterObj = letterData.find(l => l.display === letter);
+                        if (letterObj) {
+                            performMultiSearch(letterObj);
+                        } else {
+                            // إذا لم نجد تطابقاً، نبحث عن الحرف في letterData
+                            const fallback = letterData.find(l => l.search === cleanArabicText(letter));
+                            if (fallback) performMultiSearch(fallback);
+                        }
                     });
                     container.appendChild(btn);
                 });
@@ -1121,6 +1461,7 @@
 
                 generateAlphabetButtons();
                 generateAuthorAlphabetButtons();
+                generateEngineCheckboxes();
 
                 const allLabel = (lang === 'ar') ? 'الكل' : 'ALL';
                 filterLocalBooks(allLabel);
@@ -2061,6 +2402,8 @@
 
                 generateAlphabetButtons();
                 generateAuthorAlphabetButtons();
+                generateEngineCheckboxes();
+
                 loadBooks();
                 renderStore(storeBooks);
                 renderAuthors();
@@ -2155,7 +2498,7 @@
                     searchExternalBooks('أ');
                 }, 600);
 
-                console.log('🌺 زهرة Zohra جاهزة! (بحث خارجي حسب الحرف - تم الإصلاح)');
+                console.log('🌺 زهرة Zohra جاهزة! (مع نافذة البحث متعدد المحركات)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -2174,6 +2517,7 @@
             window.triggerGlobalSearch = triggerGlobalSearch;
             window.executeCombinedFilter = executeCombinedFilter;
             window.searchExternalBooks = searchExternalBooks;
+            window.performMultiSearch = performMultiSearch;
 
         })();
     </script>
