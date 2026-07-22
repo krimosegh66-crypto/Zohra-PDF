@@ -16,6 +16,7 @@
     </script>
 
     <style>
+        /* جميع التنسيقات السابقة مع إضافة تنسيقات جديدة لبطاقات المحركات */
         body { font-family: 'Cairo', sans-serif; background: #111827; }
         .cyber-bg { background: radial-gradient(circle at 10% 20%, rgba(16,185,129,0.05) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(14,165,233,0.05) 0%, transparent 40%), #111827; min-height: 100vh; }
         .glass-card { background: rgba(31,41,55,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(75,85,99,0.4); }
@@ -88,7 +89,7 @@
         .author-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; border: 2px solid #475569; overflow: hidden; }
         .author-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ===== تنسيقات البحث متعدد المحركات (المدمج) ===== */
+        /* ===== تنسيقات البحث متعدد المحركات ===== */
         .multi-engine-section {
             background: rgba(255,255,255,0.04);
             backdrop-filter: blur(12px);
@@ -173,14 +174,62 @@
             font-size: 0.8rem;
         }
         .multi-engine-section .multi-desc .en { display: block; color: #64748b; font-size: 0.7rem; }
-        @media (max-width: 480px) {
-            .multi-engine-section { padding: 0.8rem 0.6rem; }
-            .multi-engine-section .engine-grid { gap: 4px 8px; padding: 6px 8px; }
-            .multi-engine-section .engine-grid label { font-size: 0.7rem; }
+
+        /* ===== تنسيق شبكة نتائج محركات البحث ===== */
+        .engine-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        .engine-result-card {
+            background: rgba(30,41,59,0.5);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 0.6rem 0.8rem;
+            text-align: center;
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+        .engine-result-card:hover {
+            border-color: #10b981;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16,185,129,0.12);
+        }
+        .engine-result-card .engine-icon {
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .engine-result-card .engine-name {
+            color: #e2e8f0;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .engine-result-card .engine-query {
+            color: #64748b;
+            font-size: 0.6rem;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+        .engine-result-card .btn-open-engine {
+            margin-top: 4px;
+            padding: 2px 12px;
+            border-radius: 20px;
+            background: rgba(16,185,129,0.15);
+            color: #34d399;
+            border: 1px solid rgba(16,185,129,0.2);
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .engine-result-card .btn-open-engine:hover {
+            background: #10b981;
+            color: #0b1120;
         }
 
-        /* تنسيق النتائج الخارجية (Open Library + Google Books) */
-        .external-results-section { margin-top: 1.5rem; margin-bottom: 1.5rem; }
+        /* ===== تنسيق النتائج الخارجية ===== */
+        .external-results-section { margin-top: 1rem; margin-bottom: 1rem; }
         .external-results-title { display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.75rem; margin-bottom: 1rem; }
         .external-results-title h2 { font-size: 1.1rem; font-weight: 700; color: #f3f4f6; }
         .external-results-title h2 span { color: #34d399; }
@@ -199,6 +248,12 @@
         .external-card .actions .btn-preview-ext { background: #374151; color: #9ca3af; }
         .external-card .actions .btn-preview-ext:hover { background: #4b5563; color: #f3f4f6; }
         @media (max-width: 640px) { .external-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
+        @media (max-width: 480px) {
+            .multi-engine-section { padding: 0.8rem 0.6rem; }
+            .multi-engine-section .engine-grid { gap: 4px 8px; padding: 6px 8px; }
+            .multi-engine-section .engine-grid label { font-size: 0.7rem; }
+            .engine-results-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
     </style>
 </head>
 <body class="cyber-bg text-gray-100 min-h-screen antialiased">
@@ -297,22 +352,22 @@
     <!-- ============================================================ -->
     <!-- ===== 🌐 قسم نتائج البحث الخارجي (مع نافذة المحركات المتعددة) ===== -->
     <!-- ============================================================ -->
-    <div id="externalResultsSection" class="max-w-6xl mx-auto px-4 external-results-section hidden">
+    <div id="externalResultsSection" class="max-w-6xl mx-auto px-4 external-results-section">
         <div class="external-results-title">
             <i class="fa-solid fa-globe"></i>
             <h2>🌐 نتائج البحث عن الكتب التي تبدأ بحرف <span id="externalLetterDisplay">أ</span></h2>
-            <span class="text-xs text-gray-400 mr-auto" id="externalResultCount">0 كتاب</span>
+            <span class="text-xs text-gray-400 mr-auto" id="externalResultCount">اختر حرفاً للبحث</span>
         </div>
 
-        <!-- ===== نافذة البحث متعدد المحركات (المدمجة) ===== -->
+        <!-- ===== نافذة البحث متعدد المحركات (الوقف) ===== -->
         <div class="multi-engine-section">
             <div class="multi-title">
                 🔍 البحث العالمي في كتب الوقف
                 <span class="sub-ar">Multi‑Engine Waqf Book Search</span>
             </div>
             <div class="multi-desc">
-                اختر محركات البحث ثم اضغط على حرف لفتحها كلها دفعة واحدة.
-                <span class="en">Select engines, then click a letter to search all of them simultaneously.</span>
+                اختر محركات البحث ثم اضغط على حرف لعرض روابط البحث على الصفحة.
+                <span class="en">Select engines, then click a letter to see search links on the page.</span>
             </div>
 
             <!-- Engine selection (checkboxes) -->
@@ -324,6 +379,11 @@
                 <span class="en">Select engines, then click a letter.</span>
             </div>
 
+            <!-- ===== شبكة روابط محركات البحث (تظهر عند البحث) ===== -->
+            <div id="engineResultsGrid" class="engine-results-grid" style="display:none;">
+                <!-- يتم توليد بطاقات المحركات هنا -->
+            </div>
+
             <div class="multi-footer">
                 🌐 يبحث في: waqfeya.com, al-mostafa.com, shamela.ws, library.islamweb.net,
                 islamic-books.com, awqaf.gov.ae, waqf.org.kw, archive.org
@@ -332,9 +392,7 @@
         </div>
 
         <!-- ===== نتائج Open Library + Google Books ===== -->
-        <div id="externalResultsGrid" class="external-grid">
-            <!-- سيتم توليد البطاقات بواسطة الجافاسكريبت -->
-        </div>
+        <div id="externalResultsGrid" class="external-grid"></div>
         <div id="externalLoading" class="flex items-center justify-center gap-3 text-gray-400 py-8 hidden">
             <span class="loading-spinner"></span>
             <span>جاري البحث عن الكتب في المحركات العالمية...</span>
@@ -530,7 +588,7 @@
             window.triggerGlobalSearch = triggerGlobalSearch;
 
             // ============================================================
-            // ===== بيانات محركات البحث للوقف (المدمجة) =====
+            // ===== بيانات محركات البحث للوقف =====
             // ============================================================
             const WAQF_SITES = [
                 'waqfeya.com',
@@ -544,25 +602,39 @@
             ];
 
             const ENGINES = [
-                { name: 'Google', url: 'https://www.google.com/search', param: 'q' },
-                { name: 'Bing', url: 'https://www.bing.com/search', param: 'q' },
-                { name: 'Yandex', url: 'https://yandex.com/search', param: 'text' },
-                { name: 'Baidu', url: 'https://www.baidu.com/s', param: 'wd' },
-                { name: 'Yahoo', url: 'https://search.yahoo.com/search', param: 'p' },
-                { name: 'DuckDuckGo', url: 'https://duckduckgo.com', param: 'q' },
-                { name: 'Ecosia', url: 'https://www.ecosia.org/search', param: 'q' },
-                { name: 'Brave Search', url: 'https://search.brave.com/search', param: 'q' },
-                { name: 'Startpage', url: 'https://www.startpage.com/sp/search', param: 'query' },
-                { name: 'Qwant', url: 'https://www.qwant.com', param: 'q' },
-                { name: 'Naver', url: 'https://search.naver.com/search.naver', param: 'query' },
-                { name: 'Seznam', url: 'https://search.seznam.cz', param: 'q' },
-                { name: 'ASK', url: 'https://www.ask.com/web', param: 'q' },
-                { name: 'AOL', url: 'https://search.aol.com/aol/search', param: 'q' },
-                { name: 'Wolfram Alpha', url: 'https://www.wolframalpha.com/input', param: 'i' }
+                { name: 'Google', url: 'https://www.google.com/search', param: 'q', icon: 'fa-brands fa-google',
+                    color: '#ea4335' },
+                { name: 'Bing', url: 'https://www.bing.com/search', param: 'q', icon: 'fa-brands fa-bing',
+                    color: '#00a4ef' },
+                { name: 'Yandex', url: 'https://yandex.com/search', param: 'text', icon: 'fa-brands fa-yandex',
+                    color: '#ff3333' },
+                { name: 'Baidu', url: 'https://www.baidu.com/s', param: 'wd', icon: 'fa-brands fa-baidu',
+                    color: '#2932e1' },
+                { name: 'Yahoo', url: 'https://search.yahoo.com/search', param: 'p', icon: 'fa-brands fa-yahoo',
+                    color: '#7b0099' },
+                { name: 'DuckDuckGo', url: 'https://duckduckgo.com', param: 'q', icon: 'fa-solid fa-duck',
+                    color: '#de5833' },
+                { name: 'Ecosia', url: 'https://www.ecosia.org/search', param: 'q', icon: 'fa-solid fa-tree',
+                    color: '#57ae5a' },
+                { name: 'Brave Search', url: 'https://search.brave.com/search', param: 'q', icon: 'fa-solid fa-shield-halved',
+                    color: '#fb542b' },
+                { name: 'Startpage', url: 'https://www.startpage.com/sp/search', param: 'query', icon: 'fa-solid fa-lock',
+                    color: '#4caf50' },
+                { name: 'Qwant', url: 'https://www.qwant.com', param: 'q', icon: 'fa-solid fa-quote-left',
+                    color: '#4c8fe0' },
+                { name: 'Naver', url: 'https://search.naver.com/search.naver', param: 'query', icon: 'fa-solid fa-n',
+                    color: '#03c75a' },
+                { name: 'Seznam', url: 'https://search.seznam.cz', param: 'q', icon: 'fa-solid fa-s', color: '#004b93' },
+                { name: 'ASK', url: 'https://www.ask.com/web', param: 'q', icon: 'fa-solid fa-circle-question',
+                    color: '#e74c3c' },
+                { name: 'AOL', url: 'https://search.aol.com/aol/search', param: 'q', icon: 'fa-brands fa-aol',
+                    color: '#ff9900' },
+                { name: 'Wolfram Alpha', url: 'https://www.wolframalpha.com/input', param: 'i', icon: 'fa-solid fa-sigma',
+                    color: '#d97b2a' }
             ];
 
             // ============================================================
-            // ===== دوال نافذة البحث متعدد المحركات =====
+            // ===== دوال نافذة البحث متعدد المحركات (تعرض روابط على الصفحة) =====
             // ============================================================
             const EN_TO_AR = {
                 'A': 'أ|آ|إ|ا', 'B': 'ب', 'C': 'س|ك', 'D': 'د|ض',
@@ -599,7 +671,7 @@
             }
 
             // ============================================================
-            // ===== دوال البحث متعدد المحركات =====
+            // ===== دوال البحث متعدد المحركات (عرض روابط على الصفحة) =====
             // ============================================================
             function buildSearchQuery(letterObj) {
                 const primary = letterObj.search;
@@ -633,10 +705,13 @@
                 const selectedEngines = Array.from(checkboxes).map(cb => cb.value);
 
                 const statusEl = document.getElementById('multiStatus');
+                const resultsGrid = document.getElementById('engineResultsGrid');
+
                 if (selectedEngines.length === 0) {
                     statusEl.className = 'multi-status';
                     statusEl.innerHTML =
                         `⚠️ الرجاء اختيار محرك بحث واحد على الأقل. <span class="en">Please select at least one engine.</span>`;
+                    resultsGrid.style.display = 'none';
                     return;
                 }
 
@@ -645,22 +720,33 @@
 
                 statusEl.className = 'multi-status loading';
                 statusEl.innerHTML =
-                    `🔎 جاري فتح ${selectedEngines.length} محرك بحث لحرف "${displayLetter}" ... <span class="en">Opening ${selectedEngines.length} search engines for "${displayLetter}" ...</span>`;
+                    `🔎 جاري إنشاء روابط البحث لـ ${selectedEngines.length} محرك بحث لحرف "${displayLetter}" ... <span class="en">Generating search links for ${selectedEngines.length} engines for "${displayLetter}" ...</span>`;
 
-                let opened = 0;
+                // بناء بطاقات المحركات
+                let cardsHtml = '';
                 selectedEngines.forEach(engineName => {
+                    const engine = ENGINES.find(e => e.name === engineName);
                     const url = getSearchUrl(query, engineName);
                     if (url) {
-                        window.open(url, '_blank');
-                        opened++;
+                        cardsHtml += `
+                                <div class="engine-result-card" onclick="window.open('${url}', '_blank')">
+                                    <span class="engine-icon"><i class="${engine.icon}" style="color:${engine.color};"></i></span>
+                                    <div class="engine-name">${engineName}</div>
+                                    <div class="engine-query">${decodeURIComponent(query).substring(0, 50)}...</div>
+                                    <button class="btn-open-engine" onclick="event.stopPropagation(); window.open('${url}', '_blank');">🔍 بحث</button>
+                                </div>
+                            `;
                     }
                 });
+
+                resultsGrid.innerHTML = cardsHtml;
+                resultsGrid.style.display = 'grid';
 
                 setTimeout(() => {
                     statusEl.className = 'multi-status';
                     statusEl.innerHTML =
-                        `✅ تم فتح ${opened} محرك بحث لحرف "${displayLetter}". <span class="en">Opened ${opened} search engines for "${displayLetter}".</span>`;
-                }, 2000);
+                        `✅ تم إنشاء ${selectedEngines.length} رابط بحث لحرف "${displayLetter}". اضغط على أي بطاقة للبحث. <span class="en">Created ${selectedEngines.length} search links for "${displayLetter}". Click any card to search.</span>`;
+                }, 800);
             }
 
             // ============================================================
@@ -697,7 +783,7 @@
                 const letterDisplay = document.getElementById('externalLetterDisplay');
                 const countDisplay = document.getElementById('externalResultCount');
 
-                section.classList.remove('hidden');
+                // إظهار القسم (ليس مخفياً)
                 letterDisplay.textContent = letter;
                 loading.classList.remove('hidden');
                 error.classList.add('hidden');
@@ -959,7 +1045,6 @@
                 const letters = getAlphabetLetters(currentLang);
                 const allLabel = (currentLang === 'ar') ? 'الكل' : 'ALL';
 
-                // زر الكل
                 const allBtn = document.createElement('button');
                 allBtn.innerText = (currentLang === 'ar') ? 'الكل' : 'All';
                 allBtn.className =
@@ -967,11 +1052,9 @@
                 allBtn.dataset.letter = allLabel;
                 allBtn.addEventListener('click', function() {
                     filterLocalBooks(allLabel);
-                    // لا نقوم بالبحث الخارجي لزر الكل
                 });
                 container.appendChild(allBtn);
 
-                // باقي الحروف
                 letters.forEach(letter => {
                     const btn = document.createElement('button');
                     btn.innerText = letter;
@@ -983,12 +1066,11 @@
                         filterLocalBooks(letter);
                         // 2. البحث الخارجي (Open Library + Google Books)
                         searchExternalBooks(letter);
-                        // 3. البحث متعدد المحركات (الوقف)
+                        // 3. البحث متعدد المحركات (الوقف) - يعرض روابط على الصفحة
                         const letterObj = letterData.find(l => l.display === letter);
                         if (letterObj) {
                             performMultiSearch(letterObj);
                         } else {
-                            // إذا لم نجد تطابقاً، نبحث عن الحرف في letterData
                             const fallback = letterData.find(l => l.search === cleanArabicText(letter));
                             if (fallback) performMultiSearch(fallback);
                         }
@@ -1298,6 +1380,7 @@
             const modalBookTitle = $('#modalBookTitle');
             const storeViewerContent = $('#storeViewerContent');
             const alphabetContainer = $('#alphabetContainer');
+            const engineResultsGrid = $('#engineResultsGrid');
 
             let pdfjsLib = window.pdfjsLib;
             if (pdfjsLib) {
@@ -2498,7 +2581,7 @@
                     searchExternalBooks('أ');
                 }, 600);
 
-                console.log('🌺 زهرة Zohra جاهزة! (مع نافذة البحث متعدد المحركات)');
+                console.log('🌺 زهرة Zohra جاهزة! (نتائج البحث تعرض على الصفحة)');
             }
 
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
